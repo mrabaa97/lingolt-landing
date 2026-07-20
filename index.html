@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LingoLT — تعلّم اللغة الليتوانية</title>
+<meta name="description" content="LingoLT: تطبيق لتعلّم اللغة الليتوانية بالعربية والإنجليزية — 20 مستوى من A1 إلى B2، تحدٍّ يومي، امتحانات، وبنك كلمات بالصوت. Learn Lithuanian in Arabic & English." />
+<style>
+  :root {
+    --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
+    --ink: #1c2320; --muted: #5b6b63; --line: #e3ede8; --amber: #d97706;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif;
+    color: var(--ink); background: #fff; line-height: 1.7;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 22px; }
+
+  /* header */
+  header {
+    position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.92);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-size: 1.45rem; font-weight: 800; color: var(--green); text-decoration: none; }
+  .logo span { color: var(--amber); }
+  .lang-btn {
+    border: 1.5px solid var(--green); color: var(--green); background: #fff;
+    border-radius: 999px; padding: 6px 18px; font-size: .95rem; font-weight: 700;
+    cursor: pointer; transition: .2s;
+  }
+  .lang-btn:hover { background: var(--green); color: #fff; }
+
+  /* hero */
+  .hero { background: linear-gradient(180deg, var(--green-bg) 0%, #fff 100%); padding: 72px 0 56px; text-align: center; }
+  .flag { font-size: 3rem; }
+  .hero h1 { font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 800; margin: 12px 0 10px; }
+  .hero h1 em { color: var(--green); font-style: normal; }
+  .hero p.sub { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto 30px; }
+  .cta {
+    display: inline-block; background: var(--green); color: #fff; text-decoration: none;
+    padding: 15px 34px; border-radius: 14px; font-size: 1.1rem; font-weight: 800;
+    box-shadow: 0 8px 22px rgba(29,158,117,.28); transition: .2s;
+  }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(29,158,117,.34); }
+  .cta-note { margin-top: 12px; font-size: .9rem; color: var(--muted); }
+
+  /* stats */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 14px; margin: -26px auto 0; }
+  .stat {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 10px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.04);
+  }
+  .stat b { display: block; font-size: 1.6rem; color: var(--green); }
+  .stat span { font-size: .92rem; color: var(--muted); }
+
+  /* sections */
+  section { padding: 64px 0; }
+  h2.sec { font-size: 1.7rem; font-weight: 800; text-align: center; margin-bottom: 8px; }
+  p.sec-sub { text-align: center; color: var(--muted); margin-bottom: 38px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 18px; }
+  .card {
+    border: 1px solid var(--line); border-radius: 18px; padding: 24px;
+    background: #fff; transition: .2s;
+  }
+  .card:hover { border-color: var(--green); box-shadow: 0 8px 20px rgba(29,158,117,.10); }
+  .card .ico { font-size: 1.9rem; }
+  .card h3 { font-size: 1.12rem; margin: 10px 0 6px; }
+  .card p { font-size: .95rem; color: var(--muted); }
+
+  /* screenshots */
+  .shots { background: #fff; }
+  .shots-strip {
+    display: flex; gap: 18px; overflow-x: auto; padding: 8px 4px 18px;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  }
+  .shot {
+    flex: 0 0 auto; width: 230px; scroll-snap-align: center;
+    border-radius: 26px; border: 6px solid #1c2320; overflow: hidden;
+    box-shadow: 0 12px 28px rgba(0,0,0,.14); background: #1c2320;
+  }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot-cap { text-align: center; font-size: .85rem; color: var(--muted); padding: 8px 0 2px; background: #fff; }
+
+  /* stages */
+  .stages { background: var(--green-bg); }
+  .stage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 18px; }
+  .stage {
+    background: #fff; border-radius: 18px; padding: 22px; border-top: 5px solid var(--green);
+  }
+  .stage .tag {
+    display: inline-block; background: var(--green); color: #fff; font-weight: 800;
+    border-radius: 8px; padding: 2px 12px; font-size: .95rem; margin-bottom: 10px;
+  }
+  .stage h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .stage p { font-size: .9rem; color: var(--muted); }
+
+  /* steps */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 18px; counter-reset: step; }
+  .step { text-align: center; padding: 18px; }
+  .step .n {
+    width: 46px; height: 46px; border-radius: 50%; background: var(--green); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800;
+    font-size: 1.2rem; margin: 0 auto 12px;
+  }
+  .step h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .step p { font-size: .93rem; color: var(--muted); }
+
+  /* contact + footer */
+  .contact { text-align: center; background: var(--green-bg); }
+  .contact a.mail {
+    display: inline-block; margin-top: 8px; color: var(--green); font-weight: 700;
+    font-size: 1.1rem; text-decoration: none; border-bottom: 2px dashed var(--green);
+  }
+  footer { border-top: 1px solid var(--line); padding: 26px 0; }
+  .foot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; font-size: .92rem; color: var(--muted); }
+  .foot a { color: var(--green); text-decoration: none; font-weight: 700; }
+
+  [lang-en] { display: none; }
+  html.en [lang-ar] { display: none; }
+  html.en [lang-en] { display: revert; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#">Lingo<span>LT</span> 🇱🇹</a>
+    <button class="lang-btn" onclick="toggleLang()" id="langBtn">English</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="flag">🇱🇹</div>
+    <h1 lang-ar>تعلّم <em>اللغة الليتوانية</em><br />بالعربية أو الإنجليزية</h1>
+    <h1 lang-en>Learn <em>Lithuanian</em><br />in Arabic or English</h1>
+    <p class="sub" lang-ar>منهج متكامل من الصفر حتى الاحتراف — قواعد مبسّطة، مواقف حقيقية من الحياة في ليتوانيا، وتحدٍّ يومي يحافظ على حماسك.</p>
+    <p class="sub" lang-en>A complete curriculum from zero to proficiency — simple grammar, real-life situations from Lithuania, and a daily challenge that keeps you motivated.</p>
+    <a class="cta" href="https://play.google.com/store/apps/details?id=com.rabaa.ltlearn">
+      <span lang-ar>📱 حمّله من Google Play</span>
+      <span lang-en>📱 Get it on Google Play</span>
+    </a>
+    <div class="cta-note" lang-ar>مجاني — نسخة iOS قريباً</div>
+    <div class="cta-note" lang-en>Free — iOS version coming soon</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><b>20</b><span lang-ar>مستوى تعليمياً</span><span lang-en>learning levels</span></div>
+    <div class="stat"><b>143</b><span lang-ar>درساً منظّماً</span><span lang-en>structured lessons</span></div>
+    <div class="stat"><b>1700+</b><span lang-ar>تمرين وسؤال</span><span lang-en>exercises &amp; questions</span></div>
+    <div class="stat"><b>A1→B2</b><span lang-ar>حسب الإطار الأوروبي</span><span lang-en>CEFR-aligned</span></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>لماذا LingoLT؟</h2>
+    <h2 class="sec" lang-en>Why LingoLT?</h2>
+    <p class="sec-sub" lang-ar>مصمَّم خصّيصاً لمن يعيش في ليتوانيا أو ينوي الانتقال إليها</p>
+    <p class="sec-sub" lang-en>Built specifically for people living in — or moving to — Lithuania</p>
+    <div class="grid">
+      <div class="card"><div class="ico">🗺️</div>
+        <h3 lang-ar>منهج A1 حتى B2</h3><h3 lang-en>A1 to B2 curriculum</h3>
+        <p lang-ar>أربع مراحل كاملة: من الحروف والتحيات حتى لغة الأخبار والمقابلات والعامية.</p>
+        <p lang-en>Four full stages: from the alphabet and greetings to news language, interviews, and slang.</p>
+      </div>
+      <div class="card"><div class="ico">🌐</div>
+        <h3 lang-ar>بلغتين: عربي وإنجليزي</h3><h3 lang-en>Bilingual: Arabic &amp; English</h3>
+        <p lang-ar>بدّل لغة التعلّم في أي لحظة من الإعدادات — كل الدروس والامتحانات متوفرة باللغتين.</p>
+        <p lang-en>Switch your learning language anytime — every lesson and exam is available in both.</p>
+      </div>
+      <div class="card"><div class="ico">⚡</div>
+        <h3 lang-ar>تحدٍّ يومي وسلسلة 🔥</h3><h3 lang-en>Daily challenge &amp; streak 🔥</h3>
+        <p lang-ar>٥ أسئلة سريعة كل يوم تتكيّف مع مستواك، وسلسلة إنجاز تحافظ على استمراريتك.</p>
+        <p lang-en>5 quick adaptive questions a day, and a streak that keeps you coming back.</p>
+      </div>
+      <div class="card"><div class="ico">🎓</div>
+        <h3 lang-ar>امتحانات تحاكي الرسمية</h3><h3 lang-en>Official-style exams</h3>
+        <p lang-ar>امتحان منتصف ونهاية لكل مستوى، وامتحان رسمي موقوت لكل مرحلة يفتح ما بعدها.</p>
+        <p lang-en>Midterm and final exams per level, plus a timed official-style exam gating each stage.</p>
+      </div>
+      <div class="card"><div class="ico">📚</div>
+        <h3 lang-ar>بنك كلمات بالصوت</h3><h3 lang-en>Vocabulary bank with audio</h3>
+        <p lang-ar>مئات الكلمات مرتّبة حسب الموضوع مع نطق بصوت واضح، وابحث عنها بأي لغة.</p>
+        <p lang-en>Hundreds of themed words with clear audio pronunciation, searchable in any language.</p>
+      </div>
+      <div class="card"><div class="ico">💬</div>
+        <h3 lang-ar>مواقف من الحياة الحقيقية</h3><h3 lang-en>Real-life scenarios</h3>
+        <p lang-ar>المقهى، المتجر، الطبيب، البنك، دائرة الهجرة، مقابلة العمل — تدرّب على ما ستقوله فعلاً.</p>
+        <p lang-en>Café, shop, doctor, bank, migration office, job interview — practice what you'll actually say.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENSHOTS -->
+<section class="shots" id="screens">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>لقطات من التطبيق</h2>
+    <h2 class="sec" lang-en>Inside the app</h2>
+    <p class="sec-sub" lang-ar>اسحب لتستعرض الشاشات</p>
+    <p class="sec-sub" lang-en>Swipe to browse the screens</p>
+    <div class="shots-strip">
+      <div class="shot"><img src="img/home.png" alt="Home" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>الرئيسية والسلسلة 🔥</div><div class="shot-cap" lang-en>Home &amp; streak 🔥</div></div>
+      <div class="shot"><img src="img/stages.png" alt="Stages" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>مراحل التعلّم</div><div class="shot-cap" lang-en>Learning stages</div></div>
+      <div class="shot"><img src="img/challenge.png" alt="Daily challenge" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>تحدّي اليوم</div><div class="shot-cap" lang-en>Daily challenge</div></div>
+      <div class="shot"><img src="img/level.png" alt="Level" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>دروس المستوى</div><div class="shot-cap" lang-en>Level lessons</div></div>
+      <div class="shot"><img src="img/vocab.png" alt="Vocabulary bank" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>بنك الكلمات بالصوت</div><div class="shot-cap" lang-en>Vocabulary bank with audio</div></div>
+      <div class="shot"><img src="img/achievements.png" alt="Achievements" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>الإنجازات والنتائج</div><div class="shot-cap" lang-en>Achievements &amp; scores</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGES -->
+<section class="stages">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>رحلتك خطوة بخطوة</h2>
+    <h2 class="sec" lang-en>Your journey, step by step</h2>
+    <p class="sec-sub" lang-ar>كل مرحلة خمسة مستويات، وكل مستوى دروس وامتحانات</p>
+    <p class="sec-sub" lang-en>Each stage holds five levels; each level holds lessons and exams</p>
+    <div class="stage-grid">
+      <div class="stage"><span class="tag">A1</span>
+        <h3 lang-ar>الأساسيات الأولى</h3><h3 lang-en>First basics</h3>
+        <p lang-ar>الحروف، التحيات، التعريف عن النفس، الطعام، المدينة، العائلة.</p>
+        <p lang-en>The alphabet, greetings, introducing yourself, food, the city, family.</p>
+      </div>
+      <div class="stage"><span class="tag">A2</span>
+        <h3 lang-ar>الحياة اليومية</h3><h3 lang-en>Daily life</h3>
+        <p lang-ar>روتينك اليومي، الماضي والمستقبل، الصحّة والطبيب، البيت، العمل.</p>
+        <p lang-en>Your routine, past and future, health and the doctor, home, work.</p>
+      </div>
+      <div class="stage"><span class="tag">B1</span>
+        <h3 lang-ar>الاستقلال اللغوي</h3><h3 lang-en>Independence</h3>
+        <p lang-ar>السفر، المعاملات الرسمية، إبداء الرأي، المناسبات، أسلوب التهذيب.</p>
+        <p lang-en>Travel, official paperwork, giving opinions, celebrations, polite forms.</p>
+      </div>
+      <div class="stage"><span class="tag">B2</span>
+        <h3 lang-ar>نحو الاحتراف</h3><h3 lang-en>Toward mastery</h3>
+        <p lang-ar>لغة الإعلانات والأخبار، السيرة الذاتية والمقابلات، الأمثال والعامية.</p>
+        <p lang-en>Ads and news language, CVs and interviews, proverbs and slang.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>كيف تبدأ؟</h2>
+    <h2 class="sec" lang-en>How to start?</h2>
+    <p class="sec-sub" lang-ar>ثلاث خطوات تفصلك عن أول جملة ليتوانية</p>
+    <p class="sec-sub" lang-en>Three steps away from your first Lithuanian sentence</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div>
+        <h3 lang-ar>حمّل التطبيق</h3><h3 lang-en>Download the app</h3>
+        <p lang-ar>مجاناً من Google Play، وسجّل دخولك بحساب Google بضغطة واحدة.</p>
+        <p lang-en>Free on Google Play; sign in with your Google account in one tap.</p>
+      </div>
+      <div class="step"><div class="n">2</div>
+        <h3 lang-ar>اختر لغتك وابدأ A1</h3><h3 lang-en>Pick your language, start A1</h3>
+        <p lang-ar>عربي أو إنجليزي — وابدأ من الحروف أو تخطَّ ما تعرفه.</p>
+        <p lang-en>Arabic or English — start from the alphabet or skip what you know.</p>
+      </div>
+      <div class="step"><div class="n">3</div>
+        <h3 lang-ar>حافظ على سلسلتك 🔥</h3><h3 lang-en>Keep your streak 🔥</h3>
+        <p lang-ar>تحدٍّ يومي قصير + دروس بإيقاعك، حتى تجتاز امتحان كل مرحلة.</p>
+        <p lang-en>A short daily challenge + lessons at your pace, until you pass each stage exam.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>تواصل معنا</h2>
+    <h2 class="sec" lang-en>Contact us</h2>
+    <p lang-ar>سؤال، اقتراح، أو مشكلة؟ يسعدنا سماعك.</p>
+    <p lang-en>A question, a suggestion, or a problem? We'd love to hear from you.</p>
+    <a class="mail" href="mailto:mo7mdrabb3@gmail.com">mo7mdrabb3@gmail.com</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div>© 2026 LingoLT</div>
+    <div>
+      <a href="privacy.html" lang-ar>سياسة الخصوصية</a>
+      <a href="privacy.html" lang-en>Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ar (default, RTL) ↔ en (LTR); choice persists.
+  function applyLang(l) {
+    const html = document.documentElement;
+    html.classList.toggle('en', l === 'en');
+    html.setAttribute('lang', l);
+    html.setAttribute('dir', l === 'en' ? 'ltr' : 'rtl');
+    document.getElementById('langBtn').textContent = l === 'en' ? 'العربية' : 'English';
+    document.title = l === 'en' ? 'LingoLT — Learn Lithuanian' : 'LingoLT — تعلّم اللغة الليتوانية';
+    localStorage.setItem('lingolt-lang', l);
+  }
+  function toggleLang() {
+    applyLang(document.documentElement.classList.contains('en') ? 'ar' : 'en');
+  }
+  applyLang(localStorage.getItem('lingolt-lang') || 'ar');
+</script>
+</body>
+</html>
