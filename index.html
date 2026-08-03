@@ -26,6 +26,10 @@
   .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
   .logo { font-size: 1.45rem; font-weight: 800; color: var(--green); text-decoration: none; }
   .logo span { color: var(--amber); }
+  /* Logo mark sits beside the wordmark; inline-flex keeps them on one
+     baseline without the emoji it replaced dictating the line height. */
+  .logo { direction: ltr; display: inline-flex; align-items: center; gap: 9px; }
+  .logo-mark { width: 34px; height: 34px; display: block; flex: 0 0 auto; }
   .lang-btn {
     border: 1.5px solid var(--green); color: var(--green); background: #fff;
     border-radius: 999px; padding: 6px 18px; font-size: .95rem; font-weight: 700;
@@ -35,7 +39,7 @@
 
   /* hero */
   .hero { background: linear-gradient(180deg, var(--green-bg) 0%, #fff 100%); padding: 72px 0 56px; text-align: center; }
-  .flag { font-size: 3rem; }
+  .hero-mark { width: 96px; height: 96px; display: block; margin: 0 auto; }
   .hero h1 { font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 800; margin: 12px 0 10px; }
   .hero h1 em { color: var(--green); font-style: normal; }
   .hero p.sub { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto 30px; }
@@ -128,7 +132,7 @@
 
 <header>
   <div class="wrap nav">
-    <a class="logo" href="#">Kas<span>Kalba</span> 🇱🇹</a>
+    <a class="logo" href="#"><img class="logo-mark" src="img/logo.png" alt="" width="34" height="34">Kas<span>Kalba</span></a>
     <button class="lang-btn" onclick="toggleLang()" id="langBtn">English</button>
   </div>
 </header>
@@ -136,7 +140,7 @@
 <!-- HERO -->
 <div class="hero">
   <div class="wrap">
-    <div class="flag">🇱🇹</div>
+    <img class="hero-mark" src="img/logo.png" alt="KasKalba" width="96" height="96">
     <h1 lang-ar>تعلّم <em>اللغة الليتوانية</em><br />بالعربية أو الإنجليزية</h1>
     <h1 lang-en>Learn <em>Lithuanian</em><br />in Arabic or English</h1>
     <p class="sub" lang-ar>منهج متكامل من الصفر حتى الاحتراف — قواعد مبسّطة، سيناريوهات محادثة تتكلّمها بصوتك، ومحاكاة كاملة لامتحان الدولة وامتحان الدستور.</p>
