@@ -18,8 +18,46 @@
      baseline without the emoji it replaced dictating the line height. */
   .logo { direction: ltr; display:inline-flex; align-items:center; gap:9px; }
   .logo-mark { width:34px; height:34px; display:block; flex:0 0 auto; }
-  .lang-btn { border:1.5px solid var(--green); color:var(--green); background:#fff; border-radius:999px; padding:6px 18px; font-weight:700; cursor:pointer; }
-  .lang-btn:hover { background:var(--green); color:#fff; }
+  /* Language picker. The trigger keeps the pill this page already uses; the
+     panel is ours, because a native <select> hands the open list to the
+     browser and no CSS reaches inside it. */
+  .lang { position: relative; }
+  .lang-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px solid var(--green); color: var(--green); background: #fff;
+    border-radius: 999px; padding: 7px 14px 7px 16px;
+    font: inherit; font-size: .95rem; font-weight: 700;
+    cursor: pointer; transition: background .18s, color .18s, box-shadow .18s;
+  }
+  .lang-btn:hover { background: var(--green-bg, #f0fdf4); }
+  .lang-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
+  .chev { transition: transform .2s; }
+  .lang[data-open] .lang-btn { background: var(--green); color: #fff; }
+  .lang[data-open] .chev { transform: rotate(180deg); }
+  /* Width in ch, so the panel fits its longest label in any script instead of
+     a pixel guess made from Latin. */
+  .lang-menu {
+    position: absolute; inset-inline-end: 0; top: calc(100% + 8px);
+    min-width: 13ch; padding: 6px; margin: 0; list-style: none;
+    background: #fff; border: 1px solid var(--line, #e3ede8); border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(16,42,32,.13);
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .16s, transform .16s, visibility .16s; z-index: 30;
+  }
+  .lang[data-open] .lang-menu { opacity: 1; visibility: visible; transform: none; }
+  .lang-menu li {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 9px 12px; border-radius: 9px; cursor: pointer;
+    font-weight: 700; font-size: .95rem; white-space: nowrap;
+    /* Each name is written in its own script, so each row reads in its own
+       direction whatever the page is set to. */
+    direction: ltr; text-align: start;
+  }
+  .lang-menu li[data-lang="ar"] { direction: rtl; }
+  .lang-menu li:hover { background: var(--green-bg, #f0fdf4); }
+  .tick { opacity: 0; color: var(--green); flex: 0 0 auto; }
+  .lang-menu li[aria-selected="true"] { color: var(--green-dark, #166534); }
+  .lang-menu li[aria-selected="true"] .tick { opacity: 1; }
   main { padding: 44px 0 70px; }
   h1 { font-size:1.9rem; font-weight:800; margin-bottom:4px; }
   .updated { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
@@ -37,20 +75,25 @@
   html.en [lang-ar], html.ru [lang-ar], html.tr [lang-ar] { display:none; }
   html.en [lang-en] { display:revert; }
   html.ru [lang-ru] { display:revert; }
-  html.tr [lang-tr] { display:revert; }
-  .lang-btn { font: inherit; }
+  html.tr [lang-tr] { display:revert; }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap nav">
     <a class="logo" href="index.html"><img class="logo-mark" src="img/logo.png" alt="" width="34" height="34">Kas<span>Kalba</span></a>
-    <select class="lang-btn" id="langSel" onchange="applyLang(this.value)" aria-label="Language">
-      <option value="ar">العربية</option>
-      <option value="en">English</option>
-      <option value="ru">Русский</option>
-      <option value="tr">Türkçe</option>
-    </select>
+    <div class="lang" id="lang">
+      <button class="lang-btn" id="langTrigger" type="button"
+              aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg><span id="langLabel">العربية</span><svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <ul class="lang-menu" id="langMenu" role="listbox">
+      <li role="option" data-lang="ar"><span>العربية</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="en"><span>English</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="ru"><span>Русский</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="tr"><span>Türkçe</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      </ul>
+    </div>
   </div>
 </header>
 
@@ -371,15 +414,16 @@
 </footer>
 
 <script>
-  // Each language carries its own direction and title. Arabic and the two
-  // Latin-script languages differ in direction, so the dir attribute cannot
-  // be derived from "is it English" any more.
   var LANGS = {
-    ar: { dir: 'rtl', title: 'سياسة الخصوصية — KasKalba' },
-    en: { dir: 'ltr', title: 'Privacy Policy — KasKalba' },
-    ru: { dir: 'ltr', title: 'Политика конфиденциальности — KasKalba' },
-    tr: { dir: 'ltr', title: 'Gizlilik Politikası — KasKalba' }
+    ar: { dir:'rtl', name:'العربية', title:"سياسة الخصوصية — KasKalba" },
+    en: { dir:'ltr', name:'English', title:"Privacy Policy — KasKalba" },
+    ru: { dir:'ltr', name:'Русский', title:"Политика конфиденциальности — KasKalba" },
+    tr: { dir:'ltr', name:'Türkçe', title:"Gizlilik Politikası — KasKalba" }
   };
+  var wrap = document.getElementById('lang');
+  var trigger = document.getElementById('langTrigger');
+  var menu = document.getElementById('langMenu');
+
   function applyLang(l) {
     if (!LANGS[l]) l = 'ar';
     var html = document.documentElement;
@@ -387,13 +431,39 @@
     if (l !== 'ar') html.classList.add(l);
     html.setAttribute('lang', l);
     html.setAttribute('dir', LANGS[l].dir);
-    document.title = LANGS[l].title;
-    document.getElementById('langSel').value = l;
-    localStorage.setItem('lingolt-lang', l);
+    if (LANGS[l].title) document.title = LANGS[l].title;
+    document.getElementById('langLabel').textContent = LANGS[l].name;
+    Array.prototype.forEach.call(menu.querySelectorAll('li'), function (li) {
+      li.setAttribute('aria-selected', String(li.getAttribute('data-lang') === l));
+    });
+    try { localStorage.setItem('lingolt-lang', l); } catch (e) {}
   }
-  // The stored value may predate the other two languages, and applyLang falls
+
+  function setOpen(open) {
+    if (open) wrap.setAttribute('data-open', ''); else wrap.removeAttribute('data-open');
+    trigger.setAttribute('aria-expanded', String(open));
+  }
+
+  trigger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!wrap.hasAttribute('data-open'));
+  });
+  menu.addEventListener('click', function (e) {
+    var li = e.target.closest ? e.target.closest('li') : null;
+    if (!li) return;
+    applyLang(li.getAttribute('data-lang'));
+    setOpen(false);
+  });
+  // Outside click and Escape. A panel that only closes by pressing the same
+  // button again is the other half of feeling clumsy.
+  document.addEventListener('click', function () { setOpen(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+
+  // A stored preference may predate the two newer languages; applyLang falls
   // back rather than leaving the page with every block hidden.
-  applyLang(localStorage.getItem('lingolt-lang') || 'ar');
+  var saved = null;
+  try { saved = localStorage.getItem('lingolt-lang'); } catch (e) {}
+  applyLang(saved || 'ar');
 </script>
 </body>
 </html>

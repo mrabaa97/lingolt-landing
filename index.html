@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KasKalba — تعلّم اللغة الليتوانية</title>
-<meta name="description" content="KasKalba: تطبيق لتعلّم اللغة الليتوانية بالعربية والإنجليزية — 20 مستوى من A1 إلى B2، 60 سيناريو تفاعلي مع تدريب النطق بالميكروفون، ومحاكاة امتحان الدولة وامتحان الدستور. Learn Lithuanian in Arabic & English." />
+<meta name="description" content="KasKalba: تطبيق لتعلّم اللغة الليتوانية بأربع لغات — 20 مستوى من A1 إلى B2، 60 سيناريو تفاعلي مع تدريب النطق بالميكروفون، ومحاكاة امتحان الدولة وامتحان الدستور. Learn Lithuanian in Arabic, English, Russian or Turkish." />
 <style>
   :root {
     --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
@@ -30,12 +30,46 @@
      baseline without the emoji it replaced dictating the line height. */
   .logo { direction: ltr; display: inline-flex; align-items: center; gap: 9px; }
   .logo-mark { width: 34px; height: 34px; display: block; flex: 0 0 auto; }
+  /* Language picker. The trigger keeps the pill this page already uses; the
+     panel is ours, because a native <select> hands the open list to the
+     browser and no CSS reaches inside it. */
+  .lang { position: relative; }
   .lang-btn {
+    display: inline-flex; align-items: center; gap: 8px;
     border: 1.5px solid var(--green); color: var(--green); background: #fff;
-    border-radius: 999px; padding: 6px 18px; font-size: .95rem; font-weight: 700;
-    cursor: pointer; transition: .2s;
+    border-radius: 999px; padding: 7px 14px 7px 16px;
+    font: inherit; font-size: .95rem; font-weight: 700;
+    cursor: pointer; transition: background .18s, color .18s, box-shadow .18s;
   }
-  .lang-btn:hover { background: var(--green); color: #fff; }
+  .lang-btn:hover { background: var(--green-bg, #f0fdf4); }
+  .lang-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
+  .chev { transition: transform .2s; }
+  .lang[data-open] .lang-btn { background: var(--green); color: #fff; }
+  .lang[data-open] .chev { transform: rotate(180deg); }
+  /* Width in ch, so the panel fits its longest label in any script instead of
+     a pixel guess made from Latin. */
+  .lang-menu {
+    position: absolute; inset-inline-end: 0; top: calc(100% + 8px);
+    min-width: 13ch; padding: 6px; margin: 0; list-style: none;
+    background: #fff; border: 1px solid var(--line, #e3ede8); border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(16,42,32,.13);
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .16s, transform .16s, visibility .16s; z-index: 30;
+  }
+  .lang[data-open] .lang-menu { opacity: 1; visibility: visible; transform: none; }
+  .lang-menu li {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 9px 12px; border-radius: 9px; cursor: pointer;
+    font-weight: 700; font-size: .95rem; white-space: nowrap;
+    /* Each name is written in its own script, so each row reads in its own
+       direction whatever the page is set to. */
+    direction: ltr; text-align: start;
+  }
+  .lang-menu li[data-lang="ar"] { direction: rtl; }
+  .lang-menu li:hover { background: var(--green-bg, #f0fdf4); }
+  .tick { opacity: 0; color: var(--green); flex: 0 0 auto; }
+  .lang-menu li[aria-selected="true"] { color: var(--green-dark, #166534); }
+  .lang-menu li[aria-selected="true"] .tick { opacity: 1; }
 
   /* hero */
   .hero { background: linear-gradient(180deg, var(--green-bg) 0%, #fff 100%); padding: 72px 0 56px; text-align: center; }
@@ -133,7 +167,18 @@
 <header>
   <div class="wrap nav">
     <a class="logo" href="#"><img class="logo-mark" src="img/logo.png" alt="" width="34" height="34">Kas<span>Kalba</span></a>
-    <button class="lang-btn" onclick="toggleLang()" id="langBtn">English</button>
+    <div class="lang" id="lang">
+      <button class="lang-btn" id="langTrigger" type="button"
+              aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg><span id="langLabel">العربية</span><svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <ul class="lang-menu" id="langMenu" role="listbox">
+      <li role="option" data-lang="ar"><span>العربية</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="en"><span>English</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="ru"><span>Русский</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="tr"><span>Türkçe</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      </ul>
+    </div>
   </div>
 </header>
 
@@ -141,16 +186,24 @@
 <div class="hero">
   <div class="wrap">
     <img class="hero-mark" src="img/logo.png" alt="KasKalba" width="96" height="96">
-    <h1 lang-ar>تعلّم <em>اللغة الليتوانية</em><br />بالعربية أو الإنجليزية</h1>
-    <h1 lang-en>Learn <em>Lithuanian</em><br />in Arabic or English</h1>
+    <h1 lang-ar>تعلّم <em>اللغة الليتوانية</em><br />بالعربية والإنجليزية والروسية والتركية</h1>
+    <h1 lang-en>Learn <em>Lithuanian</em><br />in Arabic, English, Russian or Turkish</h1>
+    <h1 lang-ru>Учите <em>литовский</em><br />на арабском, английском, русском или турецком</h1>
+    <h1 lang-tr><em>Litvanca</em> öğrenin<br />Arapça, İngilizce, Rusça veya Türkçe</h1>
     <p class="sub" lang-ar>منهج متكامل من الصفر حتى الاحتراف — قواعد مبسّطة، سيناريوهات محادثة تتكلّمها بصوتك، ومحاكاة كاملة لامتحان الدولة وامتحان الدستور.</p>
     <p class="sub" lang-en>A complete curriculum from zero to proficiency — simple grammar, conversation scenarios you speak out loud, and full mock versions of the state and constitution exams.</p>
+    <p class="sub" lang-ru>Полный курс с нуля до уверенного владения — простая грамматика, разговорные сценарии, которые вы проговариваете вслух, и полные пробные версии госэкзамена и экзамена по Конституции.</p>
+    <p class="sub" lang-tr>Sıfırdan ileri seviyeye tam bir müfredat — sade dilbilgisi, sesli konuştuğunuz diyalog senaryoları ve devlet sınavı ile Anayasa sınavının eksiksiz deneme sürümleri.</p>
     <a class="cta" href="https://play.google.com/store/apps/details?id=com.rabaa.ltlearn">
       <span lang-ar>📱 حمّله من Google Play</span>
       <span lang-en>📱 Get it on Google Play</span>
+      <span lang-ru>📱 Скачать в Google Play</span>
+      <span lang-tr>📱 Google Play’den indirin</span>
     </a>
     <div class="cta-note" lang-ar>ابدأ مجاناً — نسخة iOS قريباً</div>
     <div class="cta-note" lang-en>Start free — iOS version coming soon</div>
+    <div class="cta-note" lang-ru>Начните бесплатно — версия для iOS скоро</div>
+    <div class="cta-note" lang-tr>Ücretsiz başlayın — iOS sürümü yakında</div>
   </div>
 </div>
 
@@ -158,10 +211,20 @@
 <div class="wrap">
   <div class="stats">
     <div class="stat"><b>20</b><span lang-ar>مستوى تعليمياً</span><span lang-en>learning levels</span></div>
+    <div class="stat"><b>20</b><span lang-ar>مستوى تعليمياً</span><span lang-ru>учебных уровней</span></div>
+    <div class="stat"><b>20</b><span lang-ar>مستوى تعليمياً</span><span lang-tr>öğrenme seviyesi</span></div>
     <div class="stat"><b>143</b><span lang-ar>درساً منظّماً</span><span lang-en>structured lessons</span></div>
+    <div class="stat"><b>143</b><span lang-ar>درساً منظّماً</span><span lang-ru>структурированных уроков</span></div>
+    <div class="stat"><b>143</b><span lang-ar>درساً منظّماً</span><span lang-tr>düzenli ders</span></div>
     <div class="stat"><b>60</b><span lang-ar>سيناريو محادثة</span><span lang-en>conversation scenarios</span></div>
+    <div class="stat"><b>60</b><span lang-ar>سيناريو محادثة</span><span lang-ru>разговорных сценариев</span></div>
+    <div class="stat"><b>60</b><span lang-ar>سيناريو محادثة</span><span lang-tr>diyalog senaryosu</span></div>
     <div class="stat"><b>45</b><span lang-ar>نموذج امتحان</span><span lang-en>mock exam models</span></div>
+    <div class="stat"><b>45</b><span lang-ar>نموذج امتحان</span><span lang-ru>пробных экзаменов</span></div>
+    <div class="stat"><b>45</b><span lang-ar>نموذج امتحان</span><span lang-tr>deneme sınavı modeli</span></div>
     <div class="stat"><b>A1→B2</b><span lang-ar>حسب الإطار الأوروبي</span><span lang-en>CEFR-aligned</span></div>
+    <div class="stat"><b>A1→B2</b><span lang-ar>حسب الإطار الأوروبي</span><span lang-ru>по шкале CEFR</span></div>
+    <div class="stat"><b>A1→B2</b><span lang-ar>حسب الإطار الأوروبي</span><span lang-tr>CEFR ölçeğinde</span></div>
   </div>
 </div>
 
@@ -170,53 +233,93 @@
   <div class="wrap">
     <h2 class="sec" lang-ar>لماذا KasKalba؟</h2>
     <h2 class="sec" lang-en>Why KasKalba?</h2>
+    <h2 class="sec" lang-ru>Почему KasKalba?</h2>
+    <h2 class="sec" lang-tr>Neden KasKalba?</h2>
     <p class="sec-sub" lang-ar>مصمَّم خصّيصاً لمن يعيش في ليتوانيا أو ينوي الانتقال إليها</p>
     <p class="sec-sub" lang-en>Built specifically for people living in — or moving to — Lithuania</p>
+    <p class="sec-sub" lang-ru>Создано специально для тех, кто живёт в Литве или переезжает туда</p>
+    <p class="sec-sub" lang-tr>Litvanya’da yaşayanlar veya oraya taşınanlar için özel olarak yapıldı</p>
     <div class="grid">
       <div class="card"><div class="ico">🗺️</div>
         <h3 lang-ar>منهج A1 حتى B2</h3><h3 lang-en>A1 to B2 curriculum</h3>
+        <h3 lang-ar>منهج A1 حتى B2</h3><h3 lang-ru>Программа от A1 до B2</h3>
+        <h3 lang-ar>منهج A1 حتى B2</h3><h3 lang-tr>A1’den B2’ye müfredat</h3>
         <p lang-ar>أربع مراحل كاملة: من الحروف والتحيات حتى لغة الأخبار والمقابلات والعامية.</p>
         <p lang-en>Four full stages: from the alphabet and greetings to news language, interviews, and slang.</p>
+        <p lang-ru>Четыре полных этапа: от алфавита и приветствий до языка новостей, собеседований и разговорной речи.</p>
+        <p lang-tr>Dört tam aşama: alfabe ve selamlaşmadan haber diline, mülakatlara ve günlük konuşmaya.</p>
       </div>
       <div class="card"><div class="ico">🌐</div>
         <h3 lang-ar>بلغتين: عربي وإنجليزي</h3><h3 lang-en>Bilingual: Arabic &amp; English</h3>
+        <h3 lang-ar>بلغتين: عربي وإنجليزي</h3><h3 lang-ru>Четыре языка объяснений</h3>
+        <h3 lang-ar>بلغتين: عربي وإنجليزي</h3><h3 lang-tr>Dört açıklama dili</h3>
         <p lang-ar>بدّل لغة التعلّم في أي لحظة من الإعدادات — كل الدروس والامتحانات متوفرة باللغتين.</p>
         <p lang-en>Switch your learning language anytime — every lesson and exam is available in both.</p>
+        <p lang-ru>Меняйте язык объяснений когда угодно — каждый урок и экзамен доступен на всех четырёх.</p>
+        <p lang-tr>Açıklama dilini istediğiniz zaman değiştirin — her ders ve sınav dördünde de mevcut.</p>
       </div>
       <div class="card"><div class="ico">⚡</div>
         <h3 lang-ar>تحدٍّ يومي وسلسلة 🔥</h3><h3 lang-en>Daily challenge &amp; streak 🔥</h3>
+        <h3 lang-ar>تحدٍّ يومي وسلسلة 🔥</h3><h3 lang-ru>Ежедневное задание и серия 🔥</h3>
+        <h3 lang-ar>تحدٍّ يومي وسلسلة 🔥</h3><h3 lang-tr>Günlük görev ve seri 🔥</h3>
         <p lang-ar>٥ أسئلة سريعة كل يوم تتكيّف مع مستواك، وسلسلة إنجاز تحافظ على استمراريتك.</p>
         <p lang-en>5 quick adaptive questions a day, and a streak that keeps you coming back.</p>
+        <p lang-ru>5 быстрых адаптивных вопросов в день и серия, которая возвращает вас снова.</p>
+        <p lang-tr>Günde 5 hızlı uyarlanabilir soru ve sizi geri getiren bir seri.</p>
       </div>
       <div class="card"><div class="ico">🎓</div>
         <h3 lang-ar>امتحانات تحاكي الرسمية</h3><h3 lang-en>Official-style exams</h3>
+        <h3 lang-ar>امتحانات تحاكي الرسمية</h3><h3 lang-ru>Экзамены официального формата</h3>
+        <h3 lang-ar>امتحانات تحاكي الرسمية</h3><h3 lang-tr>Resmî formatta sınavlar</h3>
         <p lang-ar>امتحان منتصف ونهاية لكل مستوى، وامتحان رسمي موقوت لكل مرحلة يفتح ما بعدها.</p>
         <p lang-en>Midterm and final exams per level, plus a timed official-style exam gating each stage.</p>
+        <p lang-ru>Промежуточные и итоговые экзамены на каждом уровне и экзамен официального формата с таймером на выходе с каждого этапа.</p>
+        <p lang-tr>Her seviyede ara ve final sınavları, ayrıca her aşamanın çıkışında süreli resmî formatta bir sınav.</p>
       </div>
       <div class="card"><div class="ico">📚</div>
         <h3 lang-ar>بنك كلمات بالصوت</h3><h3 lang-en>Vocabulary bank with audio</h3>
+        <h3 lang-ar>بنك كلمات بالصوت</h3><h3 lang-ru>Словарь с озвучкой</h3>
+        <h3 lang-ar>بنك كلمات بالصوت</h3><h3 lang-tr>Sesli kelime bankası</h3>
         <p lang-ar>مئات الكلمات مرتّبة حسب الموضوع مع نطق بصوت واضح، وابحث عنها بأي لغة.</p>
         <p lang-en>Hundreds of themed words with clear audio pronunciation, searchable in any language.</p>
+        <p lang-ru>Сотни тематических слов с чётким произношением, поиск на любом языке.</p>
+        <p lang-tr>Net telaffuzlu yüzlerce tematik kelime, her dilde aranabilir.</p>
       </div>
       <div class="card"><div class="ico">💬</div>
         <h3 lang-ar>٦٠ سيناريو محادثة تفاعلي</h3><h3 lang-en>60 interactive scenarios</h3>
+        <h3 lang-ar>٦٠ سيناريو محادثة تفاعلي</h3><h3 lang-ru>60 интерактивных сценариев</h3>
+        <h3 lang-ar>٦٠ سيناريو محادثة تفاعلي</h3><h3 lang-tr>60 etkileşimli senaryo</h3>
         <p lang-ar>المقهى، المتجر، الطبيب، البنك، دائرة الهجرة، مقابلة العمل — محادثة بصوت متحدّثَين، تختار ردّك وترى نتيجته فوراً.</p>
         <p lang-en>Café, shop, doctor, bank, migration office, job interview — two-voice dialogues where you pick your reply and see its outcome instantly.</p>
+        <p lang-ru>Кафе, магазин, врач, банк, миграционная служба, собеседование — диалоги на два голоса, где вы выбираете ответ и сразу видите его последствие.</p>
+        <p lang-tr>Kafe, market, doktor, banka, göç idaresi, iş görüşmesi — cevabınızı seçtiğiniz ve sonucunu anında gördüğünüz iki sesli diyaloglar.</p>
       </div>
       <div class="card"><div class="ico">🎙️</div>
         <h3 lang-ar>تدرّب على النطق بصوتك</h3><h3 lang-en>Practice speaking out loud</h3>
+        <h3 lang-ar>تدرّب على النطق بصوتك</h3><h3 lang-ru>Практика речи вслух</h3>
+        <h3 lang-ar>تدرّب على النطق بصوتك</h3><h3 lang-tr>Sesli konuşma pratiği</h3>
         <p lang-ar>اضغط مطوّلاً وتكلّم: التطبيق يسمعك ويعطيك نسبة تطابق ويلوّن الكلمات الصحيحة والخاطئة. لا يُسجَّل صوتك ولا يُرفع أبداً.</p>
         <p lang-en>Hold and speak: the app listens, scores your match, and colours the right and wrong words. Your voice is never recorded or uploaded.</p>
+        <p lang-ru>Удерживайте и говорите: приложение слушает, оценивает совпадение и подсвечивает верные и неверные слова. Ваш голос никогда не записывается и не загружается.</p>
+        <p lang-tr>Basılı tutun ve konuşun: uygulama dinler, eşleşmenizi puanlar, doğru ve yanlış kelimeleri renklendirir. Sesiniz asla kaydedilmez veya yüklenmez.</p>
       </div>
       <div class="card"><div class="ico">📝</div>
         <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-en>State exam simulation</h3>
+        <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-ru>Симуляция госэкзамена</h3>
+        <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-tr>Devlet sınavı simülasyonu</h3>
         <p lang-ar>٣٠ نموذجاً كاملاً لفئتي A1/A2 وB1 بصيغة الامتحان الرسمي وتوقيته: استماع، قراءة، وكتابة مع إجابة نموذجية.</p>
         <p lang-en>30 complete models for A1/A2 and B1 in the official format and timing: listening, reading, and writing with a model answer.</p>
+        <p lang-ru>30 полных моделей для A1/A2 и B1 в официальном формате и с официальным таймингом: аудирование, чтение и письмо с образцом ответа.</p>
+        <p lang-tr>A1/A2 ve B1 için resmî format ve sürede 30 eksiksiz model: dinleme, okuma ve örnek cevaplı yazma.</p>
       </div>
       <div class="card"><div class="ico">⚖️</div>
         <h3 lang-ar>امتحان الدستور للجنسية</h3><h3 lang-en>Constitution exam</h3>
+        <h3 lang-ar>امتحان الدستور للجنسية</h3><h3 lang-ru>Экзамен по Конституции</h3>
+        <h3 lang-ar>امتحان الدستور للجنسية</h3><h3 lang-tr>Anayasa sınavı</h3>
         <p lang-ar>١٥ نموذجاً لأساسيات الدستور الليتواني مع شرح لكل إجابة — استعداد كامل لامتحان التجنيس.</p>
         <p lang-en>15 models on the basics of the Lithuanian constitution, each answer explained — full preparation for the citizenship test.</p>
+        <p lang-ru>15 моделей по основам Конституции Литвы с пояснением каждого ответа — полная подготовка к тесту на гражданство.</p>
+        <p lang-tr>Litvanya Anayasası’nın esasları üzerine, her cevabı açıklanmış 15 model — vatandaşlık sınavına tam hazırlık.</p>
       </div>
     </div>
   </div>
@@ -227,28 +330,48 @@
   <div class="wrap">
     <h2 class="sec" lang-ar>ابدأ مجاناً، وادفع لما تحتاجه فقط</h2>
     <h2 class="sec" lang-en>Start free, pay only for what you need</h2>
+    <h2 class="sec" lang-ru>Начните бесплатно, платите только за нужное</h2>
+    <h2 class="sec" lang-tr>Ücretsiz başlayın, yalnızca ihtiyacınız olana ödeyin</h2>
     <p class="sec-sub" lang-ar>ثلاث باقات منفصلة — لا شيء مخفي ولا رسوم مفاجئة</p>
     <p class="sec-sub" lang-en>Three separate packages — nothing hidden, no surprise charges</p>
+    <p class="sec-sub" lang-ru>Три отдельных пакета — ничего скрытого, никаких неожиданных списаний</p>
+    <p class="sec-sub" lang-tr>Üç ayrı paket — gizli hiçbir şey yok, sürpriz ücret yok</p>
     <div class="stage-grid">
       <div class="stage"><span class="tag">🆓</span>
         <h3 lang-ar>مجاناً للتجربة</h3><h3 lang-en>Free to try</h3>
+        <h3 lang-ar>مجاناً للتجربة</h3><h3 lang-ru>Бесплатно попробовать</h3>
+        <h3 lang-ar>مجاناً للتجربة</h3><h3 lang-tr>Ücretsiz deneme</h3>
         <p lang-ar>أول ٣ مستويات من مرحلة A1، وأول ٣ سيناريوهات، وأول نموذج من محاكاة امتحان A1/A2 — دون أي دفع.</p>
         <p lang-en>The first 3 levels of stage A1, the first 3 scenarios, and the first A1/A2 mock exam — with no payment at all.</p>
+        <p lang-ru>Первые 3 уровня этапа A1, первые 3 сценария и первый пробный экзамен A1/A2 — без какой-либо оплаты.</p>
+        <p lang-tr>A1 aşamasının ilk 3 seviyesi, ilk 3 senaryo ve ilk A1/A2 deneme sınavı — hiçbir ödeme olmadan.</p>
       </div>
       <div class="stage"><span class="tag">💎</span>
         <h3 lang-ar>التعلّم والسيناريوهات</h3><h3 lang-en>Learning &amp; scenarios</h3>
+        <h3 lang-ar>التعلّم والسيناريوهات</h3><h3 lang-ru>Обучение и сценарии</h3>
+        <h3 lang-ar>التعلّم والسيناريوهات</h3><h3 lang-tr>Öğrenme ve senaryolar</h3>
         <p lang-ar>كل المستويات من A1 إلى B2 مع بنوك الكلمات، وكل السيناريوهات الستين مع تدريب النطق. اشتراك شهري أو سنوي يتجدّد تلقائياً ويُلغى في أي وقت.</p>
         <p lang-en>Every level from A1 to B2 with the vocabulary banks, and all 60 scenarios with speaking practice. Monthly or annual, auto-renewing, cancel anytime.</p>
+        <p lang-ru>Все уровни от A1 до B2 со словарями и все 60 сценариев с речевой практикой. Месячно или ежегодно, с автопродлением, отмена в любой момент.</p>
+        <p lang-tr>A1’den B2’ye tüm seviyeler kelime bankalarıyla ve konuşma pratiğiyle 60 senaryonun tamamı. Aylık veya yıllık, otomatik yenilenen, istediğiniz zaman iptal.</p>
       </div>
       <div class="stage"><span class="tag">🎓</span>
         <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-en>State exam simulation</h3>
+        <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-ru>Симуляция госэкзамена</h3>
+        <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-tr>Devlet sınavı simülasyonu</h3>
         <p lang-ar>كل نماذج A1/A2 وB1. دفعة واحدة لأسبوع أو لشهر — <b>بلا تجديد تلقائي</b>، تنتهي وحدها وتجدّدها أنت وقت امتحانك.</p>
         <p lang-en>All A1/A2 and B1 models. A single payment for a week or a month — <b>no auto-renewal</b>; it simply ends, and you renew it when your exam is near.</p>
+        <p lang-ru>Все модели A1/A2 и B1. Разовый платёж на неделю или месяц — <b>no auto-renewal</b>; it simply ends, and you renew it when your exam is near.</p>
+        <p lang-tr>Tüm A1/A2 ve B1 modelleri. Bir hafta veya bir ay için tek seferlik ödeme — <b>no auto-renewal</b>; it simply ends, and you renew it when your exam is near.</p>
       </div>
       <div class="stage"><span class="tag">📜</span>
         <h3 lang-ar>امتحان الدستور</h3><h3 lang-en>Constitution exam</h3>
+        <h3 lang-ar>امتحان الدستور</h3><h3 lang-ru>Экзамен по Конституции</h3>
+        <h3 lang-ar>امتحان الدستور</h3><h3 lang-tr>Anayasa sınavı</h3>
         <p lang-ar>كل نماذج الدستور مع شرح الإجابات. دفعة واحدة لشهر — <b>بلا تجديد تلقائي</b>.</p>
         <p lang-en>All constitution models with explained answers. A single payment for one month — <b>no auto-renewal</b>.</p>
+        <p lang-ru>Все модели по Конституции с пояснёнными ответами. Разовый платёж на один месяц — <b>no auto-renewal</b>.</p>
+        <p lang-tr>Açıklamalı cevaplarıyla tüm Anayasa modelleri. Bir ay için tek seferlik ödeme — <b>no auto-renewal</b>.</p>
       </div>
     </div>
   </div>
@@ -259,21 +382,37 @@
   <div class="wrap">
     <h2 class="sec" lang-ar>لقطات من التطبيق</h2>
     <h2 class="sec" lang-en>Inside the app</h2>
+    <h2 class="sec" lang-ru>Внутри приложения</h2>
+    <h2 class="sec" lang-tr>Uygulamanın içinde</h2>
     <p class="sec-sub" lang-ar>اسحب لتستعرض الشاشات</p>
     <p class="sec-sub" lang-en>Swipe to browse the screens</p>
+    <p class="sec-sub" lang-ru>Листайте, чтобы посмотреть экраны</p>
+    <p class="sec-sub" lang-tr>Ekranları görmek için kaydırın</p>
     <div class="shots-strip">
       <div class="shot"><img src="img/home.png" alt="Home" onerror="this.parentElement.style.display='none'" />
         <div class="shot-cap" lang-ar>الرئيسية والسلسلة 🔥</div><div class="shot-cap" lang-en>Home &amp; streak 🔥</div></div>
+        <div class="shot-cap" lang-ar>الرئيسية والسلسلة 🔥</div><div class="shot-cap" lang-ru>Главная и серия 🔥</div></div>
+        <div class="shot-cap" lang-ar>الرئيسية والسلسلة 🔥</div><div class="shot-cap" lang-tr>Ana sayfa ve seri 🔥</div></div>
       <div class="shot"><img src="img/stages.png" alt="Stages" onerror="this.parentElement.style.display='none'" />
         <div class="shot-cap" lang-ar>مراحل التعلّم</div><div class="shot-cap" lang-en>Learning stages</div></div>
+        <div class="shot-cap" lang-ar>مراحل التعلّم</div><div class="shot-cap" lang-ru>Этапы обучения</div></div>
+        <div class="shot-cap" lang-ar>مراحل التعلّم</div><div class="shot-cap" lang-tr>Öğrenme aşamaları</div></div>
       <div class="shot"><img src="img/challenge.png" alt="Daily challenge" onerror="this.parentElement.style.display='none'" />
         <div class="shot-cap" lang-ar>تحدّي اليوم</div><div class="shot-cap" lang-en>Daily challenge</div></div>
+        <div class="shot-cap" lang-ar>تحدّي اليوم</div><div class="shot-cap" lang-ru>Ежедневное задание</div></div>
+        <div class="shot-cap" lang-ar>تحدّي اليوم</div><div class="shot-cap" lang-tr>Günlük görev</div></div>
       <div class="shot"><img src="img/level.png" alt="Level" onerror="this.parentElement.style.display='none'" />
         <div class="shot-cap" lang-ar>دروس المستوى</div><div class="shot-cap" lang-en>Level lessons</div></div>
+        <div class="shot-cap" lang-ar>دروس المستوى</div><div class="shot-cap" lang-ru>Уроки уровня</div></div>
+        <div class="shot-cap" lang-ar>دروس المستوى</div><div class="shot-cap" lang-tr>Seviye dersleri</div></div>
       <div class="shot"><img src="img/vocab.png" alt="Vocabulary bank" onerror="this.parentElement.style.display='none'" />
         <div class="shot-cap" lang-ar>بنك الكلمات بالصوت</div><div class="shot-cap" lang-en>Vocabulary bank with audio</div></div>
+        <div class="shot-cap" lang-ar>بنك الكلمات بالصوت</div><div class="shot-cap" lang-ru>Словарь с озвучкой</div></div>
+        <div class="shot-cap" lang-ar>بنك الكلمات بالصوت</div><div class="shot-cap" lang-tr>Sesli kelime bankası</div></div>
       <div class="shot"><img src="img/achievements.png" alt="Achievements" onerror="this.parentElement.style.display='none'" />
         <div class="shot-cap" lang-ar>الإنجازات والنتائج</div><div class="shot-cap" lang-en>Achievements &amp; scores</div></div>
+        <div class="shot-cap" lang-ar>الإنجازات والنتائج</div><div class="shot-cap" lang-ru>Достижения и баллы</div></div>
+        <div class="shot-cap" lang-ar>الإنجازات والنتائج</div><div class="shot-cap" lang-tr>Başarımlar ve puanlar</div></div>
     </div>
   </div>
 </section>
@@ -283,32 +422,54 @@
   <div class="wrap">
     <h2 class="sec" lang-ar>رحلتك خطوة بخطوة</h2>
     <h2 class="sec" lang-en>Your journey, step by step</h2>
+    <h2 class="sec" lang-ru>Ваш путь, шаг за шагом</h2>
+    <h2 class="sec" lang-tr>Yolculuğunuz, adım adım</h2>
     <p class="sec-sub" lang-ar>كل مرحلة خمسة مستويات، وكل مستوى دروس وامتحانات</p>
     <p class="sec-sub" lang-en>Each stage holds five levels; each level holds lessons and exams</p>
+    <p class="sec-sub" lang-ru>В каждом этапе пять уровней; в каждом уровне уроки и экзамены</p>
+    <p class="sec-sub" lang-tr>Her aşamada beş seviye; her seviyede dersler ve sınavlar</p>
     <div class="stage-grid">
       <div class="stage"><span class="tag">A1</span>
         <h3 lang-ar>الأساسيات الأولى</h3><h3 lang-en>First basics</h3>
+        <h3 lang-ar>الأساسيات الأولى</h3><h3 lang-ru>Первые основы</h3>
+        <h3 lang-ar>الأساسيات الأولى</h3><h3 lang-tr>İlk temeller</h3>
         <p lang-ar>الحروف، التحيات، التعريف عن النفس، الطعام، المدينة، العائلة.</p>
         <p lang-en>The alphabet, greetings, introducing yourself, food, the city, family.</p>
+        <p lang-ru>Алфавит, приветствия, рассказ о себе, еда, город, семья.</p>
+        <p lang-tr>Alfabe, selamlaşma, kendini tanıtma, yemek, şehir, aile.</p>
       </div>
       <div class="stage"><span class="tag">A2</span>
         <h3 lang-ar>الحياة اليومية</h3><h3 lang-en>Daily life</h3>
+        <h3 lang-ar>الحياة اليومية</h3><h3 lang-ru>Повседневная жизнь</h3>
+        <h3 lang-ar>الحياة اليومية</h3><h3 lang-tr>Günlük hayat</h3>
         <p lang-ar>روتينك اليومي، الماضي والمستقبل، الصحّة والطبيب، البيت، العمل.</p>
         <p lang-en>Your routine, past and future, health and the doctor, home, work.</p>
+        <p lang-ru>Ваш распорядок, прошлое и будущее, здоровье и врач, дом, работа.</p>
+        <p lang-tr>Günlük düzeniniz, geçmiş ve gelecek, sağlık ve doktor, ev, iş.</p>
       </div>
       <div class="stage"><span class="tag">B1</span>
         <h3 lang-ar>الاستقلال اللغوي</h3><h3 lang-en>Independence</h3>
+        <h3 lang-ar>الاستقلال اللغوي</h3><h3 lang-ru>Самостоятельность</h3>
+        <h3 lang-ar>الاستقلال اللغوي</h3><h3 lang-tr>Bağımsızlık</h3>
         <p lang-ar>السفر، المعاملات الرسمية، إبداء الرأي، المناسبات، أسلوب التهذيب.</p>
         <p lang-en>Travel, official paperwork, giving opinions, celebrations, polite forms.</p>
+        <p lang-ru>Поездки, официальные документы, выражение мнения, праздники, вежливые формы.</p>
+        <p lang-tr>Seyahat, resmî evraklar, görüş bildirme, kutlamalar, nezaket kalıpları.</p>
       </div>
       <div class="stage"><span class="tag">B2</span>
         <h3 lang-ar>نحو الاحتراف</h3><h3 lang-en>Toward mastery</h3>
+        <h3 lang-ar>نحو الاحتراف</h3><h3 lang-ru>К совершенству</h3>
+        <h3 lang-ar>نحو الاحتراف</h3><h3 lang-tr>Ustalığa doğru</h3>
         <p lang-ar>لغة الإعلانات والأخبار، السيرة الذاتية والمقابلات، الأمثال والعامية.</p>
         <p lang-en>Ads and news language, CVs and interviews, proverbs and slang.</p>
+        <p lang-ru>Язык рекламы и новостей, резюме и собеседования, пословицы и разговорная речь.</p>
+        <p lang-tr>Reklam ve haber dili, özgeçmiş ve mülakatlar, atasözleri ve argo.</p>
       </div>
     </div>
     <p class="sec-sub" style="margin:26px 0 0" lang-ar>ومع كل مرحلة يُفتح ١٥ سيناريو محادثة من مستواها.</p>
     <p class="sec-sub" style="margin:26px 0 0" lang-en>Each stage also unlocks 15 conversation scenarios at its level.</p>
+    <p class="sec-sub" style="margin:26px 0 0" lang-ru>Каждый этап также открывает 15 разговорных сценариев своего уровня.</p>
+    <p class="sec-sub" style="margin:26px 0 0" lang-tr>Her aşama ayrıca kendi seviyesinde 15 diyalog senaryosu açar.</p>
   </div>
 </section>
 
@@ -317,23 +478,39 @@
   <div class="wrap">
     <h2 class="sec" lang-ar>كيف تبدأ؟</h2>
     <h2 class="sec" lang-en>How to start?</h2>
+    <h2 class="sec" lang-ru>Как начать?</h2>
+    <h2 class="sec" lang-tr>Nasıl başlanır?</h2>
     <p class="sec-sub" lang-ar>ثلاث خطوات تفصلك عن أول جملة ليتوانية</p>
     <p class="sec-sub" lang-en>Three steps away from your first Lithuanian sentence</p>
+    <p class="sec-sub" lang-ru>Три шага до вашей первой фразы на литовском</p>
+    <p class="sec-sub" lang-tr>İlk Litvanca cümlenize üç adım</p>
     <div class="steps">
       <div class="step"><div class="n">1</div>
         <h3 lang-ar>حمّل التطبيق</h3><h3 lang-en>Download the app</h3>
+        <h3 lang-ar>حمّل التطبيق</h3><h3 lang-ru>Скачайте приложение</h3>
+        <h3 lang-ar>حمّل التطبيق</h3><h3 lang-tr>Uygulamayı indirin</h3>
         <p lang-ar>مجاناً من Google Play، وسجّل دخولك بحساب Google بضغطة واحدة.</p>
         <p lang-en>Free on Google Play; sign in with your Google account in one tap.</p>
+        <p lang-ru>Бесплатно в Google Play; вход через аккаунт Google в одно касание.</p>
+        <p lang-tr>Google Play’de ücretsiz; Google hesabınızla tek dokunuşta giriş.</p>
       </div>
       <div class="step"><div class="n">2</div>
         <h3 lang-ar>اختر لغتك وابدأ A1</h3><h3 lang-en>Pick your language, start A1</h3>
+        <h3 lang-ar>اختر لغتك وابدأ A1</h3><h3 lang-ru>Выберите язык, начните с A1</h3>
+        <h3 lang-ar>اختر لغتك وابدأ A1</h3><h3 lang-tr>Dilinizi seçin, A1’den başlayın</h3>
         <p lang-ar>عربي أو إنجليزي — وابدأ من الحروف أو تخطَّ ما تعرفه.</p>
         <p lang-en>Arabic or English — start from the alphabet or skip what you know.</p>
+        <p lang-ru>Арабский, английский, русский или турецкий — начните с алфавита или пропустите знакомое.</p>
+        <p lang-tr>Arapça, İngilizce, Rusça veya Türkçe — alfabeden başlayın ya da bildiğinizi atlayın.</p>
       </div>
       <div class="step"><div class="n">3</div>
         <h3 lang-ar>تكلّم وامتحن نفسك</h3><h3 lang-en>Speak, then test yourself</h3>
+        <h3 lang-ar>تكلّم وامتحن نفسك</h3><h3 lang-ru>Говорите, затем проверьте себя</h3>
+        <h3 lang-ar>تكلّم وامتحن نفسك</h3><h3 lang-tr>Konuşun, sonra kendinizi sınayın</h3>
         <p lang-ar>تحدٍّ يومي قصير، سيناريوهات تتكلّمها بصوتك، ونماذج امتحان تحاكي الامتحان الرسمي قبل موعده.</p>
         <p lang-en>A short daily challenge, scenarios you speak out loud, and mock models that mirror the official exam before the real day.</p>
+        <p lang-ru>Короткое ежедневное задание, сценарии, которые вы проговариваете, и пробные модели, повторяющие официальный экзамен до самого дня.</p>
+        <p lang-tr>Kısa bir günlük görev, sesli konuştuğunuz senaryolar ve gerçek günden önce resmî sınavı birebir yansıtan deneme modelleri.</p>
       </div>
     </div>
   </div>
@@ -344,8 +521,12 @@
   <div class="wrap">
     <h2 class="sec" lang-ar>تواصل معنا</h2>
     <h2 class="sec" lang-en>Contact us</h2>
+    <h2 class="sec" lang-ru>Свяжитесь с нами</h2>
+    <h2 class="sec" lang-tr>Bize ulaşın</h2>
     <p lang-ar>سؤال، اقتراح، أو مشكلة؟ يسعدنا سماعك.</p>
     <p lang-en>A question, a suggestion, or a problem? We'd love to hear from you.</p>
+    <p lang-ru>Вопрос, предложение или проблема? Будем рады услышать вас.</p>
+    <p lang-tr>Bir soru, bir öneri ya da bir sorun mu var? Sizi duymak isteriz.</p>
     <a class="mail" href="mailto:support@kaskalba.com">support@kaskalba.com</a>
   </div>
 </section>
@@ -356,25 +537,63 @@
     <div>
       <a href="privacy.html" lang-ar>سياسة الخصوصية</a>
       <a href="privacy.html" lang-en>Privacy Policy</a>
+      <a href="privacy.html" lang-ru>Политика конфиденциальности</a>
+      <a href="privacy.html" lang-tr>Gizlilik Politikası</a>
     </div>
   </div>
 </footer>
 
 <script>
-  // ar (default, RTL) ↔ en (LTR); choice persists.
+  var LANGS = {
+    ar: { dir:'rtl', name:'العربية', title:"KasKalba — تعلّم اللغة الليتوانية" },
+    en: { dir:'ltr', name:'English', title:"KasKalba — Learn Lithuanian" },
+    ru: { dir:'ltr', name:'Русский', title:"KasKalba — учите литовский" },
+    tr: { dir:'ltr', name:'Türkçe', title:"KasKalba — Litvanca öğrenin" }
+  };
+  var wrap = document.getElementById('lang');
+  var trigger = document.getElementById('langTrigger');
+  var menu = document.getElementById('langMenu');
+
   function applyLang(l) {
-    const html = document.documentElement;
-    html.classList.toggle('en', l === 'en');
+    if (!LANGS[l]) l = 'ar';
+    var html = document.documentElement;
+    html.classList.remove('en', 'ru', 'tr');
+    if (l !== 'ar') html.classList.add(l);
     html.setAttribute('lang', l);
-    html.setAttribute('dir', l === 'en' ? 'ltr' : 'rtl');
-    document.getElementById('langBtn').textContent = l === 'en' ? 'العربية' : 'English';
-    document.title = l === 'en' ? 'KasKalba — Learn Lithuanian' : 'KasKalba — تعلّم اللغة الليتوانية';
-    localStorage.setItem('lingolt-lang', l);
+    html.setAttribute('dir', LANGS[l].dir);
+    if (LANGS[l].title) document.title = LANGS[l].title;
+    document.getElementById('langLabel').textContent = LANGS[l].name;
+    Array.prototype.forEach.call(menu.querySelectorAll('li'), function (li) {
+      li.setAttribute('aria-selected', String(li.getAttribute('data-lang') === l));
+    });
+    try { localStorage.setItem('lingolt-lang', l); } catch (e) {}
   }
-  function toggleLang() {
-    applyLang(document.documentElement.classList.contains('en') ? 'ar' : 'en');
+
+  function setOpen(open) {
+    if (open) wrap.setAttribute('data-open', ''); else wrap.removeAttribute('data-open');
+    trigger.setAttribute('aria-expanded', String(open));
   }
-  applyLang(localStorage.getItem('lingolt-lang') || 'ar');
+
+  trigger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!wrap.hasAttribute('data-open'));
+  });
+  menu.addEventListener('click', function (e) {
+    var li = e.target.closest ? e.target.closest('li') : null;
+    if (!li) return;
+    applyLang(li.getAttribute('data-lang'));
+    setOpen(false);
+  });
+  // Outside click and Escape. A panel that only closes by pressing the same
+  // button again is the other half of feeling clumsy.
+  document.addEventListener('click', function () { setOpen(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+
+  // A stored preference may predate the two newer languages; applyLang falls
+  // back rather than leaving the page with every block hidden.
+  var saved = null;
+  try { saved = localStorage.getItem('lingolt-lang'); } catch (e) {}
+  applyLang(saved || 'ar');
 </script>
 </body>
 </html>
