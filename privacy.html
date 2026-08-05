@@ -12,7 +12,7 @@
   .wrap { max-width: 820px; margin: 0 auto; padding: 0 22px; }
   header { position: sticky; top:0; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom:1px solid var(--line); z-index:10; }
   .nav { display:flex; align-items:center; justify-content:space-between; height:64px; }
-  .logo { font-size:1.45rem; font-weight:800; color:var(--green); text-decoration:none; }
+  .logo { font-size:1.45rem; font-weight:800; color:var(--green); }
   .logo span { color:#d97706; }
   /* Logo mark sits beside the wordmark; inline-flex keeps them on one
      baseline without the emoji it replaced dictating the line height. */
@@ -27,19 +27,30 @@
   p, li { color:#333; font-size:1rem; }
   ul { padding-inline-start: 22px; margin: 6px 0; }
   .box { background:var(--green-bg); border:1px solid #cdeee0; border-radius:14px; padding:16px 18px; margin:18px 0; }
-  a { color:var(--green); font-weight:700; }
-  footer { border-top:1px solid var(--line); padding:24px 0; color:var(--muted); font-size:.92rem; }
   .foot { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
-  [lang-en] { display:none; }
-  html.en [lang-ar] { display:none; }
+  a { color:var(--green); font-weight:700; }
+  footer { border-top:1px solid var(--line); padding:24px 0; color:var(--muted); font-size:.92rem; text-align:center; }
+  /* Arabic is the default because it is what <html> starts as; every other
+     block stays hidden until its language is selected. One rule per language
+     rather than the two-way toggle this page began with. */
+  [lang-en], [lang-ru], [lang-tr] { display:none; }
+  html.en [lang-ar], html.ru [lang-ar], html.tr [lang-ar] { display:none; }
   html.en [lang-en] { display:revert; }
+  html.ru [lang-ru] { display:revert; }
+  html.tr [lang-tr] { display:revert; }
+  .lang-btn { font: inherit; }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap nav">
     <a class="logo" href="index.html"><img class="logo-mark" src="img/logo.png" alt="" width="34" height="34">Kas<span>Kalba</span></a>
-    <button class="lang-btn" onclick="toggleLang()" id="langBtn">English</button>
+    <select class="lang-btn" id="langSel" onchange="applyLang(this.value)" aria-label="Language">
+      <option value="ar">العربية</option>
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="tr">Türkçe</option>
+    </select>
   </div>
 </header>
 
@@ -48,16 +59,16 @@
   <!-- ===================== ARABIC ===================== -->
   <div lang-ar>
     <h1>سياسة الخصوصية</h1>
-    <div class="updated">آخر تحديث: 30 يوليو 2026 — تنطبق على تطبيق KasKalba لنظام أندرويد</div>
+    <div class="updated">آخر تحديث: أغسطس 2026 — تنطبق على تطبيق KasKalba لنظامَي أندرويد وiOS</div>
 
     <p>نحترم خصوصيتك ونلتزم بحمايتها. توضّح هذه السياسة البيانات التي يجمعها تطبيق KasKalba («التطبيق»)، وكيف نستخدمها، وحقوقك تجاهها. باستخدامك التطبيق فأنت توافق على ما ورد فيها.</p>
 
-    <h2>١. تسجيل الدخول بحساب Google</h2>
-    <p>يتطلّب استخدام التطبيق تسجيل الدخول بحساب Google. عند تسجيل الدخول نحصل من Google على: اسمك، وبريدك الإلكتروني، ومُعرّف حسابك. نستخدم هذه المعلومات لإنشاء حسابك، وحفظ تقدّمك، وربطه بك حتى تتابع التعلّم من أي جهاز. لا نحصل على كلمة مرورك ولا على أي بيانات أخرى من حسابك.</p>
+    <h2>١. تسجيل الدخول</h2>
+    <p>يتطلّب استخدام التطبيق تسجيل الدخول بحساب Google أو Apple أو ببريدك الإلكتروني. عند تسجيل الدخول نحصل من مزوّد الدخول على: اسمك، وبريدك الإلكتروني، ومُعرّف حسابك (الدخول بالبريد يعطينا البريد وحده). نستخدم هذه المعلومات لإنشاء حسابك، وحفظ تقدّمك، وربطه بك حتى تتابع التعلّم من أي جهاز. لا نحصل على كلمة مرورك ولا على أي بيانات أخرى من حسابك. ويمكنك ربط أكثر من طريقة دخول بالحساب نفسه من صفحة الحساب، فتصل إليه من أي جهاز مهما كانت الطريقة التي بدأت بها.</p>
 
     <h2>٢. البيانات التي نجمعها</h2>
     <ul>
-      <li><b>بيانات الحساب:</b> الاسم والبريد الإلكتروني ومعرّف الحساب (من Google).</li>
+      <li><b>بيانات الحساب:</b> الاسم والبريد الإلكتروني ومعرّف الحساب (من مزوّد تسجيل الدخول).</li>
       <li><b>الأسئلة التعريفية (مرة واحدة):</b> الدولة، الجنس، الفئة العمرية، هدفك من التعلّم، والمستوى الذي تطمح إليه.</li>
       <li><b>بيانات التعلّم:</b> إجاباتك على التمارين (صحيحة أم خاطئة)، الدروس والمستويات التي تفتحها وتكملها، نتائج الامتحانات والتحدّي اليومي، وسلسلة الاستمرارية.</li>
       <li><b>نماذج الامتحانات:</b> إجاباتك التفصيلية في نماذج محاكاة امتحان الدولة وامتحان الدستور (السؤال، وما اخترته، وهل كان صحيحاً) ودرجاتك فيها.</li>
@@ -66,11 +77,11 @@
       <li><b>إعدادات التطبيق:</b> مثل لغة الواجهة ووقت التذكير — تُحفظ على جهازك.</li>
       <li><b>بيانات الجهاز:</b> نظام التشغيل وإصداره، الشركة المصنّعة وطراز الجهاز، إصدار التطبيق، لغة الجهاز والمنطقة الزمنية، ومقاس الشاشة.</li>
       <li><b>بيانات الاستخدام:</b> أوقات فتح التطبيق ومدّة الجلسات والشاشات التي تزورها. إذا سجّلت الدخول من أكثر من هاتف، نربط حسابك بكل جهاز لحماية حسابك ولفهم طريقة الاستخدام.</li>
-      <li><b>بيانات الاشتراك:</b> الباقة والخطة المشتراة، السعر والعملة، تاريخ الشراء وتاريخ الانتهاء المتوقّع، ورقم العملية من Google Play.</li>
+      <li><b>بيانات الاشتراك:</b> الباقة والخطة المشتراة، السعر والعملة، تاريخ الشراء وتاريخ الانتهاء المتوقّع، ورقم العملية من المتجر الذي اشتريتَ منه (Google Play أو App Store) وردّه على التحقّق.</li>
     </ul>
     <p>لا نجمع موقعك الجغرافي، ولا جهات اتصالك، ولا ملفاتك، ولا نصل إلى الكاميرا. أمّا الميكروفون فيُستخدم في تدريب النطق الاختياري فقط، وفق التفصيل في القسم التالي.</p>
     <div class="box">🚫 <b>لا نجمع أبداً:</b> المعرّف الإعلاني، ولا رقم IMEI، ولا عنوان MAC، ولا الرقم التسلسلي للجهاز، ولا اسم الجهاز. ولا نستخدم أي تتبّع إعلاني.</div>
-    <div class="box">💳 <b>الدفع:</b> تتم عمليات الدفع بالكامل عبر Google Play. نحن لا نرى ولا نستلم ولا نحفظ أي بيانات بطاقتك البنكية إطلاقاً.</div>
+    <div class="box">💳 <b>الدفع:</b> تتم عمليات الدفع بالكامل عبر المتجر (Google Play أو App Store). نحن لا نرى ولا نستلم ولا نحفظ أي بيانات بطاقتك البنكية إطلاقاً.</div>
 
     <h2>٣. الميكروفون وتدريب النطق</h2>
     <p>يتضمّن قسم السيناريوهات تدريباً <b>اختيارياً</b> على النطق: يقرأ التطبيق دور المحدّث، وتردّ أنت بصوتك، فيمنحك نسبة تطابق مع الجملة الصحيحة.</p>
@@ -93,14 +104,14 @@
     <h2>٥. الاشتراكات والمشتريات</h2>
     <p>يوفّر التطبيق محتوى مجانياً للتجربة (أول ثلاثة مستويات وأول ثلاثة سيناريوهات وأول نموذج من فئة A1/A2)، وثلاث باقات مدفوعة منفصلة:</p>
     <ul>
-      <li><b>باقة التعلّم والسيناريوهات:</b> شهرية أو سنوية، <b>تتجدّد تلقائياً</b> ويمكن إلغاؤها في أي وقت من Google Play.</li>
+      <li><b>باقة التعلّم والسيناريوهات:</b> شهرية أو سنوية، <b>تتجدّد تلقائياً</b> ويمكن إلغاؤها في أي وقت من المتجر الذي اشتريتَ منه.</li>
       <li><b>باقة محاكاة امتحان الدولة:</b> أسبوع أو شهر، <b>دفعة لمرة واحدة</b> بلا تجديد تلقائي.</li>
       <li><b>باقة امتحان الدستور:</b> شهر واحد، <b>دفعة لمرة واحدة</b> بلا تجديد تلقائي.</li>
     </ul>
-    <p>الباقات المدفوعة مسبقاً تنتهي بانتهاء مدّتها دون أي خصم جديد، وتجديدها يتم بشرائها مرة أخرى بإرادتك. تُدار كل عمليات الدفع والإلغاء والاسترداد عبر Google Play وفق سياساتها.</p>
+    <p>الباقات المدفوعة مسبقاً تنتهي بانتهاء مدّتها دون أي خصم جديد، وتجديدها يتم بشرائها مرة أخرى بإرادتك. تُدار كل عمليات الدفع والإلغاء والاسترداد عبر المتجر الذي اشتريتَ منه (Google Play أو App Store) وفق سياساته. ونرسل رقم العملية إلى ذلك المتجر للتأكّد من صحّة الشراء وربطه بحسابك، ونحفظ ردّه؛ ولهذا يعمل اشتراكك على كل أجهزتك مهما كان المتجر الذي اشتريت منه.</p>
 
     <h2>٦. أين تُحفظ البيانات ومن يصل إليها</h2>
-    <p>تُحفظ البيانات بشكل آمن لدى خدمة <b>Supabase</b> (قاعدة بيانات سحابية) وتُنقل عبر اتصال مشفّر (HTTPS). الوصول محميّ بقواعد أمان، ولا يطّلع على البيانات إلا فريق التطبيق للأغراض المذكورة أعلاه. مزوّدو الخدمة الذين نعتمد عليهم تقنياً: Google (تسجيل الدخول، الفوترة، والتعرّف على الكلام في نظام الهاتف) وSupabase (التخزين).</p>
+    <p>تُحفظ البيانات بشكل آمن لدى خدمة <b>Supabase</b> (قاعدة بيانات سحابية) وتُنقل عبر اتصال مشفّر (HTTPS). الوصول محميّ بقواعد أمان، ولا يطّلع على البيانات إلا فريق التطبيق للأغراض المذكورة أعلاه. مزوّدو الخدمة الذين نعتمد عليهم تقنياً: Google (تسجيل الدخول، الفوترة، والتعرّف على الكلام في نظام الهاتف) وApple (تسجيل الدخول والفوترة على iOS) وSupabase (التخزين) وResend (إيصال رسائل التواصل إلى بريد الدعم).</p>
 
     <h2>٧. مدّة الاحتفاظ</h2>
     <p>نحتفظ ببياناتك ما دام حسابك قائماً. عند طلب حذف الحساب تُحذف بياناتك الشخصية، وقد نحتفظ ببيانات مجهولة الهوية (لا يمكن ربطها بك) لأغراض إحصائية وبحثية.</p>
@@ -115,6 +126,7 @@
     <p>قد نحدّث هذه السياسة من وقت لآخر. سننشر أي تغيير هنا وداخل التطبيق مع تحديث تاريخ «آخر تحديث» أعلاه.</p>
 
     <h2>١١. التواصل</h2>
+    <p>عند إرسال رسالة عبر «تواصل معنا» داخل التطبيق نحفظ اسمك وبريدك ونصّ رسالتك، ونُرسل نسخة منها تلقائياً إلى بريد الدعم عبر مزوّد بريد خارجي (Resend) لنتمكّن من الردّ عليك.</p>
     <p>لأي استفسار حول خصوصيتك أو بياناتك، أو لطلب الاطّلاع عليها أو حذفها:<br />
     📧 <a href="mailto:support@kaskalba.com">support@kaskalba.com</a></p>
   </div>
@@ -122,16 +134,16 @@
   <!-- ===================== ENGLISH ===================== -->
   <div lang-en>
     <h1>Privacy Policy</h1>
-    <div class="updated">Last updated: July 30, 2026 — applies to the KasKalba app for Android</div>
+    <div class="updated">Last updated: August 2026 — applies to the KasKalba app for Android and iOS</div>
 
     <p>We respect your privacy and are committed to protecting it. This policy explains what data the KasKalba app ("the App") collects, how we use it, and your rights over it. By using the App you agree to this policy.</p>
 
-    <h2>1. Signing in with Google</h2>
-    <p>Using the App requires signing in with a Google account. When you sign in we receive from Google: your name, email address, and account identifier. We use this to create your account, save your progress, and link it to you so you can continue learning from any device. We never receive your password or any other data from your account.</p>
+    <h2>1. Signing in</h2>
+    <p>Using the App requires signing in with a Google account, an Apple account, or your email address. When you sign in we receive from the sign-in provider: your name, email address, and account identifier (email sign-in gives us only the email). We use this to create your account, save your progress, and link it to you so you can continue learning from any device. We never receive your password or any other data from your account. You can also link more than one sign-in method to the same account from the Account page, so you can reach it from any device whichever method you started with.</p>
 
     <h2>2. The data we collect</h2>
     <ul>
-      <li><b>Account data:</b> name, email, and account identifier (from Google).</li>
+      <li><b>Account data:</b> name, email, and account identifier (from the sign-in provider).</li>
       <li><b>One-time profile questions:</b> country, gender, age group, your learning goal, and the level you aim for.</li>
       <li><b>Learning data:</b> your exercise answers (correct or not), the lessons and levels you unlock and complete, exam and daily-challenge results, and your streak.</li>
       <li><b>Exam models:</b> your individual answers in the state-exam simulation and constitution models (the question, what you chose, and whether it was right) and your scores.</li>
@@ -140,11 +152,11 @@
       <li><b>App settings:</b> such as interface language and reminder time — stored on your device.</li>
       <li><b>Device data:</b> operating system and version, manufacturer and model, app version, device language and time zone, and screen size.</li>
       <li><b>Usage data:</b> when the app is opened, how long sessions last, and which screens you visit. If you sign in on more than one phone, we link your account to each device to protect your account and understand usage.</li>
-      <li><b>Subscription data:</b> the package and plan purchased, the price and currency, the purchase date and expected end date, and the Google Play order id.</li>
+      <li><b>Subscription data:</b> the package and plan purchased, the price and currency, the purchase date and expected end date, and the order id from the store you bought from (Google Play or the App Store) with its verification reply.</li>
     </ul>
     <p>We do not collect your location, contacts, or files, and we never access your camera. The microphone is used only for the optional pronunciation practice, as detailed in the next section.</p>
     <div class="box">🚫 <b>We never collect:</b> the advertising ID, IMEI, MAC address, hardware serial number, or device name. We use no advertising trackers of any kind.</div>
-    <div class="box">💳 <b>Payments:</b> all payments are handled entirely by Google Play. We never see, receive, or store any of your bank card details.</div>
+    <div class="box">💳 <b>Payments:</b> all payments are handled entirely by the store (Google Play or the App Store). We never see, receive, or store any of your bank card details.</div>
 
     <h2>3. Microphone and speaking practice</h2>
     <p>The scenarios section includes <b>optional</b> pronunciation practice: the app speaks one role, you reply with your voice, and you get a match score against the target sentence.</p>
@@ -167,14 +179,14 @@
     <h2>5. Subscriptions and purchases</h2>
     <p>The App offers free content to try (the first three levels, the first three scenarios, and the first A1/A2 exam model), plus three separate paid packages:</p>
     <ul>
-      <li><b>Learning + scenarios plan:</b> monthly or annual, <b>auto-renewing</b>, cancellable anytime in Google Play.</li>
+      <li><b>Learning + scenarios plan:</b> monthly or annual, <b>auto-renewing</b>, cancellable anytime in the store you bought from.</li>
       <li><b>State-exam simulation plan:</b> one week or one month, a <b>one-time payment</b> with no auto-renewal.</li>
       <li><b>Constitution exam plan:</b> one month, a <b>one-time payment</b> with no auto-renewal.</li>
     </ul>
-    <p>Prepaid packages simply end when their period ends, with no further charge; renewing them means buying them again by your own choice. All payments, cancellations, and refunds are handled by Google Play under its policies.</p>
+    <p>Prepaid packages simply end when their period ends, with no further charge; renewing them means buying them again by your own choice. All payments, cancellations, and refunds are handled by the store you bought from (Google Play or the App Store) under its policies. We send the order id to that store to confirm the purchase is genuine and attach it to your account, and we store its reply — which is what lets your subscription work on all of your devices whichever store you bought from.</p>
 
     <h2>6. Where the data is stored and who can access it</h2>
-    <p>Data is stored securely with <b>Supabase</b> (a cloud database) and transferred over an encrypted connection (HTTPS). Access is protected by security rules, and only the app team can view the data, for the purposes described above. The service providers we rely on technically are Google (sign-in, billing, and the phone's speech recognition) and Supabase (storage).</p>
+    <p>Data is stored securely with <b>Supabase</b> (a cloud database) and transferred over an encrypted connection (HTTPS). Access is protected by security rules, and only the app team can view the data, for the purposes described above. The service providers we rely on technically are Google (sign-in, billing, and the phone's speech recognition), Apple (sign-in and billing on iOS), Supabase (storage) and Resend (delivering contact messages to our support inbox).</p>
 
     <h2>7. Retention</h2>
     <p>We keep your data for as long as your account exists. When you request account deletion, your personal data is deleted; we may keep anonymized data (which cannot be linked to you) for statistical and research purposes.</p>
@@ -189,7 +201,158 @@
     <p>We may update this policy from time to time. Any change will be posted here and inside the App, with the "Last updated" date above revised.</p>
 
     <h2>11. Contact</h2>
+    <p>When you send a message through "Contact Us" inside the App, we store your name, email and message, and a copy is forwarded automatically to our support inbox through an external mail provider (Resend) so we can reply to you.</p>
     <p>For any question about your privacy or your data, or to request access or deletion:<br />
+    📧 <a href="mailto:support@kaskalba.com">support@kaskalba.com</a></p>
+  </div>
+
+  <!-- ===================== RUSSIAN ===================== -->
+  <div lang-ru>
+    <h1>Политика конфиденциальности</h1>
+    <div class="updated">Последнее обновление: август 2026 — относится к приложению KasKalba для Android и iOS</div>
+
+    <p>Мы уважаем вашу приватность и обязуемся её защищать. Эта политика объясняет, какие данные собирает приложение KasKalba («Приложение»), как мы их используем и какие у вас есть права. Пользуясь Приложением, вы принимаете эту политику.</p>
+
+    <h2>1. Вход в аккаунт</h2>
+    <p>Для работы с Приложением нужен вход через аккаунт Google, аккаунт Apple или по адресу электронной почты. При входе мы получаем от поставщика входа: ваше имя, адрес электронной почты и идентификатор аккаунта (при входе по почте — только адрес). Эти данные нужны, чтобы создать ваш аккаунт, сохранять прогресс и привязать его к вам, чтобы вы продолжали учиться с любого устройства. Мы никогда не получаем ваш пароль и никакие другие данные вашего аккаунта. Вы также можете привязать несколько способов входа к одному аккаунту на странице «Аккаунт» — тогда вы попадёте в него с любого устройства, с какого бы способа ни начали.</p>
+
+    <h2>2. Какие данные мы собираем</h2>
+    <ul>
+      <li><b>Данные аккаунта:</b> имя, почта и идентификатор аккаунта (от поставщика входа).</li>
+      <li><b>Вопросы при первом запуске:</b> страна, пол, возрастная группа, цель обучения и уровень, к которому вы стремитесь.</li>
+      <li><b>Учебные данные:</b> ваши ответы на упражнения (верные или нет), открытые и пройденные уроки и уровни, результаты экзаменов и ежедневных заданий, ваша серия.</li>
+      <li><b>Экзаменационные модели:</b> ваши ответы в симуляции госэкзамена и в модуле Конституции (вопрос, что вы выбрали и верно ли это) и ваши баллы.</li>
+      <li><b>Интерактивные сценарии:</b> ваш выбор в диалоге, результат сценария и прогресс в произношении (оценка совпадения и число попыток — не сама запись).</li>
+      <li><b>Ваши обращения:</b> то, что вы отправляете через «Оставить отзыв» или «Связаться с нами».</li>
+      <li><b>Настройки приложения:</b> язык интерфейса, время напоминания и подобное — хранятся на вашем устройстве.</li>
+      <li><b>Данные устройства:</b> операционная система и её версия, производитель и модель, версия приложения, язык и часовой пояс устройства, размер экрана.</li>
+      <li><b>Данные об использовании:</b> когда приложение открывается, сколько длятся сессии и какие экраны вы посещаете. Если вы входите с нескольких телефонов, мы связываем аккаунт с каждым устройством — для защиты аккаунта и понимания использования.</li>
+      <li><b>Данные о подписке:</b> купленный пакет и план, цена и валюта, дата покупки и предполагаемая дата окончания, а также номер заказа из магазина, где вы купили (Google Play или App Store), с ответом этого магазина о проверке.</li>
+    </ul>
+    <p>Мы не собираем ваше местоположение, контакты и файлы и никогда не обращаемся к камере. Микрофон используется только для необязательной практики произношения — см. следующий раздел.</p>
+    <div class="box">🚫 <b>Мы никогда не собираем:</b> рекламный идентификатор, IMEI, MAC-адрес, серийный номер оборудования или имя устройства. Мы не используем никаких рекламных трекеров.</div>
+    <div class="box">💳 <b>Платежи:</b> все платежи полностью обрабатывает магазин (Google Play или App Store). Мы никогда не видим, не получаем и не храним данные вашей банковской карты.</div>
+
+    <h2>3. Микрофон и практика речи</h2>
+    <p>В разделе сценариев есть <b>необязательная</b> практика произношения: приложение произносит одну роль, вы отвечаете голосом и получаете оценку совпадения с целевой фразой.</p>
+    <ul>
+      <li><b>Когда включается микрофон:</b> только пока вы удерживаете кнопку записи, и он выключается, как только вы отпускаете палец. Он никогда не работает в фоне или в других разделах.</li>
+      <li><b>Как обрабатывается звук:</b> ваша речь преобразуется в текст службой распознавания речи, встроенной в ваш телефон (Google); эта обработка регулируется собственной политикой Google для системных служб.</li>
+      <li><b>Чего мы не делаем:</b> мы никогда не записываем ваш голос, не загружаем его на наши серверы, не храним и никому не передаём. Ни один аудиофайл не покидает ваше устройство ради нас.</li>
+      <li><b>Что мы храним:</b> только числа — оценку совпадения, количество попыток и пройдена ли фраза, чтобы измерять ваш прогресс в речи.</li>
+      <li><b>Ваш контроль:</b> вы можете отказать в доступе к микрофону или отозвать его позже в настройках телефона; всё, кроме практики речи, продолжит работать полностью.</li>
+    </ul>
+
+    <h2>4. Как мы используем данные</h2>
+    <ul>
+      <li><b>Работа Приложения:</b> сохранение прогресса, его синхронизация с аккаунтом и определение того, какой контент открывает ваша подписка.</li>
+      <li><b>Улучшение содержания:</b> выявление трудных уроков и вопросов, в которых учащиеся чаще ошибаются.</li>
+      <li><b>Академическое исследование:</b> данные анализируются в рамках выпускного университетского проекта по анализу данных для изучения того, как усваивается язык. В этом контексте данные обрабатываются в агрегированном виде или под псевдонимами, и ни один опубликованный результат не раскроет вашу личность.</li>
+    </ul>
+    <div class="box">🔒 <b>Мы никогда не продаём ваши данные</b> и не передаём их третьим лицам в маркетинговых целях.</div>
+
+    <h2>5. Подписки и покупки</h2>
+    <p>Приложение предлагает бесплатный контент для пробы (первые три уровня, первые три сценария и первая модель экзамена A1/A2), а также три отдельных платных пакета:</p>
+    <ul>
+      <li><b>Пакет обучения и сценариев:</b> месячный или годовой, <b>с автопродлением</b>, отменяется в любой момент в магазине, где вы купили.</li>
+      <li><b>Пакет симуляции госэкзамена:</b> неделя или месяц, <b>разовый платёж</b> без автопродления.</li>
+      <li><b>Пакет экзамена по Конституции:</b> один месяц, <b>разовый платёж</b> без автопродления.</li>
+    </ul>
+    <p>Предоплаченные пакеты просто заканчиваются по истечении срока без новых списаний; продлить их — значит купить снова по вашему выбору. Все платежи, отмены и возвраты обрабатывает магазин, где вы купили (Google Play или App Store), по своим правилам. Мы отправляем номер заказа в этот магазин, чтобы убедиться в подлинности покупки и привязать её к вашему аккаунту, и сохраняем его ответ — именно поэтому подписка работает на всех ваших устройствах, из какого бы магазина вы ни купили.</p>
+
+    <h2>6. Где хранятся данные и кто к ним имеет доступ</h2>
+    <p>Данные надёжно хранятся в <b>Supabase</b> (облачная база данных) и передаются по зашифрованному соединению (HTTPS). Доступ защищён правилами безопасности, и данные видит только команда приложения — для целей, описанных выше. Технические поставщики услуг, на которых мы опираемся: Google (вход, оплата и распознавание речи в телефоне), Apple (вход и оплата в iOS), Supabase (хранение) и Resend (доставка сообщений из «Связаться с нами» в нашу почту поддержки).</p>
+
+    <h2>7. Срок хранения</h2>
+    <p>Мы храним ваши данные, пока существует ваш аккаунт. При запросе на удаление аккаунта ваши персональные данные удаляются; мы можем сохранить обезличенные данные (которые нельзя связать с вами) для статистики и исследования.</p>
+
+    <h2>8. Ваши права</h2>
+    <p>Согласно Общему регламенту ЕС о защите данных (GDPR) и другим законам, вы вправе получить доступ к своим данным, исправить их, потребовать их удаления и в любой момент отозвать согласие. Вы можете выйти из аккаунта на странице «Аккаунт» в Приложении и в любой момент отключить сбор данных об использовании в разделе <b>Настройки → Приватность</b> (на прогресс и подписку это не влияет). Чтобы запросить доступ к данным или их полное удаление, напишите на <a href="mailto:support@kaskalba.com">support@kaskalba.com</a> — мы выполним запрос в течение 30 дней.</p>
+
+    <h2>9. Дети</h2>
+    <p>Приложение не предназначено для детей младше 13 лет. Если нам станет известно, что мы собрали данные ребёнка младше этого возраста без согласия родителей, мы немедленно их удалим.</p>
+
+    <h2>10. Изменения этой политики</h2>
+    <p>Мы можем время от времени обновлять эту политику. Любое изменение будет опубликовано здесь и в Приложении, а дата «Последнее обновление» выше будет исправлена.</p>
+
+    <h2>11. Контакты</h2>
+    <p>Когда вы отправляете сообщение через «Связаться с нами» в Приложении, мы сохраняем ваше имя, адрес и текст сообщения, а его копия автоматически пересылается в нашу почту поддержки через внешнего почтового провайдера (Resend), чтобы мы могли вам ответить.</p>
+    <p>По любым вопросам о вашей приватности или данных, а также для запроса доступа или удаления:<br />
+    📧 <a href="mailto:support@kaskalba.com">support@kaskalba.com</a></p>
+  </div>
+
+  <!-- ===================== TURKISH ===================== -->
+  <div lang-tr>
+    <h1>Gizlilik Politikası</h1>
+    <div class="updated">Son güncelleme: Ağustos 2026 — KasKalba uygulamasının Android ve iOS sürümleri için geçerlidir</div>
+
+    <p>Gizliliğinize saygı duyuyor ve onu korumayı taahhüt ediyoruz. Bu politika, KasKalba uygulamasının (“Uygulama”) hangi verileri topladığını, bunları nasıl kullandığımızı ve haklarınızı açıklar. Uygulamayı kullanarak bu politikayı kabul etmiş olursunuz.</p>
+
+    <h2>1. Giriş yapma</h2>
+    <p>Uygulamayı kullanmak için bir Google hesabı, bir Apple hesabı veya e-posta adresinizle giriş yapmanız gerekir. Giriş yaptığınızda giriş sağlayıcısından şunları alırız: adınız, e-posta adresiniz ve hesap kimliğiniz (e-posta ile girişte yalnızca e-posta). Bunları hesabınızı oluşturmak, ilerlemenizi kaydetmek ve size bağlamak için kullanırız; böylece her cihazdan öğrenmeye devam edebilirsiniz. Şifrenizi veya hesabınızdan başka herhangi bir veriyi asla almayız. Ayrıca Hesap sayfasından aynı hesaba birden fazla giriş yöntemi bağlayabilirsiniz — böylece hangi yöntemle başlamış olursanız olun hesabınıza her cihazdan ulaşırsınız.</p>
+
+    <h2>2. Topladığımız veriler</h2>
+    <ul>
+      <li><b>Hesap verileri:</b> ad, e-posta ve hesap kimliği (giriş sağlayıcısından).</li>
+      <li><b>İlk açılıştaki sorular:</b> ülke, cinsiyet, yaş grubu, öğrenme hedefiniz ve ulaşmak istediğiniz seviye.</li>
+      <li><b>Öğrenme verileri:</b> alıştırma cevaplarınız (doğru olsun olmasın), açtığınız ve tamamladığınız dersler ve seviyeler, sınav ve günlük görev sonuçları ve seriniz.</li>
+      <li><b>Sınav modelleri:</b> devlet sınavı simülasyonu ve Anayasa modüllerindeki tek tek cevaplarınız (soru, seçtiğiniz şık ve doğru olup olmadığı) ve puanlarınız.</li>
+      <li><b>Etkileşimli senaryolar:</b> diyalogda yaptığınız seçimler, senaryo puanı ve konuşma pratiği ilerlemeniz (eşleşme puanı ve deneme sayısı — ses kaydının kendisi değil).</li>
+      <li><b>Geri bildiriminiz:</b> “Görüş Bildir” veya “Bize Ulaşın” üzerinden gönderdikleriniz.</li>
+      <li><b>Uygulama ayarları:</b> arayüz dili ve hatırlatma saati gibi — cihazınızda saklanır.</li>
+      <li><b>Cihaz verileri:</b> işletim sistemi ve sürümü, üretici ve model, uygulama sürümü, cihaz dili ve saat dilimi, ekran boyutu.</li>
+      <li><b>Kullanım verileri:</b> uygulamanın ne zaman açıldığı, oturumların ne kadar sürdüğü ve hangi ekranları ziyaret ettiğiniz. Birden fazla telefonda giriş yaparsanız, hesabınızı korumak ve kullanımı anlamak için hesabınızı her cihaza bağlarız.</li>
+      <li><b>Abonelik verileri:</b> satın alınan paket ve plan, fiyat ve para birimi, satın alma tarihi ve beklenen bitiş tarihi ve satın aldığınız mağazanın (Google Play veya App Store) sipariş numarası ile o mağazanın doğrulama yanıtı.</li>
+    </ul>
+    <p>Konumunuzu, kişilerinizi veya dosyalarınızı toplamayız ve kameranıza asla erişmeyiz. Mikrofon yalnızca isteğe bağlı telaffuz pratiği için kullanılır; ayrıntılar bir sonraki bölümde.</p>
+    <div class="box">🚫 <b>Asla toplamadıklarımız:</b> reklam kimliği, IMEI, MAC adresi, donanım seri numarası veya cihaz adı. Hiçbir türden reklam izleyicisi kullanmıyoruz.</div>
+    <div class="box">💳 <b>Ödemeler:</b> tüm ödemeler tamamen mağaza (Google Play veya App Store) tarafından işlenir. Banka kartı bilgilerinizi asla görmez, almaz veya saklamayız.</div>
+
+    <h2>3. Mikrofon ve konuşma pratiği</h2>
+    <p>Senaryolar bölümünde <b>isteğe bağlı</b> telaffuz pratiği vardır: uygulama bir rolü seslendirir, siz sesinizle yanıt verirsiniz ve hedef cümleye göre bir eşleşme puanı alırsınız.</p>
+    <ul>
+      <li><b>Mikrofon ne zaman açılır:</b> yalnızca kayıt düğmesini basılı tuttuğunuz sürece; parmağınızı kaldırdığınız anda kapanır. Arka planda veya başka bir bölümde asla çalışmaz.</li>
+      <li><b>Ses nasıl işlenir:</b> konuşmanız, telefonunuzda yerleşik konuşma tanıma hizmeti (Google) tarafından metne dönüştürülür; bu işlem Google’ın sistem hizmetlerine ilişkin kendi gizlilik politikasına tabidir.</li>
+      <li><b>Yapmadıklarımız:</b> sesinizi asla kaydetmez, sunucularımıza yüklemez, saklamaz veya kimseyle paylaşmayız. Hiçbir ses dosyası bizim için cihazınızdan çıkmaz.</li>
+      <li><b>Sakladıklarımız:</b> yalnızca sayılar — eşleşme puanı, deneme sayısı ve cümleyi geçip geçmediğiniz — konuşma ilerlemenizi ölçmek için.</li>
+      <li><b>Denetim sizde:</b> mikrofon iznini reddedebilir veya sonradan telefon ayarlarınızdan geri alabilirsiniz; konuşma pratiği dışındaki her şey eksiksiz çalışmaya devam eder.</li>
+    </ul>
+
+    <h2>4. Verileri nasıl kullanıyoruz</h2>
+    <ul>
+      <li><b>Uygulamayı çalıştırmak:</b> ilerlemenizi kaydetmek, hesabınızla eşitlemek ve aboneliğinizin hangi içeriği açtığını belirlemek.</li>
+      <li><b>İçeriği geliştirmek:</b> hangi derslerin zor olduğunu ve öğrenenlerin hangi sorularda sık hata yaptığını bulmak.</li>
+      <li><b>Akademik araştırma:</b> veriler, dilin nasıl öğrenildiğini incelemek üzere bir üniversite bitirme projesi kapsamında analiz edilir. Bu bağlamda veriler toplu hâlde veya takma adlarla işlenir ve yayımlanan hiçbir sonuç kimliğinizi açığa çıkarmaz.</li>
+    </ul>
+    <div class="box">🔒 <b>Verilerinizi asla satmayız</b> ve pazarlama amacıyla üçüncü taraflarla paylaşmayız.</div>
+
+    <h2>5. Abonelikler ve satın alımlar</h2>
+    <p>Uygulama denemeniz için ücretsiz içerik sunar (ilk üç seviye, ilk üç senaryo ve ilk A1/A2 sınav modeli) ve ayrıca üç ayrı ücretli paket:</p>
+    <ul>
+      <li><b>Öğrenme ve senaryolar paketi:</b> aylık veya yıllık, <b>otomatik yenilenen</b>, satın aldığınız mağazadan istediğiniz zaman iptal edilebilir.</li>
+      <li><b>Devlet sınavı simülasyonu paketi:</b> bir hafta veya bir ay, otomatik yenilemesiz <b>tek seferlik ödeme</b>.</li>
+      <li><b>Anayasa sınavı paketi:</b> bir ay, otomatik yenilemesiz <b>tek seferlik ödeme</b>.</li>
+    </ul>
+    <p>Ön ödemeli paketler süresi dolunca yeni bir ücret alınmadan sona erer; yenilemek, kendi tercihinizle yeniden satın almak demektir. Tüm ödemeler, iptaller ve iadeler satın aldığınız mağaza (Google Play veya App Store) tarafından kendi kurallarına göre yürütülür. Satın almanın gerçek olduğunu doğrulamak ve hesabınıza bağlamak için sipariş numarasını o mağazaya göndeririz ve yanıtını saklarız — hangi mağazadan almış olursanız olun aboneliğinizin tüm cihazlarınızda çalışmasını sağlayan da budur.</p>
+
+    <h2>6. Veriler nerede saklanır ve kimler erişebilir</h2>
+    <p>Veriler <b>Supabase</b> (bulut veritabanı) üzerinde güvenle saklanır ve şifreli bağlantı (HTTPS) ile aktarılır. Erişim güvenlik kurallarıyla korunur ve verileri yalnızca uygulama ekibi, yukarıda açıklanan amaçlarla görebilir. Teknik olarak dayandığımız hizmet sağlayıcıları: Google (giriş, faturalandırma ve telefondaki konuşma tanıma), Apple (iOS’ta giriş ve faturalandırma), Supabase (depolama) ve Resend (“Bize Ulaşın” mesajlarını destek kutumuza iletme).</p>
+
+    <h2>7. Saklama süresi</h2>
+    <p>Verilerinizi hesabınız var olduğu sürece saklarız. Hesap silme talebinde bulunduğunuzda kişisel verileriniz silinir; sizinle ilişkilendirilemeyen anonimleştirilmiş verileri istatistik ve araştırma amacıyla saklayabiliriz.</p>
+
+    <h2>8. Haklarınız</h2>
+    <p>AB Genel Veri Koruma Tüzüğü (GDPR) ve diğer yasalar uyarınca verilerinize erişme, düzeltme, silinmesini talep etme ve onayınızı istediğiniz zaman geri çekme hakkına sahipsiniz. Uygulamadaki “Hesap” sayfasından çıkış yapabilir, kullanım verisi toplanmasını istediğiniz zaman <b>Ayarlar → Gizlilik</b> bölümünden kapatabilirsiniz (bu, ilerlemenizi veya aboneliğinizi etkilemez). Verilerinize erişim veya tamamen silinmesi için <a href="mailto:support@kaskalba.com">support@kaskalba.com</a> adresine yazın; talebi 30 gün içinde yerine getirelim.</p>
+
+    <h2>9. Çocuklar</h2>
+    <p>Uygulama 13 yaşın altındaki çocuklara yönelik değildir. Bu yaşın altındaki bir çocuktan ebeveyn onayı olmadan veri topladığımızı öğrenirsek, veriyi derhâl sileriz.</p>
+
+    <h2>10. Bu politikadaki değişiklikler</h2>
+    <p>Bu politikayı zaman zaman güncelleyebiliriz. Her değişiklik burada ve Uygulama içinde yayımlanır ve yukarıdaki “Son güncelleme” tarihi yenilenir.</p>
+
+    <h2>11. İletişim</h2>
+    <p>Uygulamadaki “Bize Ulaşın” üzerinden bir mesaj gönderdiğinizde adınızı, e-postanızı ve mesajınızı saklarız ve size yanıt verebilmemiz için bir kopyası harici bir e-posta sağlayıcısı (Resend) aracılığıyla otomatik olarak destek kutumuza iletilir.</p>
+    <p>Gizliliğiniz veya verilerinizle ilgili her soru için ya da erişim veya silme talebiniz için:<br />
     📧 <a href="mailto:support@kaskalba.com">support@kaskalba.com</a></p>
   </div>
 
@@ -201,23 +364,35 @@
     <div>
       <a href="index.html" lang-ar>← الصفحة الرئيسية</a>
       <a href="index.html" lang-en>← Home</a>
+      <a href="index.html" lang-ru>← На главную</a>
+      <a href="index.html" lang-tr>← Ana sayfa</a>
     </div>
   </div>
 </footer>
 
 <script>
+  // Each language carries its own direction and title. Arabic and the two
+  // Latin-script languages differ in direction, so the dir attribute cannot
+  // be derived from "is it English" any more.
+  var LANGS = {
+    ar: { dir: 'rtl', title: 'سياسة الخصوصية — KasKalba' },
+    en: { dir: 'ltr', title: 'Privacy Policy — KasKalba' },
+    ru: { dir: 'ltr', title: 'Политика конфиденциальности — KasKalba' },
+    tr: { dir: 'ltr', title: 'Gizlilik Politikası — KasKalba' }
+  };
   function applyLang(l) {
-    const html = document.documentElement;
-    html.classList.toggle('en', l === 'en');
+    if (!LANGS[l]) l = 'ar';
+    var html = document.documentElement;
+    html.classList.remove('en', 'ru', 'tr');
+    if (l !== 'ar') html.classList.add(l);
     html.setAttribute('lang', l);
-    html.setAttribute('dir', l === 'en' ? 'ltr' : 'rtl');
-    document.getElementById('langBtn').textContent = l === 'en' ? 'العربية' : 'English';
-    document.title = l === 'en' ? 'Privacy Policy — KasKalba' : 'سياسة الخصوصية — KasKalba';
+    html.setAttribute('dir', LANGS[l].dir);
+    document.title = LANGS[l].title;
+    document.getElementById('langSel').value = l;
     localStorage.setItem('lingolt-lang', l);
   }
-  function toggleLang() {
-    applyLang(document.documentElement.classList.contains('en') ? 'ar' : 'en');
-  }
+  // The stored value may predate the other two languages, and applyLang falls
+  // back rather than leaving the page with every block hidden.
   applyLang(localStorage.getItem('lingolt-lang') || 'ar');
 </script>
 </body>
