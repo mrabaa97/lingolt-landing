@@ -157,9 +157,14 @@
   .foot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; font-size: .92rem; color: var(--muted); }
   .foot a { color: var(--green); text-decoration: none; font-weight: 700; }
 
-  [lang-en] { display: none; }
-  html.en [lang-ar] { display: none; }
+  /* One rule per language. The page began with two, so it hid [lang-en] and
+     nothing else — which left Russian and Turkish showing at the same time as
+     Arabic the moment they were added. */
+  [lang-en], [lang-ru], [lang-tr] { display: none; }
+  html.en [lang-ar], html.ru [lang-ar], html.tr [lang-ar] { display: none; }
   html.en [lang-en] { display: revert; }
+  html.ru [lang-ru] { display: revert; }
+  html.tr [lang-tr] { display: revert; }
 </style>
 </head>
 <body>
