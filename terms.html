@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Terms of Use — KasKalba</title>
+<meta name="description" content="KasKalba Terms of Use — شروط استخدام تطبيق KasKalba" />
+<style>
+  :root { --green:#1d9e75; --green-dark:#166534; --green-bg:#f0fdf4; --ink:#1c2320; --muted:#5b6b63; --line:#e3ede8; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif; color:var(--ink); background:#fff; line-height:1.85; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 0 22px; }
+  header { position: sticky; top:0; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom:1px solid var(--line); z-index:10; }
+  .nav { display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .logo { font-size:1.45rem; font-weight:800; color:var(--green); }
+  .logo span { color:#d97706; }
+  /* Logo mark sits beside the wordmark; inline-flex keeps them on one
+     baseline without the emoji it replaced dictating the line height. */
+  .logo { direction: ltr; display:inline-flex; align-items:center; gap:9px; }
+  .logo-mark { width:34px; height:34px; display:block; flex:0 0 auto; }
+  /* Language picker. The trigger keeps the pill this page already uses; the
+     panel is ours, because a native <select> hands the open list to the
+     browser and no CSS reaches inside it. */
+  .lang { position: relative; }
+  .lang-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px solid var(--green); color: var(--green); background: #fff;
+    border-radius: 999px; padding: 7px 14px 7px 16px;
+    font: inherit; font-size: .95rem; font-weight: 700;
+    cursor: pointer; transition: background .18s, color .18s, box-shadow .18s;
+  }
+  .lang-btn:hover { background: var(--green-bg, #f0fdf4); }
+  .lang-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
+  .chev { transition: transform .2s; }
+  .lang[data-open] .lang-btn { background: var(--green); color: #fff; }
+  .lang[data-open] .chev { transform: rotate(180deg); }
+  /* Width in ch, so the panel fits its longest label in any script instead of
+     a pixel guess made from Latin. */
+  .lang-menu {
+    position: absolute; inset-inline-end: 0; top: calc(100% + 8px);
+    min-width: 13ch; padding: 6px; margin: 0; list-style: none;
+    background: #fff; border: 1px solid var(--line, #e3ede8); border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(16,42,32,.13);
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .16s, transform .16s, visibility .16s; z-index: 30;
+  }
+  .lang[data-open] .lang-menu { opacity: 1; visibility: visible; transform: none; }
+  .lang-menu li {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 9px 12px; border-radius: 9px; cursor: pointer;
+    font-weight: 700; font-size: .95rem; white-space: nowrap;
+    /* Each name is written in its own script, so each row reads in its own
+       direction whatever the page is set to. */
+    direction: ltr; text-align: start;
+  }
+  .lang-menu li[data-lang="ar"] { direction: rtl; }
+  .lang-menu li:hover { background: var(--green-bg, #f0fdf4); }
+  .tick { opacity: 0; color: var(--green); flex: 0 0 auto; }
+  .lang-menu li[aria-selected="true"] { color: var(--green-dark, #166534); }
+  .lang-menu li[aria-selected="true"] .tick { opacity: 1; }
+  main { padding: 44px 0 70px; }
+  h1 { font-size:1.9rem; font-weight:800; margin-bottom:4px; }
+  .updated { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.2rem; font-weight:800; color:var(--green-dark); margin:26px 0 8px; }
+  p, li { color:#333; font-size:1rem; }
+  ul { padding-inline-start: 22px; margin: 6px 0; }
+  .box { background:var(--green-bg); border:1px solid #cdeee0; border-radius:14px; padding:16px 18px; margin:18px 0; }
+  .foot { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  a { color:var(--green); font-weight:700; }
+  footer { border-top:1px solid var(--line); padding:24px 0; color:var(--muted); font-size:.92rem; text-align:center; }
+  /* Arabic is the default because it is what <html> starts as; every other
+     block stays hidden until its language is selected. One rule per language
+     rather than the two-way toggle this page began with. */
+  [lang-en], [lang-ru], [lang-tr] { display:none; }
+  html.en [lang-ar], html.ru [lang-ar], html.tr [lang-ar] { display:none; }
+  html.en [lang-en] { display:revert; }
+  html.ru [lang-ru] { display:revert; }
+  html.tr [lang-tr] { display:revert; }
+
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html"><img class="logo-mark" src="img/logo.png" alt="" width="34" height="34">Kas<span>Kalba</span></a>
+    <div class="lang" id="lang">
+      <button class="lang-btn" id="langTrigger" type="button"
+              aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg><span id="langLabel">العربية</span><svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <ul class="lang-menu" id="langMenu" role="listbox">
+      <li role="option" data-lang="ar"><span>العربية</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="en"><span>English</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="ru"><span>Русский</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="tr"><span>Türkçe</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===================== AR ===================== -->
+  <div lang-ar>
+    <h1>شروط الاستخدام</h1>
+    <div class="updated">آخر تحديث: أغسطس 2026.</div>
+
+    <p>باستخدامك تطبيق KasKalba فإنك توافق على هذه الشروط. إن لم توافق عليها فيرجى عدم استخدام التطبيق. نكتبها بلغة واضحة لأنها تخصّك أنت لا المحامين.</p>
+
+    <h2>١. حسابك</h2>
+    <p>يتطلّب التطبيق حساباً واحداً لكل شخص. أنت مسؤول عن الحفاظ على بيانات دخولك، وعن كل نشاط يجري عبر حسابك. لا تشارك حسابك مع غيرك؛ ومشاركة اشتراك مدفوع مع آخرين تُعدّ مخالفة لهذه الشروط. يمكنك حذف حسابك نهائياً في أي وقت من صفحة الحساب.</p>
+
+    <h2>٢. ملكية المحتوى</h2>
+    <p>كل ما في التطبيق مملوك لنا: الدروس ونصوصها وترجماتها، والتسجيلات الصوتية، ونماذج محاكاة الامتحانات وإجاباتها، والصور والرسوم، والاسم والشعار. هذه أعمال محمية بحقوق المؤلف، ووجودها على جهازك لا ينقل ملكيتها إليك.</p>
+
+    <h2>٣. ما يحقّ لك</h2>
+    <p>نمنحك حقّ استخدام شخصي وغير تجاري وغير قابل للنقل: أن تتعلّم من المحتوى على أجهزتك الخاصة. ولك أن تقتبس جملاً يسيرة لغرض الدراسة أو المراجعة مع ذكر المصدر.</p>
+
+    <h2>٤. ما لا يحقّ لك</h2>
+    <p>يُمنع نسخ المحتوى أو تصويره أو تسجيله أو استخراجه بأي وسيلة لإعادة نشره، وبيعه أو تأجيره أو تضمينه في منتج أو خدمة أخرى، واستخدامه في التدريس التجاري أو في دورات مدفوعة، واستخدام برامج آلية لسحب المحتوى أو الصوتيات، ومحاولة تجاوز قيود الاشتراك أو الوصول إلى أقسام لم تدفع مقابلها، وإعادة هندسة التطبيق أو تعديله أو توزيع نسخ معدّلة منه.</p>
+
+    <h2>٥. الاشتراكات والدفع</h2>
+    <p>تتم كل عمليات الدفع عبر متجر التطبيقات، ولا نطّلع على بيانات بطاقتك ولا نحفظها. الاشتراك الشهري والسنوي يتجدّدان تلقائياً حتى تُلغيهما من المتجر، أما باقتا الامتحانات فدفعة واحدة لمدة محدّدة بلا تجديد تلقائي. الاسترداد يخضع لسياسة المتجر الذي اشتريت منه. وقد نغيّر الأسعار مستقبلاً، ولا يسري التغيير على فترة اشتراك جارية.</p>
+
+    <h2>٦. طبيعة المحتوى التعليمي</h2>
+    <p>نماذج المحاكاة أعمال أصلية مبنية على بنية امتحان الدولة، وليست أسئلة الامتحان الرسمي ولا صادرة عن أي جهة حكومية، ولا نضمن اجتيازك الامتحان. نبذل جهدنا في دقّة المحتوى اللغوي، وإن وجدت خطأ فأخبرنا عبر «الملاحظات والتواصل» ونصلحه.</p>
+
+    <h2>٧. توفّر الخدمة</h2>
+    <p>نسعى لإبقاء التطبيق متاحاً وعاملاً، لكننا لا نضمن عمله دون انقطاع. وقد نضيف أقساماً أو نعدّلها أو نوقف بعضها، وإن أوقفنا قسماً مدفوعاً وأنت مشترك فيه فسنعوّضك عن المدة المتبقّية.</p>
+
+    <h2>٨. إنهاء الاستخدام</h2>
+    <p>يمكنك التوقّف عن استخدام التطبيق أو حذف حسابك متى شئت. ولنا أن نوقف حساباً يخالف هذه الشروط مخالفة جسيمة — كإعادة نشر المحتوى أو سحبه آلياً — بعد تنبيهك حيثما أمكن.</p>
+
+    <h2>٩. القانون والتواصل</h2>
+    <p>تخضع هذه الشروط للقانون الليتواني. وقد نحدّثها، وسنبيّن تاريخ آخر تحديث أدناه؛ واستمرارك في استخدام التطبيق بعد التحديث يعني قبولك به. لأي سؤال: support@kaskalba.com</p>
+  </div>
+
+  <!-- ===================== EN ===================== -->
+  <div lang-en>
+    <h1>Terms of Use</h1>
+    <div class="updated">Last updated: August 2026.</div>
+
+    <p>By using KasKalba you agree to these terms. If you do not agree with them, please do not use the app. We write them in plain language because they concern you, not lawyers.</p>
+
+    <h2>1. Your account</h2>
+    <p>The app requires one account per person. You are responsible for keeping your sign-in details safe and for everything done through your account. Do not share your account with others; sharing a paid subscription with other people breaches these terms. You may permanently delete your account at any time from the Account page.</p>
+
+    <h2>2. Ownership of the content</h2>
+    <p>Everything in the app belongs to us: the lessons and their texts and translations, the audio recordings, the exam-simulation models and their answers, the images and illustrations, and the name and logo. These are copyrighted works, and having them on your device does not transfer ownership of them to you.</p>
+
+    <h2>3. What you may do</h2>
+    <p>We grant you a personal, non-commercial, non-transferable right of use: to learn from the content on your own devices. You may quote short passages for study or review, with attribution.</p>
+
+    <h2>4. What you may not do</h2>
+    <p>You may not copy, photograph, record or extract the content by any means for republication; sell, rent or bundle it into another product or service; use it for commercial teaching or in paid courses; run automated tools to harvest the content or the audio; attempt to bypass subscription limits or reach sections you have not paid for; or reverse-engineer, modify or distribute altered copies of the app.</p>
+
+    <h2>5. Subscriptions and payment</h2>
+    <p>All payments go through the app store; we never see or store your card details. The monthly and annual plans renew automatically until you cancel them in the store, while the exam packages are a single payment for a fixed period with no auto-renewal. Refunds follow the policy of the store you purchased from. We may change prices in future; a change never applies to a subscription period already running.</p>
+
+    <h2>6. About the learning content</h2>
+    <p>The simulation models are original works built on the structure of the state exam. They are not the official exam questions, they do not come from any government body, and we cannot guarantee that you will pass. We work hard on the accuracy of the language content; if you find a mistake, tell us through "Feedback &amp; Contact" and we will fix it.</p>
+
+    <h2>7. Availability</h2>
+    <p>We aim to keep the app available and working, but we do not guarantee uninterrupted service. We may add, change or discontinue sections; if we discontinue a paid section while you are subscribed to it, we will compensate you for the remaining period.</p>
+
+    <h2>8. Ending your use</h2>
+    <p>You may stop using the app or delete your account whenever you wish. We may suspend an account that seriously breaches these terms — republishing the content or harvesting it automatically, for instance — after warning you where that is possible.</p>
+
+    <h2>9. Law and contact</h2>
+    <p>These terms are governed by Lithuanian law. We may update them, and the date of the last update is shown below; continuing to use the app after an update means you accept it. For any question: support@kaskalba.com</p>
+  </div>
+
+  <!-- ===================== RU ===================== -->
+  <div lang-ru>
+    <h1>Условия использования</h1>
+    <div class="updated">Последнее обновление: август 2026 г.</div>
+
+    <p>Пользуясь приложением KasKalba, вы принимаете эти условия. Если вы с ними не согласны, пожалуйста, не пользуйтесь приложением. Мы пишем их простым языком, потому что они касаются вас, а не юристов.</p>
+
+    <h2>1. Ваш аккаунт</h2>
+    <p>Приложение рассчитано на один аккаунт для одного человека. Вы отвечаете за сохранность своих данных для входа и за всё, что происходит через ваш аккаунт. Не передавайте аккаунт другим; передача платной подписки другим людям нарушает эти условия. Вы можете безвозвратно удалить аккаунт в любой момент на странице «Аккаунт».</p>
+
+    <h2>2. Право собственности на материалы</h2>
+    <p>Всё в приложении принадлежит нам: уроки, их тексты и переводы, аудиозаписи, модели пробных экзаменов и ответы к ним, изображения и иллюстрации, название и логотип. Это охраняемые авторским правом произведения, и их наличие на вашем устройстве не передаёт вам прав на них.</p>
+
+    <h2>3. Что вам разрешено</h2>
+    <p>Мы предоставляем вам личное, некоммерческое и непередаваемое право использования: учиться по материалам на своих устройствах. Вы можете цитировать небольшие фрагменты для учёбы или повторения — со ссылкой на источник.</p>
+
+    <h2>4. Что запрещено</h2>
+    <p>Запрещается копировать, фотографировать, записывать или извлекать материалы любым способом для повторной публикации; продавать, сдавать в аренду или включать их в другой продукт либо услугу; использовать их в коммерческом преподавании или на платных курсах; применять автоматические средства для выгрузки материалов или аудио; пытаться обойти ограничения подписки или получить доступ к неоплаченным разделам; а также вскрывать, изменять приложение или распространять его изменённые копии.</p>
+
+    <h2>5. Подписки и оплата</h2>
+    <p>Все платежи проходят через магазин приложений; мы никогда не видим и не храним данные вашей карты. Месячный и годовой планы продлеваются автоматически, пока вы не отмените их в магазине, а экзаменационные пакеты — это разовый платёж на определённый срок без автопродления. Возврат средств регулируется правилами магазина, в котором вы совершили покупку. Мы можем изменить цены в будущем; изменение никогда не распространяется на уже оплаченный период.</p>
+
+    <h2>6. О учебных материалах</h2>
+    <p>Пробные модели — это оригинальные работы, построенные по структуре госэкзамена. Это не официальные экзаменационные задания, они не исходят от государственных органов, и мы не можем гарантировать, что вы сдадите экзамен. Мы тщательно работаем над точностью языкового материала; если вы нашли ошибку, сообщите нам через «Отзывы и связь», и мы её исправим.</p>
+
+    <h2>7. Доступность сервиса</h2>
+    <p>Мы стремимся, чтобы приложение было доступно и работало исправно, но не гарантируем работу без перерывов. Мы можем добавлять, изменять или закрывать разделы; если мы закроем платный раздел, на который у вас есть подписка, мы компенсируем оставшийся период.</p>
+
+    <h2>8. Прекращение использования</h2>
+    <p>Вы можете перестать пользоваться приложением или удалить аккаунт когда захотите. Мы вправе заблокировать аккаунт, грубо нарушающий эти условия — например, при повторной публикации материалов или их автоматической выгрузке, — предупредив вас, где это возможно.</p>
+
+    <h2>9. Право и контакты</h2>
+    <p>Эти условия регулируются законодательством Литвы. Мы можем их обновлять, и дата последнего обновления указана ниже; продолжая пользоваться приложением после обновления, вы принимаете его. По любым вопросам: support@kaskalba.com</p>
+  </div>
+
+  <!-- ===================== TR ===================== -->
+  <div lang-tr>
+    <h1>Kullanım Koşulları</h1>
+    <div class="updated">Son güncelleme: Ağustos 2026.</div>
+
+    <p>KasKalba’yı kullanarak bu koşulları kabul etmiş olursunuz. Kabul etmiyorsanız lütfen uygulamayı kullanmayın. Bunları sade bir dille yazıyoruz, çünkü avukatları değil sizi ilgilendiriyor.</p>
+
+    <h2>1. Hesabınız</h2>
+    <p>Uygulama kişi başına tek hesap gerektirir. Giriş bilgilerinizi korumaktan ve hesabınız üzerinden yapılan her şeyden siz sorumlusunuz. Hesabınızı başkalarıyla paylaşmayın; ücretli bir aboneliği başkalarıyla paylaşmak bu koşullara aykırıdır. Hesabınızı istediğiniz zaman Hesap sayfasından kalıcı olarak silebilirsiniz.</p>
+
+    <h2>2. İçeriğin mülkiyeti</h2>
+    <p>Uygulamadaki her şey bize aittir: dersler ile metinleri ve çevirileri, ses kayıtları, deneme sınavı modelleri ve cevapları, görseller ve çizimler, ad ve logo. Bunlar telif hakkıyla korunan eserlerdir ve cihazınızda bulunmaları mülkiyetini size geçirmez.</p>
+
+    <h2>3. Neler yapabilirsiniz</h2>
+    <p>Size kişisel, ticari olmayan ve devredilemez bir kullanım hakkı veriyoruz: içerikten kendi cihazlarınızda öğrenmek. Çalışmak veya tekrar etmek amacıyla kısa bölümleri kaynak göstererek alıntılayabilirsiniz.</p>
+
+    <h2>4. Neler yapamazsınız</h2>
+    <p>İçeriği yeniden yayımlamak için herhangi bir yolla kopyalayamaz, fotoğraflayamaz, kaydedemez veya çıkaramazsınız; satamaz, kiralayamaz ya da başka bir ürün veya hizmete dâhil edemezsiniz; ticari öğretimde veya ücretli kurslarda kullanamazsınız; içeriği ya da sesleri toplamak için otomatik araçlar çalıştıramazsınız; abonelik sınırlarını aşmaya veya ödemediğiniz bölümlere erişmeye çalışamazsınız; uygulamayı tersine mühendislikle çözemez, değiştiremez veya değiştirilmiş kopyalarını dağıtamazsınız.</p>
+
+    <h2>5. Abonelikler ve ödeme</h2>
+    <p>Tüm ödemeler uygulama mağazası üzerinden yapılır; kart bilgilerinizi asla görmez ve saklamayız. Aylık ve yıllık planlar, mağazadan iptal edene kadar otomatik olarak yenilenir; sınav paketleri ise belirli bir süre için tek seferlik ödemedir ve otomatik yenilenmez. İade, satın aldığınız mağazanın politikasına tabidir. İleride fiyatları değiştirebiliriz; bir değişiklik hâlihazırda süren abonelik dönemini asla etkilemez.</p>
+
+    <h2>6. Öğrenme içeriği hakkında</h2>
+    <p>Deneme modelleri, devlet sınavının yapısına göre hazırlanmış özgün çalışmalardır. Resmî sınav soruları değildir, herhangi bir devlet kurumundan gelmez ve sınavı geçeceğinizi garanti edemeyiz. Dil içeriğinin doğruluğu için çok çalışıyoruz; bir hata bulursanız “Görüş ve İletişim” üzerinden bize bildirin, düzeltelim.</p>
+
+    <h2>7. Hizmetin sürekliliği</h2>
+    <p>Uygulamayı erişilebilir ve çalışır tutmayı hedefliyoruz, ancak kesintisiz hizmet garanti etmiyoruz. Bölümler ekleyebilir, değiştirebilir veya kaldırabiliriz; abone olduğunuz ücretli bir bölümü kaldırırsak kalan süre için sizi telafi ederiz.</p>
+
+    <h2>8. Kullanımı sonlandırma</h2>
+    <p>Uygulamayı kullanmayı bırakabilir veya hesabınızı istediğiniz zaman silebilirsiniz. Bu koşulları ağır biçimde ihlal eden bir hesabı — örneğin içeriği yeniden yayımlamak ya da otomatik olarak toplamak — mümkün olduğunda uyardıktan sonra askıya alabiliriz.</p>
+
+    <h2>9. Hukuk ve iletişim</h2>
+    <p>Bu koşullar Litvanya hukukuna tabidir. Koşulları güncelleyebiliriz ve son güncelleme tarihi aşağıda belirtilir; güncellemeden sonra uygulamayı kullanmaya devam etmeniz kabul ettiğiniz anlamına gelir. Her türlü soru için: support@kaskalba.com</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>© 2026 KasKalba</div>
+    <div>
+      <a href="privacy.html" lang-ar>سياسة الخصوصية</a>
+      <a href="privacy.html" lang-en>Privacy Policy</a>
+      <a href="privacy.html" lang-ru>Политика конфиденциальности</a>
+      <a href="privacy.html" lang-tr>Gizlilik Politikası</a>
+      <a href="index.html" lang-ar>← الصفحة الرئيسية</a>
+      <a href="index.html" lang-en>← Home</a>
+      <a href="index.html" lang-ru>← На главную</a>
+      <a href="index.html" lang-tr>← Ana sayfa</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  var LANGS = {
+    ar: { dir:'rtl', name:'العربية', title:"سياسة الخصوصية — KasKalba" },
+    en: { dir:'ltr', name:'English', title:"Privacy Policy — KasKalba" },
+    ru: { dir:'ltr', name:'Русский', title:"Политика конфиденциальности — KasKalba" },
+    tr: { dir:'ltr', name:'Türkçe', title:"Gizlilik Politikası — KasKalba" }
+  };
+  var wrap = document.getElementById('lang');
+  var trigger = document.getElementById('langTrigger');
+  var menu = document.getElementById('langMenu');
+
+  function applyLang(l) {
+    if (!LANGS[l]) l = 'ar';
+    var html = document.documentElement;
+    html.classList.remove('en', 'ru', 'tr');
+    if (l !== 'ar') html.classList.add(l);
+    html.setAttribute('lang', l);
+    html.setAttribute('dir', LANGS[l].dir);
+    if (LANGS[l].title) document.title = LANGS[l].title;
+    document.getElementById('langLabel').textContent = LANGS[l].name;
+    Array.prototype.forEach.call(menu.querySelectorAll('li'), function (li) {
+      li.setAttribute('aria-selected', String(li.getAttribute('data-lang') === l));
+    });
+    try { localStorage.setItem('lingolt-lang', l); } catch (e) {}
+  }
+
+  function setOpen(open) {
+    if (open) wrap.setAttribute('data-open', ''); else wrap.removeAttribute('data-open');
+    trigger.setAttribute('aria-expanded', String(open));
+  }
+
+  trigger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!wrap.hasAttribute('data-open'));
+  });
+  menu.addEventListener('click', function (e) {
+    var li = e.target.closest ? e.target.closest('li') : null;
+    if (!li) return;
+    applyLang(li.getAttribute('data-lang'));
+    setOpen(false);
+  });
+  // Outside click and Escape. A panel that only closes by pressing the same
+  // button again is the other half of feeling clumsy.
+  document.addEventListener('click', function () { setOpen(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+
+  // A stored preference may predate the two newer languages; applyLang falls
+  // back rather than leaving the page with every block hidden.
+  var saved = null;
+  try { saved = localStorage.getItem('lingolt-lang'); } catch (e) {}
+  applyLang(saved || 'en');
+</script>
+</body>
+</html>
