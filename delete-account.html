@@ -1,148 +1,452 @@
-<!doctype html>
-<html lang="en" dir="ltr">
-<meta charset="utf-8" />
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="en">
+<head>
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Delete your account — KasKalba</title>
-<meta name="description" content="How to delete your KasKalba account and data — the steps, what is deleted, and what may remain." />
+<meta name="description" content="How to delete your KasKalba account and data — حذف حسابك وبياناتك في KasKalba" />
 <style>
-  :root { --green:#12B15C; --dark:#0B2A1B; --muted:#5c6b62; --line:#e6e9e7; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
-         color:#1c2622; background:#fff; line-height:1.9; }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px 60px; }
-  .logo { font-size:1.4rem; font-weight:800; color:var(--green); text-decoration:none; }
+  :root { --green:#1d9e75; --green-dark:#166534; --green-bg:#f0fdf4; --ink:#1c2320; --muted:#5b6b63; --line:#e3ede8; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif; color:var(--ink); background:#fff; line-height:1.85; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 0 22px; }
+  header { position: sticky; top:0; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom:1px solid var(--line); z-index:10; }
+  .nav { display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .logo { font-size:1.45rem; font-weight:800; color:var(--green); }
   .logo span { color:#d97706; }
-  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); margin: 26px 0 6px; }
-  h2 { font-size: 1.15rem; margin: 30px 0 8px; color:#166534; }
-  p, li { color:#333; }
-  .lead { color:var(--muted); }
-  ol, ul { padding-inline-start: 22px; }
-  li { margin-bottom: 8px; }
-  .card { border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin:18px 0;
-          background:#fafbfa; }
-  table { width:100%; border-collapse:collapse; margin:10px 0 4px; }
-  th, td { text-align:start; padding:10px 8px; border-bottom:1px solid var(--line); font-size:.97rem; }
-  th { color:var(--muted); font-weight:700; }
-  .muted { color:var(--muted); font-size:.9rem; }
-  .ar { direction:rtl; text-align:right; border-top:2px solid var(--line); margin-top:44px; padding-top:22px; }
-  .ar ol, .ar ul { padding-inline-start: 22px; }
-  a { color: var(--green); }
+  /* Logo mark sits beside the wordmark; inline-flex keeps them on one
+     baseline without the emoji it replaced dictating the line height. */
+  .logo { direction: ltr; display:inline-flex; align-items:center; gap:9px; }
+  .logo-mark { width:34px; height:34px; display:block; flex:0 0 auto; }
+  /* Language picker. The trigger keeps the pill this page already uses; the
+     panel is ours, because a native <select> hands the open list to the
+     browser and no CSS reaches inside it. */
+  .lang { position: relative; }
+  .lang-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px solid var(--green); color: var(--green); background: #fff;
+    border-radius: 999px; padding: 7px 14px 7px 16px;
+    font: inherit; font-size: .95rem; font-weight: 700;
+    cursor: pointer; transition: background .18s, color .18s, box-shadow .18s;
+  }
+  .lang-btn:hover { background: var(--green-bg, #f0fdf4); }
+  .lang-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
+  .chev { transition: transform .2s; }
+  .lang[data-open] .lang-btn { background: var(--green); color: #fff; }
+  .lang[data-open] .chev { transform: rotate(180deg); }
+  /* Width in ch, so the panel fits its longest label in any script instead of
+     a pixel guess made from Latin. */
+  .lang-menu {
+    position: absolute; inset-inline-end: 0; top: calc(100% + 8px);
+    min-width: 13ch; padding: 6px; margin: 0; list-style: none;
+    background: #fff; border: 1px solid var(--line, #e3ede8); border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(16,42,32,.13);
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .16s, transform .16s, visibility .16s; z-index: 30;
+  }
+  .lang[data-open] .lang-menu { opacity: 1; visibility: visible; transform: none; }
+  .lang-menu li {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 9px 12px; border-radius: 9px; cursor: pointer;
+    font-weight: 700; font-size: .95rem; white-space: nowrap;
+    /* Each name is written in its own script, so each row reads in its own
+       direction whatever the page is set to. */
+    direction: ltr; text-align: start;
+  }
+  .lang-menu li[data-lang="ar"] { direction: rtl; }
+  .lang-menu li:hover { background: var(--green-bg, #f0fdf4); }
+  .tick { opacity: 0; color: var(--green); flex: 0 0 auto; }
+  .lang-menu li[aria-selected="true"] { color: var(--green-dark, #166534); }
+  .lang-menu li[aria-selected="true"] .tick { opacity: 1; }
+  main { padding: 44px 0 70px; }
+  h1 { font-size:1.9rem; font-weight:800; margin-bottom:4px; }
+  .updated { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.2rem; font-weight:800; color:var(--green-dark); margin:26px 0 8px; }
+  p, li { color:#333; font-size:1rem; }
+  ul { padding-inline-start: 22px; margin: 6px 0; }
+  .box { background:var(--green-bg); border:1px solid #cdeee0; border-radius:14px; padding:16px 18px; margin:18px 0; }
+  a { color:var(--green); font-weight:700; }
+  /* The footer closes the page, so it carries the app icon's own dark green
+     rather than more white. #10271D is the tint chosen for the Android
+     notification on the same day: icon, notification and site now end on one
+     colour instead of three greens that nearly match. */
+  footer { background: #10271D; color: #fff; padding: 46px 0 0; margin-top: 60px; }
+  /* Four columns on a desktop, two on a tablet, one on a phone. auto-fit with
+     a min track does that without a single media query, and without guessing
+     where the breakpoints are: the columns simply stop fitting and wrap. */
+  .fcols {
+    display: grid; gap: 30px 26px;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    padding-bottom: 34px;
+  }
+  .fcol h4 { font-size: .95rem; margin: 0 0 12px; color: #fff; font-weight: 800; }
+  .fcol ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  /* Not pure white: a column of full-strength white links competes with the
+     headings and with each other. .78 reads as calm and lifts to white on
+     hover, which is where the eye should be told something changed. */
+  .fcol a { color: rgba(255,255,255,.78); text-decoration: none; font-size: .93rem; }
+  .fcol a:hover { color: #fff; }
+  /* The brand column carries the mark and one sentence, so the footer says
+     what the app is to someone who scrolled straight past the page. */
+  .fbrand .logo { font-size: 1.2rem; margin-bottom: 10px; }
+  .fbrand p { font-size: .9rem; color: rgba(255,255,255,.68); line-height: 1.75; margin: 0 0 14px; max-width: 30ch; }
+  /* On dark, the wordmark takes the icon's own pairing: white and its gold.
+     The site green (#1d9e75) is too close to the ground to read here. */
+  .fbrand .logo { color: #fff; }
+  .fbrand .logo span { color: #FDC500; }
+  .fsoc { display: flex; gap: 10px; }
+  .fsoc a {
+    width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.22);
+    display: inline-flex; align-items: center; justify-content: center; color: #fff;
+    transition: border-color .18s, background .18s;
+  }
+  .fsoc a:hover { border-color: #FDC500; background: rgba(255,255,255,.08); color: #FDC500; }
+  /* The bar under the columns: copyright on one side, the two legal links on
+     the other. They used to sit side by side with no separator and read as a
+     single phrase. */
+  .fbar {
+    border-top: 1px solid rgba(255,255,255,.13); padding: 18px 0 26px;
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
+    /* One child now — the legal links moved into their own column and were
+       repeating themselves here. space-between would pin it to one edge. */
+    align-items: center; justify-content: center;
+    font-size: .88rem; color: rgba(255,255,255,.5);
+  }
+  /* Arabic is the default because it is what <html> starts as; every other
+     block stays hidden until its language is selected. One rule per language
+     rather than the two-way toggle this page began with. */
+  [lang-en], [lang-ru], [lang-tr] { display:none; }
+  html.en [lang-ar], html.ru [lang-ar], html.tr [lang-ar] { display:none; }
+  html.en [lang-en] { display:revert; }
+  html.ru [lang-ru] { display:revert; }
+  html.tr [lang-tr] { display:revert; }
+
 </style>
+</head>
 <body>
-<div class="wrap">
-  <a class="logo" href="/">Kas<span>Kalba</span></a>
-
-    <h1>Deleting your KasKalba account</h1>
-    <p class="lead">
-      <strong>KasKalba</strong> is a Lithuanian-learning app developed by Mohammed Rabaa.
-      This page explains how to permanently delete your account and your data.
-    </p>
-
-    <h2>Option 1 — inside the app (immediate)</h2>
-    <div class="card">
-      <ol>
-        <li>Open <strong>KasKalba</strong> and sign in.</li>
-        <li>Open the side menu and choose <strong>Account</strong>.</li>
-        <li>Scroll to the bottom and tap <strong>“Delete account permanently”</strong>.</li>
-        <li>Confirm twice. Deletion happens immediately and you return to the sign-in screen.</li>
-      </ol>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html"><img class="logo-mark" src="img/logo.png" alt="" width="34" height="34">Kas<span>Kalba</span></a>
+    <div class="lang" id="lang">
+      <button class="lang-btn" id="langTrigger" type="button"
+              aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg><span id="langLabel">العربية</span><svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <ul class="lang-menu" id="langMenu" role="listbox">
+      <li role="option" data-lang="ar"><span>العربية</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="en"><span>English</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="ru"><span>Русский</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      <li role="option" data-lang="tr"><span>Türkçe</span><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></li>
+      </ul>
     </div>
+  </div>
+</header>
 
-    <h2>Option 2 — by email</h2>
-    <p>
-      If you cannot sign in, write to
-      <a href="mailto:support@kaskalba.com">support@kaskalba.com</a>
-      from the address linked to the account, with “Account deletion request” as the subject.
-      We verify your identity and complete the deletion within <strong>30 days</strong>.
-    </p>
+<main class="wrap">
 
-    <h2>What is deleted</h2>
-    <table>
-      <tr><th>Data</th><th>Status</th></tr>
-      <tr><td>Sign-in account (email address and account identifier)</td><td>Permanently deleted</td></tr>
-      <tr><td>Progress through lessons, levels and stages</td><td>Permanently deleted</td></tr>
-      <tr><td>Exam and simulation results, and your answers in them</td><td>Permanently deleted</td></tr>
-      <tr><td>Your answers to the first-run profile questions</td><td>Permanently deleted</td></tr>
-      <tr><td>Device records, sessions and usage events</td><td>Permanently deleted</td></tr>
-      <tr><td>Feedback and contact messages you sent</td><td>Permanently deleted</td></tr>
-    </table>
+  <!-- ===================== AR ===================== -->
+  <div lang-ar>
+    <h1>حذف حسابك في KasKalba</h1>
+    <div class="updated">آخر تحديث: أغسطس 2026 — تنطبق على تطبيق KasKalba لنظامَي أندرويد وiOS</div>
 
-    <h2>What may remain</h2>
+    <p>تشرح هذه الصفحة كيف تحذف حسابك في KasKalba وبياناتك حذفاً نهائياً، وما الذي يُحذف وما الذي قد يبقى.</p>
+
+    <h2>١. من داخل التطبيق — فوريّ</h2>
+    <ol>
+      <li>افتح KasKalba وسجّل الدخول.</li>
+      <li>افتح القائمة الجانبية واختر <strong>الحساب</strong>.</li>
+      <li>انزل إلى أسفل الصفحة واضغط <strong>«حذف الحساب نهائياً»</strong>.</li>
+      <li>أكّد. يُنفَّذ الحذف فوراً وتعود إلى شاشة تسجيل الدخول.</li>
+    </ol>
+    <p>إن كنت سجّلت الدخول بحساب Apple، يطلب التطبيق تأكيداً واحداً من آبل أثناء الحذف — وذلك ليُلغي ربط حسابك بها أيضاً، لا ليُبقي منه شيئاً.</p>
+
+    <h2>٢. بالمراسلة — إن تعذّر عليك الدخول</h2>
+    <p>راسلنا على <a href="mailto:support@kaskalba.com">support@kaskalba.com</a> من البريد المرتبط بالحساب، وضع في العنوان «طلب حذف حساب». نتحقّق من هويتك ثمّ ننفّذ الحذف خلال <strong>٣٠ يوماً</strong> كحدّ أقصى.</p>
+
+    <h2>٣. ما الذي يُحذف</h2>
     <ul>
-      <li>
-        <strong>Purchase records held by Google Play</strong> — these are not ours to delete.
-        They sit with Google under its own policy and are kept for accounting and tax purposes.
-      </li>
-      <li>
-        <strong>Encrypted backups</strong> may still hold your data for up to
-        <strong>30 days</strong> after deletion, after which they are erased automatically.
-        They are only ever used to recover from a failure.
-      </li>
+      <li>حساب الدخول — البريد الإلكتروني ومُعرّف الحساب واسم المستخدم</li>
+      <li>تقدّمك في الدروس والمستويات والمراحل</li>
+      <li>نتائج الامتحانات ونماذج المحاكاة وإجاباتك فيها</li>
+      <li>نتائج السيناريوهات التفاعلية والتحدّي اليوميّ</li>
+      <li>إجاباتك على أسئلة التعريف عند أوّل استخدام</li>
+      <li>سجلّ الأجهزة والجلسات وأحداث الاستخدام</li>
+      <li>ملاحظاتك ورسائل التواصل التي أرسلتها</li>
+      <li>رمز الإشعارات المرتبط بأجهزتك</li>
     </ul>
 
-    <div class="card">
-      <p style="margin:0"><strong>Note:</strong> deletion is permanent and cannot be undone.
-      If you have an active subscription, cancel it yourself in Google Play — deleting the
-      account does not cancel it.</p>
+    <h2>٤. ما الذي قد يبقى</h2>
+    <ul>
+      <li><strong>سجلّات الشراء لدى App Store وGoogle Play</strong> — لا نملكها ولا نستطيع حذفها. هي لدى آبل وجوجل وتخضع لسياستيهما، وتُحتفظ بها لأغراض محاسبية وضريبية.</li>
+      <li><strong>نسخ احتياطية مشفّرة</strong> قد تحتفظ ببياناتك مدّة أقصاها <strong>٣٠ يوماً</strong> بعد الحذف، ثمّ تُمحى تلقائياً. ولا تُستعمل إلا لاستعادة عطل.</li>
+    </ul>
+
+    <h2>٥. الاشتراك</h2>
+    <p><strong>حذف الحساب لا يُلغي اشتراكك.</strong> الاشتراك عند المتجر لا عندنا، فألغِه بنفسك من إعدادات App Store أو Google Play قبل الحذف — وإلّا استمرّ التجديد وأنت بلا حساب.</p>
+    <p><strong>الحذف نهائيّ ولا يمكن التراجع عنه.</strong></p>
+  </div>
+
+  <!-- ===================== EN ===================== -->
+  <div lang-en>
+    <h1>Deleting your KasKalba account</h1>
+    <div class="updated">Last updated: August 2026 — applies to the KasKalba app on Android and iOS</div>
+
+    <p>This page explains how to permanently delete your KasKalba account and your data, what is deleted, and what may remain.</p>
+
+    <h2>1. Inside the app — immediate</h2>
+    <ol>
+      <li>Open KasKalba and sign in.</li>
+      <li>Open the side menu and choose <strong>Account</strong>.</li>
+      <li>Scroll to the bottom and tap <strong>“Delete account permanently”</strong>.</li>
+      <li>Confirm. Deletion happens immediately and you return to the sign-in screen.</li>
+    </ol>
+    <p>If you signed in with Apple, the app asks Apple to confirm once during deletion. That is how the Sign in with Apple grant is revoked as well, rather than left behind.</p>
+
+    <h2>2. By email — if you cannot sign in</h2>
+    <p>Write to <a href="mailto:support@kaskalba.com">support@kaskalba.com</a> from the address linked to the account, with “Account deletion request” as the subject. We verify your identity and complete the deletion within <strong>30 days</strong>.</p>
+
+    <h2>3. What is deleted</h2>
+    <ul>
+      <li>Your sign-in account — email address, account identifier and username</li>
+      <li>Your progress through lessons, levels and stages</li>
+      <li>Exam and simulation results, and your answers in them</li>
+      <li>Interactive scenario results and the daily challenge</li>
+      <li>Your answers to the first-run profile questions</li>
+      <li>Device records, sessions and usage events</li>
+      <li>Feedback and contact messages you sent</li>
+      <li>The notification token tied to your devices</li>
+    </ul>
+
+    <h2>4. What may remain</h2>
+    <ul>
+      <li><strong>Purchase records held by the App Store and Google Play</strong> — these are not ours to delete. They sit with Apple and Google under their own policies, and are kept for accounting and tax purposes.</li>
+      <li><strong>Encrypted backups</strong> may still hold your data for up to <strong>30 days</strong> after deletion, after which they are erased automatically. They are only ever used to recover from a failure.</li>
+    </ul>
+
+    <h2>5. Your subscription</h2>
+    <p><strong>Deleting your account does not cancel your subscription.</strong> The subscription belongs to the store, not to us, so cancel it yourself in your App Store or Google Play settings before deleting — otherwise it keeps renewing while you no longer have an account.</p>
+    <p><strong>Deletion is permanent and cannot be undone.</strong></p>
+  </div>
+
+  <!-- ===================== RU ===================== -->
+  <div lang-ru>
+    <h1>Удаление аккаунта KasKalba</h1>
+    <div class="updated">Обновлено: август 2026 — относится к приложению KasKalba для Android и iOS</div>
+
+    <p>На этой странице описано, как безвозвратно удалить аккаунт KasKalba и ваши данные, что удаляется и что может остаться.</p>
+
+    <h2>1. В приложении — сразу</h2>
+    <ol>
+      <li>Откройте KasKalba и войдите в аккаунт.</li>
+      <li>Откройте боковое меню и выберите <strong>Аккаунт</strong>.</li>
+      <li>Прокрутите вниз и нажмите <strong>«Удалить аккаунт навсегда»</strong>.</li>
+      <li>Подтвердите. Удаление происходит сразу, и вы возвращаетесь на экран входа.</li>
+    </ol>
+    <p>Если вы входили через Apple, приложение один раз запросит подтверждение у Apple — так отзывается и разрешение «Вход с Apple», а не остаётся висеть.</p>
+
+    <h2>2. По электронной почте — если не удаётся войти</h2>
+    <p>Напишите на <a href="mailto:support@kaskalba.com">support@kaskalba.com</a> с адреса, привязанного к аккаунту, указав тему «Запрос на удаление аккаунта». Мы проверим вашу личность и выполним удаление в течение <strong>30 дней</strong>.</p>
+
+    <h2>3. Что удаляется</h2>
+    <ul>
+      <li>Аккаунт входа — адрес почты, идентификатор аккаунта и имя пользователя</li>
+      <li>Ваш прогресс по урокам, уровням и этапам</li>
+      <li>Результаты экзаменов и симуляций и ваши ответы в них</li>
+      <li>Результаты интерактивных сценариев и ежедневного испытания</li>
+      <li>Ваши ответы на вопросы при первом запуске</li>
+      <li>Записи об устройствах, сессиях и событиях использования</li>
+      <li>Отзывы и сообщения, которые вы отправляли</li>
+      <li>Токен уведомлений, связанный с вашими устройствами</li>
+    </ul>
+
+    <h2>4. Что может остаться</h2>
+    <ul>
+      <li><strong>Записи о покупках в App Store и Google Play</strong> — мы не можем их удалить. Они хранятся у Apple и Google по их собственным правилам, для бухгалтерских и налоговых целей.</li>
+      <li><strong>Зашифрованные резервные копии</strong> могут содержать ваши данные ещё до <strong>30 дней</strong> после удаления, затем стираются автоматически. Они используются только для восстановления после сбоя.</li>
+    </ul>
+
+    <h2>5. Ваша подписка</h2>
+    <p><strong>Удаление аккаунта не отменяет подписку.</strong> Подписка принадлежит магазину, а не нам, поэтому отмените её сами в настройках App Store или Google Play до удаления — иначе она продолжит продлеваться, когда аккаунта уже нет.</p>
+    <p><strong>Удаление необратимо и отменить его нельзя.</strong></p>
+  </div>
+
+  <!-- ===================== TR ===================== -->
+  <div lang-tr>
+    <h1>KasKalba hesabınızı silme</h1>
+    <div class="updated">Son güncelleme: Ağustos 2026 — KasKalba uygulamasının Android ve iOS sürümleri için</div>
+
+    <p>Bu sayfa KasKalba hesabınızı ve verilerinizi kalıcı olarak nasıl sileceğinizi, nelerin silindiğini ve nelerin kalabileceğini açıklar.</p>
+
+    <h2>1. Uygulama içinden — anında</h2>
+    <ol>
+      <li>KasKalba’yı açın ve oturum açın.</li>
+      <li>Yan menüyü açın ve <strong>Hesap</strong> seçin.</li>
+      <li>Sayfanın altına inin ve <strong>“Hesabı kalıcı olarak sil”</strong> düğmesine dokunun.</li>
+      <li>Onaylayın. Silme hemen gerçekleşir ve oturum açma ekranına dönersiniz.</li>
+    </ol>
+    <p>Apple ile giriş yaptıysanız uygulama silme sırasında Apple’dan bir kez onay ister. “Apple ile Giriş” izni de böylece geri alınır, geride bırakılmaz.</p>
+
+    <h2>2. E-posta ile — oturum açamıyorsanız</h2>
+    <p><a href="mailto:support@kaskalba.com">support@kaskalba.com</a> adresine, hesaba bağlı e-postadan “Hesap silme talebi” konusuyla yazın. Kimliğinizi doğrulayıp silmeyi <strong>30 gün</strong> içinde tamamlarız.</p>
+
+    <h2>3. Neler silinir</h2>
+    <ul>
+      <li>Oturum açma hesabınız — e-posta adresi, hesap kimliği ve kullanıcı adı</li>
+      <li>Derslerdeki, seviyelerdeki ve aşamalardaki ilerlemeniz</li>
+      <li>Sınav ve simülasyon sonuçları ile bunlardaki cevaplarınız</li>
+      <li>Etkileşimli senaryo sonuçları ve günlük meydan okuma</li>
+      <li>İlk açılıştaki tanıtım sorularına verdiğiniz cevaplar</li>
+      <li>Cihaz kayıtları, oturumlar ve kullanım olayları</li>
+      <li>Gönderdiğiniz geri bildirimler ve iletişim mesajları</li>
+      <li>Cihazlarınıza bağlı bildirim jetonu</li>
+    </ul>
+
+    <h2>4. Neler kalabilir</h2>
+    <ul>
+      <li><strong>App Store ve Google Play’deki satın alma kayıtları</strong> — bunları silmek bizim elimizde değil. Apple ve Google’da kendi politikaları uyarınca, muhasebe ve vergi amacıyla tutulur.</li>
+      <li><strong>Şifreli yedekler</strong> silmeden sonra <strong>30 güne</strong> kadar verilerinizi barındırabilir, ardından otomatik olarak silinir. Yalnızca bir arızadan kurtulmak için kullanılır.</li>
+    </ul>
+
+    <h2>5. Aboneliğiniz</h2>
+    <p><strong>Hesabı silmek aboneliğinizi iptal etmez.</strong> Abonelik bize değil mağazaya aittir; silmeden önce App Store veya Google Play ayarlarından kendiniz iptal edin — aksi hâlde hesabınız yokken yenilenmeye devam eder.</p>
+    <p><strong>Silme kalıcıdır ve geri alınamaz.</strong></p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+
+    <div class="fcols">
+
+      <div class="fcol fbrand">
+        <a class="logo" href="index.html"><img class="logo-mark" src="img/logo.png" alt="" width="30" height="30">Kas<span>Kalba</span></a>
+        <p lang-ar>تعلّم الليتوانية من الصفر إلى B2 — بالعربية، وبصوت حقيقي.</p>
+        <p lang-en>Learn Lithuanian from zero to B2 — explained in your language.</p>
+        <p lang-ru>Литовский с нуля до B2 — с объяснениями на вашем языке.</p>
+        <p lang-tr>Sıfırdan B2’ye Litvanca — kendi dilinizde anlatımlarla.</p>
+        <div class="fsoc">
+          <a href="https://facebook.com/KasKalbaLt" target="_blank" rel="noopener" aria-label="Facebook"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1z"/></svg></a>
+          <a href="https://instagram.com/kaskalbalt" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+        </div>
+      </div>
+
+      <div class="fcol">
+        <h4  lang-ar>التطبيق</h4>
+            <h4  lang-en>The app</h4>
+            <h4  lang-ru>Приложение</h4>
+            <h4  lang-tr>Uygulama</h4>
+        <ul>
+          <li><a href="index.html#features" lang-ar>لماذا KasKalba؟</a>
+            <a href="index.html#features" lang-en>Why KasKalba?</a>
+            <a href="index.html#features" lang-ru>Почему KasKalba?</a>
+            <a href="index.html#features" lang-tr>Neden KasKalba?</a></li>
+          <li><a href="index.html#plans" lang-ar>الأسعار والاشتراكات</a>
+            <a href="index.html#plans" lang-en>Plans and pricing</a>
+            <a href="index.html#plans" lang-ru>Тарифы и подписки</a>
+            <a href="index.html#plans" lang-tr>Planlar ve fiyatlar</a></li>
+          <li><a href="index.html#screens" lang-ar>لقطات من التطبيق</a>
+            <a href="index.html#screens" lang-en>Inside the app</a>
+            <a href="index.html#screens" lang-ru>Внутри приложения</a>
+            <a href="index.html#screens" lang-tr>Uygulamanın içinde</a></li>
+          <li><a href="index.html#how" lang-ar>كيف تبدأ؟</a>
+            <a href="index.html#how" lang-en>How to start?</a>
+            <a href="index.html#how" lang-ru>Как начать?</a>
+            <a href="index.html#how" lang-tr>Nasıl başlanır?</a></li>
+        </ul>
+      </div>
+
+      <div class="fcol">
+        <h4  lang-ar>الدعم</h4>
+            <h4  lang-en>Support</h4>
+            <h4  lang-ru>Поддержка</h4>
+            <h4  lang-tr>Destek</h4>
+        <ul>
+          <li><a href="mailto:support@kaskalba.com">support@kaskalba.com</a></li>
+          <li><a href="delete-account.html" lang-ar>حذف الحساب</a>
+            <a href="delete-account.html" lang-en>Delete your account</a>
+            <a href="delete-account.html" lang-ru>Удалить аккаунт</a>
+            <a href="delete-account.html" lang-tr>Hesabı sil</a></li>
+        </ul>
+      </div>
+
+      <div class="fcol">
+        <h4  lang-ar>قانوني</h4>
+            <h4  lang-en>Legal</h4>
+            <h4  lang-ru>Правовая информация</h4>
+            <h4  lang-tr>Yasal</h4>
+        <ul>
+          <li><a href="privacy.html" lang-ar>سياسة الخصوصية</a>
+            <a href="privacy.html" lang-en>Privacy Policy</a>
+            <a href="privacy.html" lang-ru>Политика конфиденциальности</a>
+            <a href="privacy.html" lang-tr>Gizlilik Politikası</a></li>
+          <li><a href="terms.html" lang-ar>شروط الاستخدام</a>
+            <a href="terms.html" lang-en>Terms of Use</a>
+            <a href="terms.html" lang-ru>Условия использования</a>
+            <a href="terms.html" lang-tr>Kullanım Koşulları</a></li>
+        </ul>
+      </div>
+
     </div>
 
-    <p class="muted">Last updated: July 2026 · © 2026 KasKalba</p>
-  <!-- ================= العربية ================= -->
-  <div class="ar" lang="ar" dir="rtl">
-  <h1>حذف حسابك في تطبيق KasKalba</h1>
-  <p class="lead">
-    تطبيق <strong>KasKalba</strong> لتعلّم اللغة الليتوانية، من تطوير Mohammed Rabaa.
-    هذه الصفحة تشرح كيف تحذف حسابك وبياناتك حذفاً نهائياً.
-  </p>
-
-  <h2>الطريقة الأولى: من داخل التطبيق (فورية)</h2>
-  <div class="card">
-    <ol>
-      <li>افتح تطبيق <strong>KasKalba</strong> وسجّل الدخول بحسابك.</li>
-      <li>افتح القائمة الجانبية ثم اختر <strong>الحساب</strong>.</li>
-      <li>انزل إلى أسفل الصفحة واضغط <strong>«حذف الحساب نهائياً»</strong>.</li>
-      <li>أكّد مرّتين. يُنفَّذ الحذف فوراً وتعود إلى شاشة تسجيل الدخول.</li>
-    </ol>
-  </div>
-
-  <h2>الطريقة الثانية: بالمراسلة</h2>
-  <p>
-    إن تعذّر عليك الدخول إلى حسابك، راسلنا من البريد الإلكتروني المرتبط بالحساب على
-    <a href="mailto:support@kaskalba.com">support@kaskalba.com</a>
-    وضع في العنوان «طلب حذف حساب». نتحقّق من هويتك ثم ننفّذ الحذف خلال <strong>٣٠ يوماً</strong> كحدّ أقصى.
-  </p>
-
-  <h2>ما الذي يُحذف؟</h2>
-  <table>
-    <tr><th>البيانات</th><th>الحالة</th></tr>
-    <tr><td>حساب الدخول (البريد الإلكتروني ومُعرّف الحساب)</td><td>يُحذف نهائياً</td></tr>
-    <tr><td>تقدّمك في الدروس والمستويات والمراحل</td><td>يُحذف نهائياً</td></tr>
-    <tr><td>نتائج الامتحانات ونماذج المحاكاة وإجاباتك فيها</td><td>يُحذف نهائياً</td></tr>
-    <tr><td>إجاباتك على أسئلة التعريف عند أول استخدام</td><td>يُحذف نهائياً</td></tr>
-    <tr><td>سجلّ الأجهزة والجلسات وأحداث الاستخدام</td><td>يُحذف نهائياً</td></tr>
-    <tr><td>ملاحظاتك ورسائل التواصل التي أرسلتها</td><td>تُحذف نهائياً</td></tr>
-  </table>
-
-  <h2>ما الذي قد يبقى؟</h2>
-  <ul>
-    <li>
-      <strong>سجلّات الشراء لدى Google Play</strong> — لا نملكها ولا نستطيع حذفها؛ هي لدى Google
-      وتخضع لسياستها، وتُحتفظ بها لأغراض محاسبية وضريبية.
-    </li>
-    <li>
-      <strong>نسخ احتياطية مشفّرة</strong> قد تحتفظ ببياناتك مدة أقصاها <strong>٣٠ يوماً</strong>
-      بعد الحذف، ثم تُمحى تلقائياً. لا تُستخدم هذه النسخ إلا لاستعادة الأعطال.
-    </li>
-  </ul>
-
-  <div class="card">
-    <p style="margin:0"><strong>تنبيه:</strong> الحذف نهائي ولا يمكن التراجع عنه.
-    وإن كان لديك اشتراك فعّال فيجب إلغاؤه بنفسك من Google Play — حذف الحساب لا يُلغي الاشتراك تلقائياً.</p>
-  </div>
-
-  <p class="muted">آخر تحديث: يوليو 2026 · © 2026 KasKalba</p>
+    <div class="fbar">
+      <div>© 2026 KasKalba</div>
+    </div>
 
   </div>
-</div>
+</footer>
+
+<script>
+  var LANGS = {
+    ar: { dir:'rtl', name:'العربية', title:"سياسة الخصوصية — KasKalba" },
+    en: { dir:'ltr', name:'English', title:"Privacy Policy — KasKalba" },
+    ru: { dir:'ltr', name:'Русский', title:"Политика конфиденциальности — KasKalba" },
+    tr: { dir:'ltr', name:'Türkçe', title:"Gizlilik Politikası — KasKalba" }
+  };
+  var wrap = document.getElementById('lang');
+  var trigger = document.getElementById('langTrigger');
+  var menu = document.getElementById('langMenu');
+
+  function applyLang(l) {
+    if (!LANGS[l]) l = 'ar';
+    var html = document.documentElement;
+    html.classList.remove('en', 'ru', 'tr');
+    if (l !== 'ar') html.classList.add(l);
+    html.setAttribute('lang', l);
+    html.setAttribute('dir', LANGS[l].dir);
+    if (LANGS[l].title) document.title = LANGS[l].title;
+    document.getElementById('langLabel').textContent = LANGS[l].name;
+    Array.prototype.forEach.call(menu.querySelectorAll('li'), function (li) {
+      li.setAttribute('aria-selected', String(li.getAttribute('data-lang') === l));
+    });
+    try { localStorage.setItem('lingolt-lang', l); } catch (e) {}
+  }
+
+  function setOpen(open) {
+    if (open) wrap.setAttribute('data-open', ''); else wrap.removeAttribute('data-open');
+    trigger.setAttribute('aria-expanded', String(open));
+  }
+
+  trigger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!wrap.hasAttribute('data-open'));
+  });
+  menu.addEventListener('click', function (e) {
+    var li = e.target.closest ? e.target.closest('li') : null;
+    if (!li) return;
+    applyLang(li.getAttribute('data-lang'));
+    setOpen(false);
+  });
+  // Outside click and Escape. A panel that only closes by pressing the same
+  // button again is the other half of feeling clumsy.
+  document.addEventListener('click', function () { setOpen(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+
+  // A stored preference may predate the two newer languages; applyLang falls
+  // back rather than leaving the page with every block hidden.
+  var saved = null;
+  try { saved = localStorage.getItem('lingolt-lang'); } catch (e) {}
+  applyLang(saved || 'en');
+</script>
 </body>
 </html>
