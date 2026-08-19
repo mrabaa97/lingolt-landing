@@ -71,12 +71,22 @@
      notification on the same day: icon, notification and site now end on one
      colour instead of three greens that nearly match. */
   footer { background: #10271D; color: #fff; padding: 46px 0 0; margin-top: 60px; }
+  /* The footer keeps ONE width on every page. The legal pages set .wrap to
+     820px because that is a comfortable measure for reading prose — but the
+     footer is navigation, not prose, and inheriting the article's column made
+     it 820 here and 1060 on the homepage: the same markup, visibly narrower,
+     which reads as a different footer rather than the same one. */
+  footer .wrap { max-width: 1060px; }
   /* Four columns on a desktop, two on a tablet, one on a phone. auto-fit with
      a min track does that without a single media query, and without guessing
      where the breakpoints are: the columns simply stop fitting and wrap. */
   .fcols {
     display: grid; gap: 30px 26px;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    /* 170, not 190. The sub-pages set .wrap to 820px for the reading measure,
+       and four 190px tracks with three 26px gaps need 838 — eighteen pixels
+       short, so Legal wrapped onto a line of its own there while the homepage
+       (1060px) looked right. 170 needs 758 and fits every page. */
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     padding-bottom: 34px;
   }
   .fcol h4 { font-size: .95rem; margin: 0 0 12px; color: #fff; font-weight: 800; }
