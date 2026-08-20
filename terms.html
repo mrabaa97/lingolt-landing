@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- The site had no icon at all: every tab showed a blank page. SVG first
+     for anything modern (one file, crisp at every size, and it IS the app's
+     own artwork rather than a copy that can drift); the 32px PNG is the
+     fallback; apple-touch-icon is what iOS uses when the site is added to a
+     home screen, and it must be a real square because iOS applies its own
+     mask on top. -->
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png" sizes="180x180" />
+<meta name="theme-color" content="#10271D" />
 <title>Terms of Use — KasKalba</title>
 <meta name="description" content="KasKalba Terms of Use — شروط استخدام تطبيق KasKalba" />
 <style>
