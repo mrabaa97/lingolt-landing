@@ -109,6 +109,18 @@
     box-shadow: 0 8px 22px rgba(29,158,117,.28); transition: .2s;
   }
   .cta:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(29,158,117,.34); }
+  /* Two stores since 2026-08-22. Wrapping row, not a fixed pair: on a narrow
+     phone the second button drops under the first instead of shrinking both
+     into something no thumb can hit. */
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  /* The dark button is Apple's own convention, and it keeps the green one as
+     the single loudest thing on the page — two shouting buttons choose for
+     nobody. */
+  .cta.dark {
+    background: #1c2320;
+    box-shadow: 0 8px 22px rgba(28,35,32,.26);
+  }
+  .cta.dark:hover { box-shadow: 0 12px 26px rgba(28,35,32,.32); }
   .cta-note { margin-top: 12px; font-size: .9rem; color: var(--muted); }
 
   /* stats */
@@ -285,12 +297,18 @@
     <h1 lang-en>Learn <em>Lithuanian</em><br />in Arabic, English, Russian or Turkish</h1><h1 lang-ru>Учите <em>литовский</em><br />на арабском, английском, русском или турецком</h1><h1 lang-tr><em>Litvanca</em> öğrenin<br />Arapça, İngilizce, Rusça veya Türkçe</h1>
     <p class="sub" lang-ar>منهج متكامل من الصفر حتى الاحتراف — قواعد مبسّطة، سيناريوهات محادثة تتكلّمها بصوتك، ومحاكاة كاملة لامتحان الدولة وامتحان الدستور.</p>
     <p class="sub" lang-en>A complete curriculum from zero to proficiency — simple grammar, conversation scenarios you speak out loud, and full mock versions of the state and constitution exams.</p><p class="sub" lang-ru>Полный курс с нуля до уверенного владения — простая грамматика, разговорные сценарии, которые вы проговариваете вслух, и полные пробные версии госэкзамена и экзамена по Конституции.</p><p class="sub" lang-tr>Sıfırdan ileri seviyeye tam bir müfredat — sade dilbilgisi, sesli konuştuğunuz diyalog senaryoları ve devlet sınavı ile Anayasa sınavının eksiksiz deneme sürümleri.</p>
-    <a class="cta" href="https://play.google.com/store/apps/details?id=com.rabaa.ltlearn">
-      <span lang-ar>📱 حمّله من Google Play</span>
-      <span lang-en>📱 Get it on Google Play</span><span lang-ru>📱 Скачать в Google Play</span><span lang-tr>📱 Google Play’den indirin</span>
-    </a>
-    <div class="cta-note" lang-ar>ابدأ مجاناً — نسخة iOS قريباً</div>
-    <div class="cta-note" lang-en>Start free — iOS version coming soon</div><div class="cta-note" lang-ru>Начните бесплатно — версия для iOS скоро</div><div class="cta-note" lang-tr>Ücretsiz başlayın — iOS sürümü yakında</div>
+    <div class="ctas">
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.rabaa.ltlearn">
+        <span lang-ar>📱 حمّله من Google Play</span>
+        <span lang-en>📱 Get it on Google Play</span><span lang-ru>📱 Скачать в Google Play</span><span lang-tr>📱 Google Play’den indirin</span>
+      </a>
+      <a class="cta dark" href="https://apps.apple.com/app/id6797941375">
+        <span lang-ar> حمّله من App Store</span>
+        <span lang-en> Download on the App Store</span><span lang-ru> Загрузить в App Store</span><span lang-tr> App Store’dan indirin</span>
+      </a>
+    </div>
+    <div class="cta-note" lang-ar>ابدأ مجاناً — المرحلة A1 كاملة بلا اشتراك</div>
+    <div class="cta-note" lang-en>Start free — all of stage A1, no subscription</div><div class="cta-note" lang-ru>Начните бесплатно — весь этап A1 без подписки</div><div class="cta-note" lang-tr>Ücretsiz başlayın — A1 aşamasının tamamı, aboneliksiz</div>
   </div>
 </div>
 
