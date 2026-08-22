@@ -307,8 +307,11 @@
         <span lang-en> Download on the App Store</span><span lang-ru> Загрузить в App Store</span><span lang-tr> App Store’dan indirin</span>
       </a>
     </div>
-    <div class="cta-note" lang-ar>ابدأ مجاناً — المرحلة A1 كاملة بلا اشتراك</div>
-    <div class="cta-note" lang-en>Start free — all of stage A1, no subscription</div><div class="cta-note" lang-ru>Начните бесплатно — весь этап A1 без подписки</div><div class="cta-note" lang-tr>Ücretsiz başlayın — A1 aşamasının tamamı, aboneliksiz</div>
+    <!-- The number here is FREE_LEVELS in src/tracking/subscription.ts. It is
+         three, not a stage. If that constant changes, this line changes with
+         it — an overstated free tier is the exact claim Play rejects. -->
+    <div class="cta-note" lang-ar>ابدأ مجاناً — أوّل ٣ مستويات بلا اشتراك</div>
+    <div class="cta-note" lang-en>Start free — the first 3 levels, no subscription</div><div class="cta-note" lang-ru>Начните бесплатно — первые 3 уровня без подписки</div><div class="cta-note" lang-tr>Ücretsiz başlayın — ilk 3 seviye, aboneliksiz</div>
   </div>
 </div>
 
@@ -484,8 +487,8 @@
     <div class="steps">
       <div class="step"><div class="n">1</div>
         <h3 lang-ar>حمّل التطبيق</h3><h3 lang-en>Download the app</h3><h3 lang-ru>Скачайте приложение</h3><h3 lang-tr>Uygulamayı indirin</h3>
-        <p lang-ar>مجاناً من Google Play، وسجّل دخولك بحساب Google بضغطة واحدة.</p>
-        <p lang-en>Free on Google Play; sign in with your Google account in one tap.</p><p lang-ru>Бесплатно в Google Play; вход через аккаунт Google в одно касание.</p><p lang-tr>Google Play’de ücretsiz; Google hesabınızla tek dokunuşta giriş.</p>
+        <p lang-ar>مجاناً من Google Play أو App Store، وسجّل دخولك بضغطة واحدة.</p>
+        <p lang-en>Free on Google Play or the App Store; sign in in one tap.</p><p lang-ru>Бесплатно в Google Play или App Store; вход в одно касание.</p><p lang-tr>Google Play veya App Store’da ücretsiz; tek dokunuşta giriş.</p>
       </div>
       <div class="step"><div class="n">2</div>
         <h3 lang-ar>اختر لغتك وابدأ A1</h3><h3 lang-en>Pick your language, start A1</h3><h3 lang-ru>Выберите язык, начните с A1</h3><h3 lang-tr>Dilinizi seçin, A1’den başlayın</h3>
@@ -551,10 +554,10 @@
             <h4  lang-tr>Destek</h4>
         <ul>
           <li><a href="mailto:support@kaskalba.com">support@kaskalba.com</a></li>
-          <li><a href="delete-account.html" lang-ar>حذف الحساب</a>
-            <a href="delete-account.html" lang-en>Delete your account</a>
-            <a href="delete-account.html" lang-ru>Удалить аккаунт</a>
-            <a href="delete-account.html" lang-tr>Hesabı sil</a></li>
+          <li><a href="/delete-account" lang-ar>حذف الحساب</a>
+            <a href="/delete-account" lang-en>Delete your account</a>
+            <a href="/delete-account" lang-ru>Удалить аккаунт</a>
+            <a href="/delete-account" lang-tr>Hesabı sil</a></li>
         </ul>
       </div>
 
@@ -564,14 +567,14 @@
             <h4  lang-ru>Правовая информация</h4>
             <h4  lang-tr>Yasal</h4>
         <ul>
-          <li><a href="privacy.html" lang-ar>سياسة الخصوصية</a>
-            <a href="privacy.html" lang-en>Privacy Policy</a>
-            <a href="privacy.html" lang-ru>Политика конфиденциальности</a>
-            <a href="privacy.html" lang-tr>Gizlilik Politikası</a></li>
-          <li><a href="terms.html" lang-ar>شروط الاستخدام</a>
-            <a href="terms.html" lang-en>Terms of Use</a>
-            <a href="terms.html" lang-ru>Условия использования</a>
-            <a href="terms.html" lang-tr>Kullanım Koşulları</a></li>
+          <li><a href="/privacy" lang-ar>سياسة الخصوصية</a>
+            <a href="/privacy" lang-en>Privacy Policy</a>
+            <a href="/privacy" lang-ru>Политика конфиденциальности</a>
+            <a href="/privacy" lang-tr>Gizlilik Politikası</a></li>
+          <li><a href="/terms" lang-ar>شروط الاستخدام</a>
+            <a href="/terms" lang-en>Terms of Use</a>
+            <a href="/terms" lang-ru>Условия использования</a>
+            <a href="/terms" lang-tr>Kullanım Koşulları</a></li>
         </ul>
       </div>
 
