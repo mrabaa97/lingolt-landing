@@ -146,6 +146,41 @@
   .card .ico { font-size: 1.9rem; }
   .card h3 { font-size: 1.12rem; margin: 10px 0 6px; }
   .card p { font-size: .95rem; color: var(--muted); }
+  /* A claim about someone's voice has to be checkable from where it is made,
+     not three scrolls away in the footer. */
+  .card p a { color: var(--green); text-decoration: underline; font-weight: 600; }
+
+  /* Government-information notice. The exam sections present state exam and
+     constitution material, and Play rejected the app TWICE under Misleading
+     Claims for presenting exactly that without a visible disclaimer and
+     working official sources. The store listing links here, so the same
+     obligation reaches this page. The policy's own word is "easy-to-see" —
+     hence a box after the packages, not a line in the footer.
+     The Seimas URL used in the listing (www.lrs.lt) is deliberately NOT here:
+     it now sits behind a bot challenge and answers an automated checker with
+     403 "Just a moment…", which is the precise shape of the second rejection.
+     The Constitutional Court serves the same text and answers 200. */
+  .gov { padding: 34px 0 0; }
+  .gov-box {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 18px;
+    padding: 24px 26px;
+  }
+  .gov-box h3 { font-size: 1.04rem; margin: 0 0 8px; color: #78350f; }
+  /* Not `h3 + h3`: the four translations of one heading are siblings too, so
+     that selector pushed whichever language happened not to be first. The
+     gap belongs to the second heading as a thing, so it is named. */
+  .gov-box .gov-next { margin-top: 20px; }
+  .gov-box p { font-size: .93rem; color: #78350f; margin: 0 0 10px; }
+  .gov-box ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+  /* The label stacks above its URL — via the LIST ITEM, never via `display`
+     on the <b> itself. The language switch hides a block with
+     `[lang-ru] { display: none }`, specificity (0,1,0); a rule like
+     `.gov-box li b { display: block }` is (0,1,2) and silently wins, which
+     printed all four translations at once. Anything inside a translated
+     block must leave `display` alone. */
+  .gov-box li { font-size: .92rem; color: #78350f; display: flex; flex-direction: column; gap: 3px; }
+  .gov-box li b { font-weight: 700; }
+  .gov-box a { color: var(--green-dark); word-break: break-word; }
 
   /* screenshots */
   .shots { background: #fff; }
@@ -319,7 +354,11 @@
 <div class="wrap">
   <div class="stats">
     <div class="stat"><b>20</b><span lang-ar>مستوى تعليمياً</span><span lang-en>learning levels</span><span lang-ru>учебных уровней</span><span lang-tr>öğrenme seviyesi</span></div>
-    <div class="stat"><b>143</b><span lang-ar>درساً منظّماً</span><span lang-en>structured lessons</span><span lang-ru>структурированных уроков</span><span lang-tr>düzenli ders</span></div>
+    <!-- 142, counted from the twenty level files in src/content/scenarios/.
+         It was 143, which only holds if the letters grid is counted as a
+         lesson — and it is not one: LevelDetailScreen renders it as a
+         separate reference card. A number a reader can count has to match. -->
+    <div class="stat"><b>142</b><span lang-ar>درساً منظّماً</span><span lang-en>structured lessons</span><span lang-ru>структурированных уроков</span><span lang-tr>düzenli ders</span></div>
     <div class="stat"><b>60</b><span lang-ar>سيناريو محادثة</span><span lang-en>conversation scenarios</span><span lang-ru>разговорных сценариев</span><span lang-tr>diyalog senaryosu</span></div>
     <div class="stat"><b>45</b><span lang-ar>نموذج امتحان</span><span lang-en>mock exam models</span><span lang-ru>пробных экзаменов</span><span lang-tr>deneme sınavı modeli</span></div>
     <div class="stat"><b>A1→B2</b><span lang-ar>حسب الإطار الأوروبي</span><span lang-en>CEFR-aligned</span><span lang-ru>по шкале CEFR</span><span lang-tr>CEFR ölçeğinde</span></div>
@@ -366,8 +405,8 @@
       </div>
       <div class="card"><div class="ico">🎙️</div>
         <h3 lang-ar>تدرّب على النطق بصوتك</h3><h3 lang-en>Practice speaking out loud</h3><h3 lang-ru>Практика речи вслух</h3><h3 lang-tr>Sesli konuşma pratiği</h3>
-        <p lang-ar>اضغط مطوّلاً وتكلّم: التطبيق يسمعك ويعطيك نسبة تطابق ويلوّن الكلمات الصحيحة والخاطئة. لا يُسجَّل صوتك ولا يُرفع أبداً.</p>
-        <p lang-en>Hold and speak: the app listens, scores your match, and colours the right and wrong words. Your voice is never recorded or uploaded.</p><p lang-ru>Удерживайте и говорите: приложение слушает, оценивает совпадение и подсвечивает верные и неверные слова. Ваш голос никогда не записывается и не загружается.</p><p lang-tr>Basılı tutun ve konuşun: uygulama dinler, eşleşmenizi puanlar, doğru ve yanlış kelimeleri renklendirir. Sesiniz asla kaydedilmez veya yüklenmez.</p>
+        <p lang-ar>اضغط مطوّلاً وتكلّم: التطبيق يسمعك ويعطيك نسبة تطابق ويلوّن الكلمات الصحيحة والخاطئة. لا نحتفظ بأي تسجيل — يُحذف المقطع فور تحويله إلى نص. <a href="/privacy">كيف يُعالَج الصوت</a>.</p>
+        <p lang-en>Hold and speak: the app listens, scores your match, and colours the right and wrong words. We keep no recording — the clip is discarded the moment it becomes text. <a href="/privacy">How the audio is handled</a>.</p><p lang-ru>Удерживайте и говорите: приложение слушает, оценивает совпадение и подсвечивает верные и неверные слова. Мы не храним записей — фрагмент удаляется, как только становится текстом. <a href="/privacy">Как обрабатывается звук</a>.</p><p lang-tr>Basılı tutun ve konuşun: uygulama dinler, eşleşmenizi puanlar, doğru ve yanlış kelimeleri renklendirir. Hiçbir kayıt saklamayız — parça metne dönüşür dönüşmez silinir. <a href="/privacy">Ses nasıl işlenir</a>.</p>
       </div>
       <div class="card"><div class="ico">📝</div>
         <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-en>State exam simulation</h3><h3 lang-ru>Симуляция госэкзамена</h3><h3 lang-tr>Devlet sınavı simülasyonu</h3>
@@ -376,8 +415,8 @@
       </div>
       <div class="card"><div class="ico">⚖️</div>
         <h3 lang-ar>امتحان الدستور للجنسية</h3><h3 lang-en>Constitution exam</h3><h3 lang-ru>Экзамен по Конституции</h3><h3 lang-tr>Anayasa sınavı</h3>
-        <p lang-ar>١٥ نموذجاً لأساسيات الدستور الليتواني مع شرح لكل إجابة — استعداد كامل لامتحان التجنيس.</p>
-        <p lang-en>15 models on the basics of the Lithuanian constitution, each answer explained — full preparation for the citizenship test.</p><p lang-ru>15 моделей по основам Конституции Литвы с пояснением каждого ответа — полная подготовка к тесту на гражданство.</p><p lang-tr>Litvanya Anayasası’nın esasları üzerine, her cevabı açıklanmış 15 model — vatandaşlık sınavına tam hazırlık.</p>
+        <p lang-ar>١٥ نموذجاً لأساسيات الدستور الليتواني مع شرح لكل إجابة — تمرين تستعدّ به لامتحان التجنيس.</p>
+        <p lang-en>15 models on the basics of the Lithuanian constitution, each answer explained — practice to prepare for the citizenship exam.</p><p lang-ru>15 моделей по основам Конституции Литвы с пояснением каждого ответа — практика для подготовки к экзамену на гражданство.</p><p lang-tr>Litvanya Anayasası’nın esasları üzerine, her cevabı açıklanmış 15 model — vatandaşlık sınavına hazırlanmak için alıştırma.</p>
       </div>
     </div>
   </div>
@@ -388,8 +427,8 @@
   <div class="wrap">
     <h2 class="sec" lang-ar>ابدأ مجاناً، وادفع لما تحتاجه فقط</h2>
     <h2 class="sec" lang-en>Start free, pay only for what you need</h2><h2 class="sec" lang-ru>Начните бесплатно, платите только за нужное</h2><h2 class="sec" lang-tr>Ücretsiz başlayın, yalnızca ihtiyacınız olana ödeyin</h2>
-    <p class="sec-sub" lang-ar>ثلاث باقات منفصلة — لا شيء مخفي ولا رسوم مفاجئة</p>
-    <p class="sec-sub" lang-en>Three separate packages — nothing hidden, no surprise charges</p><p class="sec-sub" lang-ru>Три отдельных пакета — ничего скрытого, никаких неожиданных списаний</p><p class="sec-sub" lang-tr>Üç ayrı paket — gizli hiçbir şey yok, sürpriz ücret yok</p>
+    <p class="sec-sub" lang-ar>باقة مجانية وثلاث باقات مدفوعة منفصلة — لا شيء مخفي ولا رسوم مفاجئة</p>
+    <p class="sec-sub" lang-en>A free tier and three separate paid packages — nothing hidden, no surprise charges</p><p class="sec-sub" lang-ru>Бесплатный доступ и три отдельных платных пакета — ничего скрытого, никаких неожиданных списаний</p><p class="sec-sub" lang-tr>Ücretsiz bir kademe ve üç ayrı ücretli paket — gizli hiçbir şey yok, sürpriz ücret yok</p>
     <div class="stage-grid">
       <div class="stage"><span class="tag">🆓</span>
         <h3 lang-ar>مجاناً للتجربة</h3><h3 lang-en>Free to try</h3><h3 lang-ru>Бесплатно попробовать</h3><h3 lang-tr>Ücretsiz deneme</h3>
@@ -411,6 +450,35 @@
         <p lang-ar>كل نماذج الدستور مع شرح الإجابات. دفعة واحدة لشهر — <b>بلا تجديد تلقائي</b>.</p>
         <p lang-en>All constitution models with explained answers. A single payment for one month — <b>no auto-renewal</b>.</p><p lang-ru>Все модели по Конституции с пояснёнными ответами. Разовый платёж на один месяц — <b>без автопродления</b>.</p><p lang-tr>Açıklamalı cevaplarıyla tüm Anayasa modelleri. Bir ay için tek seferlik ödeme — <b>otomatik yenileme yok</b>.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- GOVERNMENT-INFORMATION NOTICE -->
+<section class="gov" id="sources">
+  <div class="wrap">
+    <div class="gov-box">
+      <h3 lang-ar>⚠️ إخلاء مسؤولية</h3>
+      <h3 lang-en>⚠️ Disclaimer</h3><h3 lang-ru>⚠️ Отказ от ответственности</h3><h3 lang-tr>⚠️ Sorumluluk reddi</h3>
+      <p lang-ar>KasKalba تطبيق تعليمي مستقل. لا يمثّل أيّ جهة حكومية ليتوانية ولا ينتمي إليها ولا يعمل بتفويض منها، ولا يصدر عنه أيّ شهادة أو نتيجة رسمية. ونماذج المحاكاة داخل التطبيق تدريب من إعدادنا على بنية الامتحان، وليست الامتحان الرسمي ولا بديلاً عنه.</p>
+      <p lang-en>KasKalba is an independent learning app. It does not represent, belong to, or act on behalf of any Lithuanian government entity, and it issues no official certificate or result. The practice models inside the app are our own material modelled on the exam's structure; they are not the official exam and are not a substitute for it.</p><p lang-ru>KasKalba — независимое учебное приложение. Оно не представляет ни одно государственное учреждение Литвы, не связано с ними, не действует по их поручению и не выдаёт официальных сертификатов или результатов. Пробные модели в приложении — наш собственный материал, построенный по структуре экзамена; это не официальный экзамен и не его замена.</p><p lang-tr>KasKalba bağımsız bir öğrenme uygulamasıdır. Hiçbir Litvanya devlet kurumunu temsil etmez, onlara bağlı değildir, onlar adına hareket etmez ve resmî belge ya da sonuç vermez. Uygulamadaki deneme modelleri, sınav yapısına göre kendi hazırladığımız materyaldir; resmî sınav değildir ve onun yerine geçmez.</p>
+
+      <h3 class="gov-next" lang-ar>📌 المصادر الرسمية</h3>
+      <h3 class="gov-next" lang-en>📌 Official sources</h3><h3 class="gov-next" lang-ru>📌 Официальные источники</h3><h3 class="gov-next" lang-tr>📌 Resmî kaynaklar</h3>
+      <p lang-ar>امتحان إتقان اللغة الليتوانية وامتحان أسس الدستور تُجريهما الوكالة الوطنية للتعليم (Nacionalinė švietimo agentūra) وحدها. وللتسجيل والرسوم والمواعيد والنتائج، اعتمد هذين المصدرين وحدهما:</p>
+      <p lang-en>The Lithuanian state language proficiency exam and the Constitution basics exam are administered solely by the National Education Agency (Nacionalinė švietimo agentūra). For registration, fees, dates and results, rely on these sources only:</p><p lang-ru>Государственный экзамен на знание литовского языка и экзамен по основам Конституции проводит исключительно Национальное агентство образования (Nacionalinė švietimo agentūra). По вопросам регистрации, оплаты, дат и результатов полагайтесь только на эти источники:</p><p lang-tr>Litvanca devlet dil yeterlilik sınavı ve Anayasa temelleri sınavı yalnızca Ulusal Eğitim Ajansı (Nacionalinė švietimo agentūra) tarafından yapılır. Kayıt, ücret, tarih ve sonuçlar için yalnızca şu kaynaklara güvenin:</p>
+      <ul>
+        <li>
+          <b lang-ar>معلومات الامتحان ومواعيده — Nacionalinė švietimo agentūra</b>
+          <b lang-en>Exam information and schedule — Nacionalinė švietimo agentūra</b><b lang-ru>Информация об экзамене и расписание — Nacionalinė švietimo agentūra</b><b lang-tr>Sınav bilgileri ve takvimi — Nacionalinė švietimo agentūra</b>
+          <a href="https://www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams" target="_blank" rel="noopener" dir="ltr">www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams</a>
+        </li>
+        <li>
+          <b lang-ar>النصّ الرسمي لدستور جمهورية ليتوانيا — المحكمة الدستورية</b>
+          <b lang-en>Official text of the Constitution of the Republic of Lithuania — the Constitutional Court</b><b lang-ru>Официальный текст Конституции Литовской Республики — Конституционный суд</b><b lang-tr>Litvanya Cumhuriyeti Anayasası'nın resmî metni — Anayasa Mahkemesi</b>
+          <a href="https://lrkt.lt/en/about-the-court/legal-information/the-constitution/192" target="_blank" rel="noopener" dir="ltr">lrkt.lt/en/about-the-court/legal-information/the-constitution/192</a>
+        </li>
+      </ul>
     </div>
   </div>
 </section>
@@ -575,6 +643,10 @@
             <a href="/terms" lang-en>Terms of Use</a>
             <a href="/terms" lang-ru>Условия использования</a>
             <a href="/terms" lang-tr>Kullanım Koşulları</a></li>
+          <li><a href="/#sources" lang-ar>المصادر الرسمية</a>
+            <a href="/#sources" lang-en>Official sources</a>
+            <a href="/#sources" lang-ru>Официальные источники</a>
+            <a href="/#sources" lang-tr>Resmî kaynaklar</a></li>
         </ul>
       </div>
 
