@@ -294,6 +294,7 @@
 </style>
 </head>
 <body>
+<div style="background:#1c2320;color:#fff;padding:16px 20px;font:14px/1.7 system-ui,sans-serif;text-align:center">This file is the <b>template</b>, not a page — and it shows all four languages at once on purpose, side by side, so the translations can be read against each other. Nobody is served this. The pages visitors get are built from it by <b>node _src/build.mjs</b> into <b>index.html</b> (English), <b>ar/</b>, <b>ru/</b> and <b>tr/</b>, each carrying one language. Those four are build output: edit them and the next build overwrites it. To look at the real pages, serve the folder (<b>python -m http.server 8765</b>) and open <b>localhost:8765</b> — opening them straight off the disk breaks the images and links, because their paths start at the site root.</div><!-- @SRCONLY: this banner is dropped from every built page -->
 
 <header>
   <div class="wrap nav">
