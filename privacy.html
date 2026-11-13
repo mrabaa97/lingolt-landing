@@ -91,6 +91,12 @@
   p, li { color:#333; font-size:1rem; }
   ul { padding-inline-start: 22px; margin: 6px 0; }
   .box { background:var(--green-bg); border:1px solid #cdeee0; border-radius:14px; padding:16px 18px; margin:18px 0; }
+  /* The two official sources. Each bare URL stays visible under its label
+     rather than hiding behind the words: it is what a reader checks before
+     trusting it, and what a store reviewer checks before believing it. */
+  .sources { list-style:none; margin:10px 0 0; padding:0; display:grid; gap:12px; }
+  .sources b { display:block; font-weight:700; }
+  .sources a { word-break:break-word; }
   a { color:var(--green); font-weight:700; }
   /* The footer closes the page, so it carries the app icon's own dark green
      rather than more white. #10271D is the tint chosen for the Android
@@ -263,6 +269,19 @@
     <p>عند إرسال رسالة عبر «تواصل معنا» داخل التطبيق نحفظ اسمك وبريدك ونصّ رسالتك، ونُرسل نسخة منها تلقائياً إلى بريد الدعم عبر مزوّد بريد خارجي (Resend) لنتمكّن من الردّ عليك.</p>
     <p>لأي استفسار حول خصوصيتك أو بياناتك، أو لطلب الاطّلاع عليها أو حذفها:<br />
     📧 <a href="mailto:support@kaskalba.com">support@kaskalba.com</a></p>
+    <hr style="border:none;border-top:1px solid var(--line);margin:34px 0 26px" />
+    <h2 id="sources-ar">⚠️ إخلاء مسؤولية والمصادر الرسمية</h2>
+    <p>KasKalba تطبيق تعليمي مستقل. لا يمثّل أيّ جهة حكومية ليتوانية ولا ينتمي إليها ولا يعمل بتفويض منها، ولا يصدر عنه أيّ شهادة أو نتيجة رسمية. ونماذج المحاكاة داخل التطبيق تدريب من إعدادنا على بنية الامتحان، وليست الامتحان الرسمي ولا بديلاً عنه.</p>
+    <div class="box">
+      <p><b>📌 المصادر الرسمية</b></p>
+      <p>امتحان إتقان اللغة الليتوانية وامتحان أسس الدستور تُجريهما الوكالة الوطنية للتعليم (Nacionalinė švietimo agentūra) وحدها. وللتسجيل والرسوم والمواعيد والنتائج، اعتمد هذين المصدرين وحدهما:</p>
+      <ul class="sources">
+        <li><b>معلومات الامتحان ومواعيده — Nacionalinė švietimo agentūra</b>
+          <a href="https://www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams" target="_blank" rel="noopener" dir="ltr">www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams</a></li>
+        <li><b>النصّ الرسمي لدستور جمهورية ليتوانيا — المحكمة الدستورية</b>
+          <a href="https://lrkt.lt/en/about-the-court/legal-information/the-constitution/192" target="_blank" rel="noopener" dir="ltr">lrkt.lt/en/about-the-court/legal-information/the-constitution/192</a></li>
+      </ul>
+    </div>
   </div>
 
   <!-- ===================== ENGLISH ===================== -->
@@ -348,6 +367,19 @@
     <p>When you send a message through "Contact Us" inside the App, we store your name, email and message, and a copy is forwarded automatically to our support inbox through an external mail provider (Resend) so we can reply to you.</p>
     <p>For any question about your privacy or your data, or to request access or deletion:<br />
     📧 <a href="mailto:support@kaskalba.com">support@kaskalba.com</a></p>
+    <hr style="border:none;border-top:1px solid var(--line);margin:34px 0 26px" />
+    <h2 id="sources-en">⚠️ Disclaimer and official sources</h2>
+    <p>KasKalba is an independent learning app. It does not represent, belong to, or act on behalf of any Lithuanian government entity, and it issues no official certificate or result. The practice models inside the app are our own material modelled on the exam’s structure; they are not the official exam and are not a substitute for it.</p>
+    <div class="box">
+      <p><b>📌 Official sources</b></p>
+      <p>The Lithuanian state language proficiency exam and the Constitution basics exam are administered solely by the National Education Agency (Nacionalinė švietimo agentūra). For registration, fees, dates and results, rely on these sources only:</p>
+      <ul class="sources">
+        <li><b>Exam information and schedule — Nacionalinė švietimo agentūra</b>
+          <a href="https://www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams" target="_blank" rel="noopener" dir="ltr">www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams</a></li>
+        <li><b>Official text of the Constitution of the Republic of Lithuania — the Constitutional Court</b>
+          <a href="https://lrkt.lt/en/about-the-court/legal-information/the-constitution/192" target="_blank" rel="noopener" dir="ltr">lrkt.lt/en/about-the-court/legal-information/the-constitution/192</a></li>
+      </ul>
+    </div>
   </div>
 
   <!-- ===================== RUSSIAN ===================== -->
@@ -433,6 +465,19 @@
     <p>Когда вы отправляете сообщение через «Связаться с нами» в Приложении, мы сохраняем ваше имя, адрес и текст сообщения, а его копия автоматически пересылается в нашу почту поддержки через внешнего почтового провайдера (Resend), чтобы мы могли вам ответить.</p>
     <p>По любым вопросам о вашей приватности или данных, а также для запроса доступа или удаления:<br />
     📧 <a href="mailto:support@kaskalba.com">support@kaskalba.com</a></p>
+    <hr style="border:none;border-top:1px solid var(--line);margin:34px 0 26px" />
+    <h2 id="sources-ru">⚠️ Отказ от ответственности и официальные источники</h2>
+    <p>KasKalba — независимое учебное приложение. Оно не представляет ни одно государственное учреждение Литвы, не связано с ними, не действует по их поручению и не выдаёт официальных сертификатов или результатов. Пробные модели в приложении — наш собственный материал, построенный по структуре экзамена; это не официальный экзамен и не его замена.</p>
+    <div class="box">
+      <p><b>📌 Официальные источники</b></p>
+      <p>Государственный экзамен на знание литовского языка и экзамен по основам Конституции проводит исключительно Национальное агентство образования (Nacionalinė švietimo agentūra). По вопросам регистрации, оплаты, дат и результатов полагайтесь только на эти источники:</p>
+      <ul class="sources">
+        <li><b>Информация об экзамене и расписание — Nacionalinė švietimo agentūra</b>
+          <a href="https://www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams" target="_blank" rel="noopener" dir="ltr">www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams</a></li>
+        <li><b>Официальный текст Конституции Литовской Республики — Конституционный суд</b>
+          <a href="https://lrkt.lt/en/about-the-court/legal-information/the-constitution/192" target="_blank" rel="noopener" dir="ltr">lrkt.lt/en/about-the-court/legal-information/the-constitution/192</a></li>
+      </ul>
+    </div>
   </div>
 
   <!-- ===================== TURKISH ===================== -->
@@ -518,6 +563,19 @@
     <p>Uygulamadaki “Bize Ulaşın” üzerinden bir mesaj gönderdiğinizde adınızı, e-postanızı ve mesajınızı saklarız ve size yanıt verebilmemiz için bir kopyası harici bir e-posta sağlayıcısı (Resend) aracılığıyla otomatik olarak destek kutumuza iletilir.</p>
     <p>Gizliliğiniz veya verilerinizle ilgili her soru için ya da erişim veya silme talebiniz için:<br />
     📧 <a href="mailto:support@kaskalba.com">support@kaskalba.com</a></p>
+    <hr style="border:none;border-top:1px solid var(--line);margin:34px 0 26px" />
+    <h2 id="sources-tr">⚠️ Sorumluluk reddi ve resmî kaynaklar</h2>
+    <p>KasKalba bağımsız bir öğrenme uygulamasıdır. Hiçbir Litvanya devlet kurumunu temsil etmez, onlara bağlı değildir, onlar adına hareket etmez ve resmî belge ya da sonuç vermez. Uygulamadaki deneme modelleri, sınav yapısına göre kendi hazırladığımız materyaldir; resmî sınav değildir ve onun yerine geçmez.</p>
+    <div class="box">
+      <p><b>📌 Resmî kaynaklar</b></p>
+      <p>Litvanca devlet dil yeterlilik sınavı ve Anayasa temelleri sınavı yalnızca Ulusal Eğitim Ajansı (Nacionalinė švietimo agentūra) tarafından yapılır. Kayıt, ücret, tarih ve sonuçlar için yalnızca şu kaynaklara güvenin:</p>
+      <ul class="sources">
+        <li><b>Sınav bilgileri ve takvimi — Nacionalinė švietimo agentūra</b>
+          <a href="https://www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams" target="_blank" rel="noopener" dir="ltr">www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams</a></li>
+        <li><b>Litvanya Cumhuriyeti Anayasası’nın resmî metni — Anayasa Mahkemesi</b>
+          <a href="https://lrkt.lt/en/about-the-court/legal-information/the-constitution/192" target="_blank" rel="noopener" dir="ltr">lrkt.lt/en/about-the-court/legal-information/the-constitution/192</a></li>
+      </ul>
+    </div>
   </div>
 
 </main>
@@ -592,10 +650,10 @@
             <a href="/terms" lang-en>Terms of Use</a>
             <a href="/terms" lang-ru>Условия использования</a>
             <a href="/terms" lang-tr>Kullanım Koşulları</a></li>
-          <li><a href="/ar/#sources" lang-ar>المصادر الرسمية</a>
-            <a href="/#sources" lang-en>Official sources</a>
-            <a href="/ru/#sources" lang-ru>Официальные источники</a>
-            <a href="/tr/#sources" lang-tr>Resmî kaynaklar</a></li>
+          <li><a href="#sources-ar" lang-ar>المصادر الرسمية</a>
+            <a href="#sources-en" lang-en>Official sources</a>
+            <a href="#sources-ru" lang-ru>Официальные источники</a>
+            <a href="#sources-tr" lang-tr>Resmî kaynaklar</a></li>
         </ul>
       </div>
 
@@ -658,7 +716,27 @@
   // back rather than leaving the page with every block hidden.
   var saved = null;
   try { saved = localStorage.getItem('kaskalba-lang') || localStorage.getItem('lingolt-lang'); } catch (e) {}
-  applyLang(saved || 'en');
+
+  // A deep link carries its own language: /privacy#sources-ru is a Russian
+  // reader following a Russian link, whatever this browser happens to have
+  // stored. Each language's notice has its OWN id for exactly this reason —
+  // one visible, unique target per URL, so the browser scrolls to it itself.
+  // The first version of this shared one id across all four blocks and tried
+  // to correct the jump from script; it spent its time losing races against
+  // the browser's own fragment handling and scroll restoration, and landed
+  // Russian and Turkish readers a thousand pixels past the heading.
+  function langInHash() { return (location.hash.match(/-(ar|en|ru|tr)$/) || [])[1]; }
+  applyLang(langInHash() || saved || 'en');
+
+  // Following an anchor inside the page we are already on changes the hash
+  // without reloading, so the line above does not run again: the language
+  // would stay put and the browser would be sent to a block that is hidden,
+  // which moves nothing. Switch first, then let the jump happen.
+  window.addEventListener('hashchange', function () {
+    var l = langInHash();
+    if (l) { applyLang(l); document.getElementById(location.hash.slice(1)).scrollIntoView(); }
+  });
+
 </script>
 </body>
 </html>

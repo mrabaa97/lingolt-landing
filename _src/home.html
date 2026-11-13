@@ -148,38 +148,6 @@
      not three scrolls away in the footer. */
   .card p a { color: var(--green); text-decoration: underline; font-weight: 600; }
 
-  /* Government-information notice. The exam sections present state exam and
-     constitution material, and Play rejected the app TWICE under Misleading
-     Claims for presenting exactly that without a visible disclaimer and
-     working official sources. The store listing links here, so the same
-     obligation reaches this page. The policy's own word is "easy-to-see" —
-     hence a box after the packages, not a line in the footer.
-     The Seimas URL used in the listing (www.lrs.lt) is deliberately NOT here:
-     it now sits behind a bot challenge and answers an automated checker with
-     403 "Just a moment…", which is the precise shape of the second rejection.
-     The Constitutional Court serves the same text and answers 200. */
-  .gov { padding: 34px 0 0; }
-  .gov-box {
-    background: #fffbeb; border: 1px solid #fde68a; border-radius: 18px;
-    padding: 24px 26px;
-  }
-  .gov-box h3 { font-size: 1.04rem; margin: 0 0 8px; color: #78350f; }
-  /* Not `h3 + h3`: the four translations of one heading are siblings too, so
-     that selector pushed whichever language happened not to be first. The
-     gap belongs to the second heading as a thing, so it is named. */
-  .gov-box .gov-next { margin-top: 20px; }
-  .gov-box p { font-size: .93rem; color: #78350f; margin: 0 0 10px; }
-  .gov-box ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
-  /* The label stacks above its URL via the LIST ITEM, not via `display` on
-     the <b> itself. This page no longer hides anything — the languages are
-     split into separate files at build time — but the legal pages still hide
-     three of four with an attribute selector, specificity (0,1,0), and a
-     rule like `.gov-box li b { display: block }` is (0,1,2) and silently
-     beats it. That printed all four translations at once. Inside a
-     translated block, leave `display` to the language machinery. */
-  .gov-box li { font-size: .92rem; color: #78350f; display: flex; flex-direction: column; gap: 3px; }
-  .gov-box li b { font-weight: 700; }
-  .gov-box a { color: var(--green-dark); word-break: break-word; }
 
   /* screenshots */
   .shots { background: #fff; }
@@ -438,35 +406,6 @@
   </div>
 </section>
 
-<!-- GOVERNMENT-INFORMATION NOTICE -->
-<section class="gov" id="sources">
-  <div class="wrap">
-    <div class="gov-box">
-      <h3 lang-ar>⚠️ إخلاء مسؤولية</h3>
-      <h3 lang-en>⚠️ Disclaimer</h3><h3 lang-ru>⚠️ Отказ от ответственности</h3><h3 lang-tr>⚠️ Sorumluluk reddi</h3>
-      <p lang-ar>KasKalba تطبيق تعليمي مستقل. لا يمثّل أيّ جهة حكومية ليتوانية ولا ينتمي إليها ولا يعمل بتفويض منها، ولا يصدر عنه أيّ شهادة أو نتيجة رسمية. ونماذج المحاكاة داخل التطبيق تدريب من إعدادنا على بنية الامتحان، وليست الامتحان الرسمي ولا بديلاً عنه.</p>
-      <p lang-en>KasKalba is an independent learning app. It does not represent, belong to, or act on behalf of any Lithuanian government entity, and it issues no official certificate or result. The practice models inside the app are our own material modelled on the exam's structure; they are not the official exam and are not a substitute for it.</p><p lang-ru>KasKalba — независимое учебное приложение. Оно не представляет ни одно государственное учреждение Литвы, не связано с ними, не действует по их поручению и не выдаёт официальных сертификатов или результатов. Пробные модели в приложении — наш собственный материал, построенный по структуре экзамена; это не официальный экзамен и не его замена.</p><p lang-tr>KasKalba bağımsız bir öğrenme uygulamasıdır. Hiçbir Litvanya devlet kurumunu temsil etmez, onlara bağlı değildir, onlar adına hareket etmez ve resmî belge ya da sonuç vermez. Uygulamadaki deneme modelleri, sınav yapısına göre kendi hazırladığımız materyaldir; resmî sınav değildir ve onun yerine geçmez.</p>
-
-      <h3 class="gov-next" lang-ar>📌 المصادر الرسمية</h3>
-      <h3 class="gov-next" lang-en>📌 Official sources</h3><h3 class="gov-next" lang-ru>📌 Официальные источники</h3><h3 class="gov-next" lang-tr>📌 Resmî kaynaklar</h3>
-      <p lang-ar>امتحان إتقان اللغة الليتوانية وامتحان أسس الدستور تُجريهما الوكالة الوطنية للتعليم (Nacionalinė švietimo agentūra) وحدها. وللتسجيل والرسوم والمواعيد والنتائج، اعتمد هذين المصدرين وحدهما:</p>
-      <p lang-en>The Lithuanian state language proficiency exam and the Constitution basics exam are administered solely by the National Education Agency (Nacionalinė švietimo agentūra). For registration, fees, dates and results, rely on these sources only:</p><p lang-ru>Государственный экзамен на знание литовского языка и экзамен по основам Конституции проводит исключительно Национальное агентство образования (Nacionalinė švietimo agentūra). По вопросам регистрации, оплаты, дат и результатов полагайтесь только на эти источники:</p><p lang-tr>Litvanca devlet dil yeterlilik sınavı ve Anayasa temelleri sınavı yalnızca Ulusal Eğitim Ajansı (Nacionalinė švietimo agentūra) tarafından yapılır. Kayıt, ücret, tarih ve sonuçlar için yalnızca şu kaynaklara güvenin:</p>
-      <ul>
-        <li>
-          <b lang-ar>معلومات الامتحان ومواعيده — Nacionalinė švietimo agentūra</b>
-          <b lang-en>Exam information and schedule — Nacionalinė švietimo agentūra</b><b lang-ru>Информация об экзамене и расписание — Nacionalinė švietimo agentūra</b><b lang-tr>Sınav bilgileri ve takvimi — Nacionalinė švietimo agentūra</b>
-          <a href="https://www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams" target="_blank" rel="noopener" dir="ltr">www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams</a>
-        </li>
-        <li>
-          <b lang-ar>النصّ الرسمي لدستور جمهورية ليتوانيا — المحكمة الدستورية</b>
-          <b lang-en>Official text of the Constitution of the Republic of Lithuania — the Constitutional Court</b><b lang-ru>Официальный текст Конституции Литовской Республики — Конституционный суд</b><b lang-tr>Litvanya Cumhuriyeti Anayasası'nın resmî metni — Anayasa Mahkemesi</b>
-          <a href="https://lrkt.lt/en/about-the-court/legal-information/the-constitution/192" target="_blank" rel="noopener" dir="ltr">lrkt.lt/en/about-the-court/legal-information/the-constitution/192</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</section>
-
 <!-- SCREENSHOTS -->
 <section class="shots" id="screens">
   <div class="wrap">
@@ -627,10 +566,10 @@
             <a href="/terms" lang-en>Terms of Use</a>
             <a href="/terms" lang-ru>Условия использования</a>
             <a href="/terms" lang-tr>Kullanım Koşulları</a></li>
-          <li><a href="#sources" lang-ar>المصادر الرسمية</a>
-            <a href="#sources" lang-en>Official sources</a>
-            <a href="#sources" lang-ru>Официальные источники</a>
-            <a href="#sources" lang-tr>Resmî kaynaklar</a></li>
+          <li><a href="/privacy#sources-ar" lang-ar>المصادر الرسمية</a>
+            <a href="/privacy#sources-en" lang-en>Official sources</a>
+            <a href="/privacy#sources-ru" lang-ru>Официальные источники</a>
+            <a href="/privacy#sources-tr" lang-tr>Resmî kaynaklar</a></li>
         </ul>
       </div>
 

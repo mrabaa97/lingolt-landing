@@ -161,38 +161,6 @@
      not three scrolls away in the footer. */
   .card p a { color: var(--green); text-decoration: underline; font-weight: 600; }
 
-  /* Government-information notice. The exam sections present state exam and
-     constitution material, and Play rejected the app TWICE under Misleading
-     Claims for presenting exactly that without a visible disclaimer and
-     working official sources. The store listing links here, so the same
-     obligation reaches this page. The policy's own word is "easy-to-see" —
-     hence a box after the packages, not a line in the footer.
-     The Seimas URL used in the listing (www.lrs.lt) is deliberately NOT here:
-     it now sits behind a bot challenge and answers an automated checker with
-     403 "Just a moment…", which is the precise shape of the second rejection.
-     The Constitutional Court serves the same text and answers 200. */
-  .gov { padding: 34px 0 0; }
-  .gov-box {
-    background: #fffbeb; border: 1px solid #fde68a; border-radius: 18px;
-    padding: 24px 26px;
-  }
-  .gov-box h3 { font-size: 1.04rem; margin: 0 0 8px; color: #78350f; }
-  /* Not `h3 + h3`: the four translations of one heading are siblings too, so
-     that selector pushed whichever language happened not to be first. The
-     gap belongs to the second heading as a thing, so it is named. */
-  .gov-box .gov-next { margin-top: 20px; }
-  .gov-box p { font-size: .93rem; color: #78350f; margin: 0 0 10px; }
-  .gov-box ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
-  /* The label stacks above its URL via the LIST ITEM, not via `display` on
-     the <b> itself. This page no longer hides anything — the languages are
-     split into separate files at build time — but the legal pages still hide
-     three of four with an attribute selector, specificity (0,1,0), and a
-     rule like `.gov-box li b { display: block }` is (0,1,2) and silently
-     beats it. That printed all four translations at once. Inside a
-     translated block, leave `display` to the language machinery. */
-  .gov-box li { font-size: .92rem; color: #78350f; display: flex; flex-direction: column; gap: 3px; }
-  .gov-box li b { font-weight: 700; }
-  .gov-box a { color: var(--green-dark); word-break: break-word; }
 
   /* screenshots */
   .shots { background: #fff; }
@@ -440,29 +408,6 @@
   </div>
 </section>
 
-<!-- GOVERNMENT-INFORMATION NOTICE -->
-<section class="gov" id="sources">
-  <div class="wrap">
-    <div class="gov-box">
-      <h3>⚠️ إخلاء مسؤولية</h3>
-      <p>KasKalba تطبيق تعليمي مستقل. لا يمثّل أيّ جهة حكومية ليتوانية ولا ينتمي إليها ولا يعمل بتفويض منها، ولا يصدر عنه أيّ شهادة أو نتيجة رسمية. ونماذج المحاكاة داخل التطبيق تدريب من إعدادنا على بنية الامتحان، وليست الامتحان الرسمي ولا بديلاً عنه.</p>
-
-      <h3 class="gov-next">📌 المصادر الرسمية</h3>
-      <p>امتحان إتقان اللغة الليتوانية وامتحان أسس الدستور تُجريهما الوكالة الوطنية للتعليم (Nacionalinė švietimo agentūra) وحدها. وللتسجيل والرسوم والمواعيد والنتائج، اعتمد هذين المصدرين وحدهما:</p>
-      <ul>
-        <li>
-          <b>معلومات الامتحان ومواعيده — Nacionalinė švietimo agentūra</b>
-          <a href="https://www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams" target="_blank" rel="noopener" dir="ltr">www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams</a>
-        </li>
-        <li>
-          <b>النصّ الرسمي لدستور جمهورية ليتوانيا — المحكمة الدستورية</b>
-          <a href="https://lrkt.lt/en/about-the-court/legal-information/the-constitution/192" target="_blank" rel="noopener" dir="ltr">lrkt.lt/en/about-the-court/legal-information/the-constitution/192</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</section>
-
 <!-- SCREENSHOTS -->
 <section class="shots" id="screens">
   <div class="wrap">
@@ -583,7 +528,7 @@
             </li>
           <li><a href="/terms">شروط الاستخدام</a>
             </li>
-          <li><a href="#sources">المصادر الرسمية</a>
+          <li><a href="/privacy#sources-ar">المصادر الرسمية</a>
             </li>
         </ul>
       </div>
