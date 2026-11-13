@@ -220,26 +220,123 @@ const PICKER_JS = `<script>
   });
 </script>`;
 
+// --- structured data --------------------------------------------------------
+//
+//  Read OUT of the finished page rather than written beside it. Google's rule
+//  for FAQ markup is that it must match what the visitor sees; the surest way
+//  to satisfy that is to have no second copy of the text to fall out of step.
+//  Same for the screenshots and the store links — they are whatever the page
+//  actually links to.
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'" };
+const plainText = (s) =>
+  s
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&(#?\w+);/g, (m, e) => (e in ENTITIES ? ENTITIES[e] : m))
+    .replace(/\s+/g, ' ')
+    .trim();
+
+function faqFrom(html) {
+  const section = html.match(/<section id="faq">([\s\S]*?)<\/section>/);
+  if (!section) return [];
+  const out = [];
+  for (const d of section[1].matchAll(/<details[^>]*>([\s\S]*?)<\/details>/g)) {
+    const q = d[1].match(/<summary[^>]*>([\s\S]*?)<\/summary>/);
+    if (!q) continue;
+    const answer = d[1].replace(/<summary[^>]*>[\s\S]*?<\/summary>/, '');
+    const question = plainText(q[1]);
+    const text = plainText(answer);
+    if (question && text) out.push({ question, text });
+  }
+  return out;
+}
+
+function structuredData(lang, html) {
+  const L = LANGS[lang];
+  const abs = (u) => SITE + u;
+  const shots = [...new Set([...html.matchAll(/src="(\/img\/[^"]+\.webp)"/g)].map((m) => m[1]))]
+    .filter((u) => !u.includes('logo'))
+    .map(abs);
+  const stores = [
+    ...new Set(
+      [...html.matchAll(/href="(https:\/\/(?:play\.google\.com|apps\.apple\.com)[^"]+)"/g)].map(
+        (m) => m[1]
+      )
+    ),
+  ];
+
+  const app = {
+    '@type': 'MobileApplication',
+    name: 'KasKalba',
+    url: abs(L.path),
+    description: L.desc,
+    applicationCategory: 'EducationalApplication',
+    operatingSystem: 'Android, iOS',
+    // The languages the app EXPLAINS in. The language it teaches is below.
+    inLanguage: ORDER,
+    about: { '@type': 'Language', name: 'Lithuanian', alternateName: 'lt' },
+    image: abs('/img/og-image.png'),
+    screenshot: shots,
+    installUrl: stores,
+    downloadUrl: stores,
+    // The download is free; what is sold sits inside it. No aggregateRating:
+    // the App Store listing has no ratings yet, and inventing one is the kind
+    // of claim that costs a listing.
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'KasKalba',
+      url: SITE + '/',
+      logo: abs('/img/logo.webp'),
+      sameAs: ['https://facebook.com/KasKalbaLt', 'https://instagram.com/kaskalbalt'],
+    },
+  };
+
+  const graph = [app];
+  const faq = faqFrom(html);
+  if (faq.length) {
+    graph.push({
+      '@type': 'FAQPage',
+      inLanguage: lang,
+      mainEntity: faq.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.text },
+      })),
+    });
+  }
+
+  // `<` escaped so a "</script>" can never appear inside the block and end it
+  // early — the one way a JSON-LD island breaks the page around it.
+  const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }, null, 1)
+    .replace(/</g, '\\u003c');
+  return `<script type="application/ld+json">\n${json}\n</script>`;
+}
+
 // --- build ------------------------------------------------------------------
 
 const source = readFileSync(join(HERE, 'home.html'), 'utf8');
 
-for (const marker of ['<!-- @HEAD -->', '<!-- @PICKER -->', '<!-- @SCRIPT -->', '@HOME@']) {
+for (const marker of ['<!-- @HEAD -->', '<!-- @JSONLD -->', '<!-- @PICKER -->', '<!-- @SCRIPT -->', '@HOME@']) {
   if (!source.includes(marker)) throw new Error(`source is missing ${marker}`);
 }
 
 for (const lang of ORDER) {
   const L = LANGS[lang];
   let out = dropOtherLanguages(source, lang);
+  // The structured data is read from the page AFTER the other three languages
+  // are gone, so it describes this page and only this one.
+  const ld = structuredData(lang, out);
   out = out
     .replace(/^.*@SRCONLY.*\r?\n/gm, '')
     .replace('<html lang="en" dir="ltr" class="en">', `<html lang="${lang}" dir="${L.dir}">`)
     .replace('<!-- @HEAD -->', headFor(lang))
+    .replace('<!-- @JSONLD -->', ld)
     .replace('<!-- @PICKER -->', pickerFor(lang))
     .replace('<!-- @SCRIPT -->', PICKER_JS)
     .replaceAll('@HOME@', L.path);
 
-  for (const left of ['@HEAD', '@PICKER', '@SCRIPT', '@HOME@', '@SRCONLY', 'lang-ar', 'lang-en', 'lang-ru', 'lang-tr']) {
+  for (const left of ['@HEAD', '@JSONLD', '@PICKER', '@SCRIPT', '@HOME@', '@SRCONLY', 'lang-ar', 'lang-en', 'lang-ru', 'lang-tr']) {
     if (out.includes(left)) throw new Error(`${lang}: ${left} survived the build`);
   }
 

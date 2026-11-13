@@ -35,6 +35,120 @@
 <meta property="og:description" content="Литовский с объяснениями на русском: 20 уровней от A1 до B2, 60 разговорных сценариев вслух, пробные госэкзамен и экзамен по Конституции. Первые 3 уровня бесплатно." />
 <title>Литовский язык с нуля до B2 — KasKalba</title>
 <meta name="description" content="Литовский с объяснениями на русском: 20 уровней от A1 до B2, 60 разговорных сценариев вслух, пробные госэкзамен и экзамен по Конституции. Первые 3 уровня бесплатно." />
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "MobileApplication",
+   "name": "KasKalba",
+   "url": "https://kaskalba.com/ru/",
+   "description": "Литовский с объяснениями на русском: 20 уровней от A1 до B2, 60 разговорных сценариев вслух, пробные госэкзамен и экзамен по Конституции. Первые 3 уровня бесплатно.",
+   "applicationCategory": "EducationalApplication",
+   "operatingSystem": "Android, iOS",
+   "inLanguage": [
+    "ar",
+    "en",
+    "ru",
+    "tr"
+   ],
+   "about": {
+    "@type": "Language",
+    "name": "Lithuanian",
+    "alternateName": "lt"
+   },
+   "image": "https://kaskalba.com/img/og-image.png",
+   "screenshot": [
+    "https://kaskalba.com/img/home.webp",
+    "https://kaskalba.com/img/stages.webp",
+    "https://kaskalba.com/img/challenge.webp",
+    "https://kaskalba.com/img/level.webp",
+    "https://kaskalba.com/img/scenarios.webp",
+    "https://kaskalba.com/img/speaks.webp",
+    "https://kaskalba.com/img/vocab.webp",
+    "https://kaskalba.com/img/achievements.webp"
+   ],
+   "installUrl": [
+    "https://play.google.com/store/apps/details?id=com.rabaa.ltlearn",
+    "https://apps.apple.com/app/id6797941375"
+   ],
+   "downloadUrl": [
+    "https://play.google.com/store/apps/details?id=com.rabaa.ltlearn",
+    "https://apps.apple.com/app/id6797941375"
+   ],
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+   },
+   "publisher": {
+    "@type": "Organization",
+    "name": "KasKalba",
+    "url": "https://kaskalba.com/",
+    "logo": "https://kaskalba.com/img/logo.webp",
+    "sameAs": [
+     "https://facebook.com/KasKalbaLt",
+     "https://instagram.com/kaskalbalt"
+    ]
+   }
+  },
+  {
+   "@type": "FAQPage",
+   "inLanguage": "ru",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "Что доступно бесплатно?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Первые 3 уровня этапа A1, первые 3 разговорных сценария и первый пробный экзамен A1/A2 — без оплаты и без карты."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Нужно ли знать литовский заранее?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Нет. Курс начинается с алфавита и приветствий, с объяснениями на вашем языке. Если вы уже что-то знаете, знакомое можно пропустить."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "На каком языке объяснения?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "На арабском, английском, русском или турецком — язык меняется в настройках в любой момент. Каждый урок и экзамен есть на всех четырёх."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Работает ли без интернета?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Уроки и их аудио встроены в приложение и работают без соединения. Интерактивные сценарии и аудио в экзаменах этапов загружаются при первом открытии и затем остаются на устройстве. Соединение нужно для синхронизации прогресса — и на iPhone для речевой практики."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Продлеваются ли пакеты автоматически?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "«Обучение и сценарии» — месячная или годовая подписка, которая продлевается, пока вы не отмените её в магазине. Симуляция госэкзамена и экзамен по Конституции — разовый платёж на определённый срок: они просто заканчиваются, без продления, и вы покупаете снова ближе к экзамену."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Это официальный экзамен?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Нет. KasKalba — независимое учебное приложение: оно не представляет государственных учреждений и не выдаёт официальных сертификатов, а пробные модели — наш собственный материал по структуре экзамена. Официальные источники ."
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
 <style>
   :root {
     --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
@@ -199,6 +313,31 @@
   }
   .step h3 { font-size: 1.05rem; margin-bottom: 6px; }
   .step p { font-size: .93rem; color: var(--muted); }
+
+  /* FAQ. Plain <details>, so it opens with no script and a crawler reads the
+     answers whether or not anyone clicks.
+     `display` is safe to set here, unlike on the legal pages: each built page
+     carries ONE language and the [lang-xx] hiding rules do not exist in it,
+     so there is nothing for a .faq rule to out-specify. */
+  .faq { display: grid; gap: 10px; max-width: 760px; margin: 0 auto; }
+  .faq details { border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+  .faq details[open] { border-color: var(--green); }
+  .faq summary {
+    cursor: pointer; padding: 16px 18px; font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    list-style: none;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  /* A sign that works in both directions and needs no glyph that might be
+     missing: + becomes − when the panel is open. */
+  .faq summary::after {
+    content: "+"; color: var(--green); font-size: 1.5rem; font-weight: 800;
+    line-height: 1; flex: 0 0 auto;
+  }
+  .faq details[open] summary::after { content: "−"; }
+  .faq summary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(29,158,117,.25); border-radius: 14px; }
+  .faq .a { padding: 0 18px 18px; font-size: .95rem; color: var(--muted); margin: 0; }
+  .faq .a a { color: var(--green); font-weight: 700; }
 
   /* contact + footer */
   .contact { text-align: center; background: var(--green-bg); }
@@ -483,6 +622,40 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <h2 class="sec">Частые вопросы</h2>
+    <p class="sec-sub">О чём спрашивают перед установкой</p>
+    <div class="faq">
+      <details>
+        <summary>Что доступно бесплатно?</summary>
+        <p class="a">Первые 3 уровня этапа A1, первые 3 разговорных сценария и первый пробный экзамен A1/A2 — без оплаты и без карты.</p>
+      </details>
+      <details>
+        <summary>Нужно ли знать литовский заранее?</summary>
+        <p class="a">Нет. Курс начинается с алфавита и приветствий, с объяснениями на вашем языке. Если вы уже что-то знаете, знакомое можно пропустить.</p>
+      </details>
+      <details>
+        <summary>На каком языке объяснения?</summary>
+        <p class="a">На арабском, английском, русском или турецком — язык меняется в настройках в любой момент. Каждый урок и экзамен есть на всех четырёх.</p>
+      </details>
+      <details>
+        <summary>Работает ли без интернета?</summary>
+        <p class="a">Уроки и их аудио встроены в приложение и работают без соединения. Интерактивные сценарии и аудио в экзаменах этапов загружаются при первом открытии и затем остаются на устройстве. Соединение нужно для синхронизации прогресса — и на iPhone для речевой практики.</p>
+      </details>
+      <details>
+        <summary>Продлеваются ли пакеты автоматически?</summary>
+        <p class="a">«Обучение и сценарии» — месячная или годовая подписка, которая продлевается, пока вы не отмените её в магазине. Симуляция госэкзамена и экзамен по Конституции — разовый платёж на определённый срок: они просто заканчиваются, без продления, и вы покупаете снова ближе к экзамену.</p>
+      </details>
+      <details>
+        <summary>Это официальный экзамен?</summary>
+        <p class="a">Нет. KasKalba — независимое учебное приложение: оно не представляет государственных учреждений и не выдаёт официальных сертификатов, а пробные модели — наш собственный материал по структуре экзамена. <a href="/privacy#sources-ru">Официальные источники</a>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <!-- CONTACT -->
 <footer>
   <div class="wrap">
@@ -509,6 +682,9 @@
             </li>
           <li>
             <a href="#screens">Внутри приложения</a>
+            </li>
+          <li>
+            <a href="#faq">Частые вопросы</a>
             </li>
           <li>
             <a href="#how">Как начать?</a>

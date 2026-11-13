@@ -57,6 +57,120 @@
   }
 })();
 </script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "MobileApplication",
+   "name": "KasKalba",
+   "url": "https://kaskalba.com/",
+   "description": "Learn Lithuanian in English — 20 levels from A1 to B2, 60 spoken scenarios with pronunciation practice, and mock state language and constitution exams. First 3 levels free.",
+   "applicationCategory": "EducationalApplication",
+   "operatingSystem": "Android, iOS",
+   "inLanguage": [
+    "ar",
+    "en",
+    "ru",
+    "tr"
+   ],
+   "about": {
+    "@type": "Language",
+    "name": "Lithuanian",
+    "alternateName": "lt"
+   },
+   "image": "https://kaskalba.com/img/og-image.png",
+   "screenshot": [
+    "https://kaskalba.com/img/home.webp",
+    "https://kaskalba.com/img/stages.webp",
+    "https://kaskalba.com/img/challenge.webp",
+    "https://kaskalba.com/img/level.webp",
+    "https://kaskalba.com/img/scenarios.webp",
+    "https://kaskalba.com/img/speaks.webp",
+    "https://kaskalba.com/img/vocab.webp",
+    "https://kaskalba.com/img/achievements.webp"
+   ],
+   "installUrl": [
+    "https://play.google.com/store/apps/details?id=com.rabaa.ltlearn",
+    "https://apps.apple.com/app/id6797941375"
+   ],
+   "downloadUrl": [
+    "https://play.google.com/store/apps/details?id=com.rabaa.ltlearn",
+    "https://apps.apple.com/app/id6797941375"
+   ],
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+   },
+   "publisher": {
+    "@type": "Organization",
+    "name": "KasKalba",
+    "url": "https://kaskalba.com/",
+    "logo": "https://kaskalba.com/img/logo.webp",
+    "sameAs": [
+     "https://facebook.com/KasKalbaLt",
+     "https://instagram.com/kaskalbalt"
+    ]
+   }
+  },
+  {
+   "@type": "FAQPage",
+   "inLanguage": "en",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What do I get for free?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The first 3 levels of stage A1, the first 3 conversation scenarios, and the first A1/A2 mock exam — with no payment and no card."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Do I need to know any Lithuanian already?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. The path starts at the alphabet and greetings, explained in your own language. If you already know some, you can skip what you have."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Which language are the explanations in?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Arabic, English, Russian or Turkish, switchable at any time in settings. Every lesson and exam exists in all four."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does it work without internet?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The lessons and their audio are inside the app and work with no connection. The interactive scenarios and the listening clips in the stage exams download the first time you open them, then stay on your device. A connection is needed to sync your progress — and on iPhone for the speaking practice as well."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Do the packages renew automatically?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Learning & scenarios is a monthly or annual subscription that renews until you cancel it in the store. The state exam simulation and the constitution exam are a single payment for a fixed period — they end on their own, with no renewal, and you buy again when your exam is near."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is this the official exam?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. KasKalba is an independent learning app: it represents no government entity and issues no official certificate, and the practice models are our own material modelled on the exam’s structure. The official sources ."
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
 <style>
   :root {
     --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
@@ -221,6 +335,31 @@
   }
   .step h3 { font-size: 1.05rem; margin-bottom: 6px; }
   .step p { font-size: .93rem; color: var(--muted); }
+
+  /* FAQ. Plain <details>, so it opens with no script and a crawler reads the
+     answers whether or not anyone clicks.
+     `display` is safe to set here, unlike on the legal pages: each built page
+     carries ONE language and the [lang-xx] hiding rules do not exist in it,
+     so there is nothing for a .faq rule to out-specify. */
+  .faq { display: grid; gap: 10px; max-width: 760px; margin: 0 auto; }
+  .faq details { border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+  .faq details[open] { border-color: var(--green); }
+  .faq summary {
+    cursor: pointer; padding: 16px 18px; font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    list-style: none;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  /* A sign that works in both directions and needs no glyph that might be
+     missing: + becomes − when the panel is open. */
+  .faq summary::after {
+    content: "+"; color: var(--green); font-size: 1.5rem; font-weight: 800;
+    line-height: 1; flex: 0 0 auto;
+  }
+  .faq details[open] summary::after { content: "−"; }
+  .faq summary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(29,158,117,.25); border-radius: 14px; }
+  .faq .a { padding: 0 18px 18px; font-size: .95rem; color: var(--muted); margin: 0; }
+  .faq .a a { color: var(--green); font-weight: 700; }
 
   /* contact + footer */
   .contact { text-align: center; background: var(--green-bg); }
@@ -505,6 +644,40 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <h2 class="sec">Frequently asked questions</h2>
+    <p class="sec-sub">What people ask before downloading</p>
+    <div class="faq">
+      <details>
+        <summary>What do I get for free?</summary>
+        <p class="a">The first 3 levels of stage A1, the first 3 conversation scenarios, and the first A1/A2 mock exam — with no payment and no card.</p>
+      </details>
+      <details>
+        <summary>Do I need to know any Lithuanian already?</summary>
+        <p class="a">No. The path starts at the alphabet and greetings, explained in your own language. If you already know some, you can skip what you have.</p>
+      </details>
+      <details>
+        <summary>Which language are the explanations in?</summary>
+        <p class="a">Arabic, English, Russian or Turkish, switchable at any time in settings. Every lesson and exam exists in all four.</p>
+      </details>
+      <details>
+        <summary>Does it work without internet?</summary>
+        <p class="a">The lessons and their audio are inside the app and work with no connection. The interactive scenarios and the listening clips in the stage exams download the first time you open them, then stay on your device. A connection is needed to sync your progress — and on iPhone for the speaking practice as well.</p>
+      </details>
+      <details>
+        <summary>Do the packages renew automatically?</summary>
+        <p class="a">Learning &amp; scenarios is a monthly or annual subscription that renews until you cancel it in the store. The state exam simulation and the constitution exam are a single payment for a fixed period — they end on their own, with no renewal, and you buy again when your exam is near.</p>
+      </details>
+      <details>
+        <summary>Is this the official exam?</summary>
+        <p class="a">No. KasKalba is an independent learning app: it represents no government entity and issues no official certificate, and the practice models are our own material modelled on the exam’s structure. <a href="/privacy#sources-en">The official sources</a>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <!-- CONTACT -->
 <footer>
   <div class="wrap">
@@ -531,6 +704,9 @@
             </li>
           <li>
             <a href="#screens">Inside the app</a>
+            </li>
+          <li>
+            <a href="#faq">FAQ</a>
             </li>
           <li>
             <a href="#how">How to start?</a>

@@ -22,6 +22,7 @@
 <meta property="og:site_name" content="KasKalba" />
 <meta name="twitter:card" content="summary_large_image" />
 <!-- @HEAD -->
+<!-- @JSONLD -->
 <style>
   :root {
     --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
@@ -186,6 +187,31 @@
   }
   .step h3 { font-size: 1.05rem; margin-bottom: 6px; }
   .step p { font-size: .93rem; color: var(--muted); }
+
+  /* FAQ. Plain <details>, so it opens with no script and a crawler reads the
+     answers whether or not anyone clicks.
+     `display` is safe to set here, unlike on the legal pages: each built page
+     carries ONE language and the [lang-xx] hiding rules do not exist in it,
+     so there is nothing for a .faq rule to out-specify. */
+  .faq { display: grid; gap: 10px; max-width: 760px; margin: 0 auto; }
+  .faq details { border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+  .faq details[open] { border-color: var(--green); }
+  .faq summary {
+    cursor: pointer; padding: 16px 18px; font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    list-style: none;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  /* A sign that works in both directions and needs no glyph that might be
+     missing: + becomes − when the panel is open. */
+  .faq summary::after {
+    content: "+"; color: var(--green); font-size: 1.5rem; font-weight: 800;
+    line-height: 1; flex: 0 0 auto;
+  }
+  .faq details[open] summary::after { content: "−"; }
+  .faq summary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(29,158,117,.25); border-radius: 14px; }
+  .faq .a { padding: 0 18px 18px; font-size: .95rem; color: var(--muted); margin: 0; }
+  .faq .a a { color: var(--green); font-weight: 700; }
 
   /* contact + footer */
   .contact { text-align: center; background: var(--green-bg); }
@@ -495,6 +521,40 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>أسئلة شائعة</h2><h2 class="sec" lang-en>Frequently asked questions</h2><h2 class="sec" lang-ru>Частые вопросы</h2><h2 class="sec" lang-tr>Sık sorulan sorular</h2>
+    <p class="sec-sub" lang-ar>ما يُسأل عنه قبل التحميل</p><p class="sec-sub" lang-en>What people ask before downloading</p><p class="sec-sub" lang-ru>О чём спрашивают перед установкой</p><p class="sec-sub" lang-tr>İndirmeden önce sorulanlar</p>
+    <div class="faq">
+      <details>
+        <summary lang-ar>ما الذي أحصل عليه مجاناً؟</summary><summary lang-en>What do I get for free?</summary><summary lang-ru>Что доступно бесплатно?</summary><summary lang-tr>Ücretsiz olarak ne alıyorum?</summary>
+        <p class="a" lang-ar>أوّل ٣ مستويات من مرحلة A1، وأوّل ٣ سيناريوهات محادثة، وأوّل نموذج من محاكاة امتحان A1/A2 — بلا دفع وبلا بطاقة.</p><p class="a" lang-en>The first 3 levels of stage A1, the first 3 conversation scenarios, and the first A1/A2 mock exam — with no payment and no card.</p><p class="a" lang-ru>Первые 3 уровня этапа A1, первые 3 разговорных сценария и первый пробный экзамен A1/A2 — без оплаты и без карты.</p><p class="a" lang-tr>A1 aşamasının ilk 3 seviyesi, ilk 3 diyalog senaryosu ve ilk A1/A2 deneme sınavı — ödeme yok, kart yok.</p>
+      </details>
+      <details>
+        <summary lang-ar>هل أحتاج معرفة سابقة بالليتوانية؟</summary><summary lang-en>Do I need to know any Lithuanian already?</summary><summary lang-ru>Нужно ли знать литовский заранее?</summary><summary lang-tr>Önceden Litvanca bilmem gerekir mi?</summary>
+        <p class="a" lang-ar>لا. يبدأ المسار من الحروف والتحيات، والشرح بلغتك أنت. وإن كنت تعرف شيئاً فتستطيع تخطّي ما تتقنه.</p><p class="a" lang-en>No. The path starts at the alphabet and greetings, explained in your own language. If you already know some, you can skip what you have.</p><p class="a" lang-ru>Нет. Курс начинается с алфавита и приветствий, с объяснениями на вашем языке. Если вы уже что-то знаете, знакомое можно пропустить.</p><p class="a" lang-tr>Hayır. Yol alfabe ve selamlaşmadan başlar, anlatım kendi dilinizde. Bir şeyler biliyorsanız bildiğinizi atlayabilirsiniz.</p>
+      </details>
+      <details>
+        <summary lang-ar>بأي لغة الشرح؟</summary><summary lang-en>Which language are the explanations in?</summary><summary lang-ru>На каком языке объяснения?</summary><summary lang-tr>Açıklamalar hangi dilde?</summary>
+        <p class="a" lang-ar>بالعربية أو الإنجليزية أو الروسية أو التركية، وتبدّلها في أي وقت من الإعدادات. كل الدروس والامتحانات متوفّرة باللغات الأربع.</p><p class="a" lang-en>Arabic, English, Russian or Turkish, switchable at any time in settings. Every lesson and exam exists in all four.</p><p class="a" lang-ru>На арабском, английском, русском или турецком — язык меняется в настройках в любой момент. Каждый урок и экзамен есть на всех четырёх.</p><p class="a" lang-tr>Arapça, İngilizce, Rusça veya Türkçe; dili istediğiniz zaman ayarlardan değiştirirsiniz. Her ders ve sınav dördünde de var.</p>
+      </details>
+      <details>
+        <summary lang-ar>هل يعمل بلا إنترنت؟</summary><summary lang-en>Does it work without internet?</summary><summary lang-ru>Работает ли без интернета?</summary><summary lang-tr>İnternetsiz çalışır mı?</summary>
+        <p class="a" lang-ar>دروس المسار وأصواتها داخل التطبيق وتعمل بلا اتصال. أمّا السيناريوهات التفاعلية ومقاطع الاستماع في امتحانات المراحل فتُنزَّل أوّل مرّة تفتحها ثم تبقى على جهازك. ويُحتاج الاتصال لحفظ تقدّمك، وعلى iPhone لتدريب النطق أيضاً.</p><p class="a" lang-en>The lessons and their audio are inside the app and work with no connection. The interactive scenarios and the listening clips in the stage exams download the first time you open them, then stay on your device. A connection is needed to sync your progress — and on iPhone for the speaking practice as well.</p><p class="a" lang-ru>Уроки и их аудио встроены в приложение и работают без соединения. Интерактивные сценарии и аудио в экзаменах этапов загружаются при первом открытии и затем остаются на устройстве. Соединение нужно для синхронизации прогресса — и на iPhone для речевой практики.</p><p class="a" lang-tr>Dersler ve ses dosyaları uygulamanın içindedir, bağlantısız çalışır. Etkileşimli senaryolar ve aşama sınavlarındaki dinleme parçaları ilk açtığınızda iner, sonra cihazda kalır. İlerlemenizi eşitlemek için — ve iPhone’da konuşma pratiği için — bağlantı gerekir.</p>
+      </details>
+      <details>
+        <summary lang-ar>هل تتجدّد الباقات تلقائياً؟</summary><summary lang-en>Do the packages renew automatically?</summary><summary lang-ru>Продлеваются ли пакеты автоматически?</summary><summary lang-tr>Paketler otomatik yenilenir mi?</summary>
+        <p class="a" lang-ar>باقة التعلّم والسيناريوهات اشتراك شهري أو سنوي يتجدّد حتى تلغيه من المتجر. أمّا محاكاة امتحان الدولة وامتحان الدستور فدفعة واحدة لمدّة محدّدة — تنتهي وحدها بلا تجديد، وتشتريها ثانيةً وقت امتحانك.</p><p class="a" lang-en>Learning &amp; scenarios is a monthly or annual subscription that renews until you cancel it in the store. The state exam simulation and the constitution exam are a single payment for a fixed period — they end on their own, with no renewal, and you buy again when your exam is near.</p><p class="a" lang-ru>«Обучение и сценарии» — месячная или годовая подписка, которая продлевается, пока вы не отмените её в магазине. Симуляция госэкзамена и экзамен по Конституции — разовый платёж на определённый срок: они просто заканчиваются, без продления, и вы покупаете снова ближе к экзамену.</p><p class="a" lang-tr>«Öğrenme ve senaryolar» aylık veya yıllık bir aboneliktir ve mağazadan iptal edene kadar yenilenir. Devlet sınavı simülasyonu ile Anayasa sınavı belirli bir süre için tek seferlik ödemedir — kendiliğinden biter, yenilenmez; sınavınız yaklaşınca yeniden satın alırsınız.</p>
+      </details>
+      <details>
+        <summary lang-ar>هل هذا هو الامتحان الرسمي؟</summary><summary lang-en>Is this the official exam?</summary><summary lang-ru>Это официальный экзамен?</summary><summary lang-tr>Bu, resmî sınav mı?</summary>
+        <p class="a" lang-ar>لا. KasKalba تطبيق تعليمي مستقل، لا يمثّل أي جهة حكومية ولا يصدر عنه أي شهادة رسمية، ونماذج المحاكاة من إعدادنا على بنية الامتحان. <a href="/privacy#sources-ar">المصادر الرسمية</a>.</p><p class="a" lang-en>No. KasKalba is an independent learning app: it represents no government entity and issues no official certificate, and the practice models are our own material modelled on the exam’s structure. <a href="/privacy#sources-en">The official sources</a>.</p><p class="a" lang-ru>Нет. KasKalba — независимое учебное приложение: оно не представляет государственных учреждений и не выдаёт официальных сертификатов, а пробные модели — наш собственный материал по структуре экзамена. <a href="/privacy#sources-ru">Официальные источники</a>.</p><p class="a" lang-tr>Hayır. KasKalba bağımsız bir öğrenme uygulamasıdır: hiçbir devlet kurumunu temsil etmez, resmî belge vermez; deneme modelleri sınav yapısına göre kendi hazırladığımız materyaldir. <a href="/privacy#sources-tr">Resmî kaynaklar</a>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <!-- CONTACT -->
 <footer>
   <div class="wrap">
@@ -531,6 +591,10 @@
             <a href="#screens" lang-en>Inside the app</a>
             <a href="#screens" lang-ru>Внутри приложения</a>
             <a href="#screens" lang-tr>Uygulamanın içinde</a></li>
+          <li><a href="#faq" lang-ar>أسئلة شائعة</a>
+            <a href="#faq" lang-en>FAQ</a>
+            <a href="#faq" lang-ru>Частые вопросы</a>
+            <a href="#faq" lang-tr>SSS</a></li>
           <li><a href="#how" lang-ar>كيف تبدأ؟</a>
             <a href="#how" lang-en>How to start?</a>
             <a href="#how" lang-ru>Как начать?</a>
