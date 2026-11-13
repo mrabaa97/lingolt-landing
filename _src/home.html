@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" /><!-- @SRCONLY: dropped from every built page. Jekyll already keeps _src/ off the server; this is the second lock. -->
+<!-- The site had no icon at all: every tab showed a blank page. SVG first
+     for anything modern (one file, crisp at every size, and it IS the app's
+     own artwork rather than a copy that can drift); the 32px PNG is the
+     fallback; apple-touch-icon is what iOS uses when the site is added to a
+     home screen, and it must be a real square because iOS applies its own
+     mask on top. -->
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/img/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="/img/favicon-96.png" sizes="96x96" type="image/png" />
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png" sizes="180x180" />
+<meta name="theme-color" content="#10271D" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://kaskalba.com/img/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:site_name" content="KasKalba" />
+<meta name="twitter:card" content="summary_large_image" />
+<!-- @HEAD -->
+<style>
+  :root {
+    --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
+    --ink: #1c2320; --muted: #5b6b63; --line: #e3ede8; --amber: #d97706;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif;
+    color: var(--ink); background: #fff; line-height: 1.7;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 22px; }
+
+  /* header */
+  header {
+    position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.92);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-size: 1.45rem; font-weight: 800; color: var(--green); text-decoration: none; }
+  .logo span { color: var(--amber); }
+  /* Logo mark sits beside the wordmark; inline-flex keeps them on one
+     baseline without the emoji it replaced dictating the line height. */
+  .logo { direction: ltr; display: inline-flex; align-items: center; gap: 9px; }
+  .logo-mark { width: 34px; height: 34px; display: block; flex: 0 0 auto; }
+  /* Language picker. The trigger keeps the pill this page already uses; the
+     panel is ours, because a native <select> hands the open list to the
+     browser and no CSS reaches inside it. */
+  .lang { position: relative; }
+  .lang-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px solid var(--green); color: var(--green); background: #fff;
+    border-radius: 999px; padding: 7px 14px 7px 16px;
+    font: inherit; font-size: .95rem; font-weight: 700;
+    cursor: pointer; transition: background .18s, color .18s, box-shadow .18s;
+  }
+  .lang-btn:hover { background: var(--green-bg, #f0fdf4); }
+  .lang-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
+  .chev { transition: transform .2s; }
+  .lang[data-open] .lang-btn { background: var(--green); color: #fff; }
+  .lang[data-open] .chev { transform: rotate(180deg); }
+  /* Width in ch, so the panel fits its longest label in any script instead of
+     a pixel guess made from Latin. */
+  .lang-menu {
+    position: absolute; inset-inline-end: 0; top: calc(100% + 8px);
+    min-width: 13ch; padding: 6px; margin: 0; list-style: none;
+    background: #fff; border: 1px solid var(--line, #e3ede8); border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(16,42,32,.13);
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .16s, transform .16s, visibility .16s; z-index: 30;
+  }
+  .lang[data-open] .lang-menu { opacity: 1; visibility: visible; transform: none; }
+  /* Rows are LINKS now, not list items with a click handler. Each language
+     is its own URL, so the thing that goes there should be the thing the
+     browser already knows how to go with: focusable with Tab, opens in a new
+     tab on middle-click, and visible to a crawler as a link between the four
+     translations. The old <li role="option"> was reachable by mouse only. */
+  .lang-menu a {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 9px 12px; border-radius: 9px; cursor: pointer;
+    font-weight: 700; font-size: .95rem; white-space: nowrap;
+    color: inherit; text-decoration: none;
+    /* Each name is written in its own script, so each row reads in its own
+       direction whatever the page is set to. */
+    direction: ltr; text-align: start;
+  }
+  .lang-menu a[hreflang="ar"] { direction: rtl; }
+  .lang-menu a:hover { background: var(--green-bg, #f0fdf4); }
+  .lang-menu a:focus-visible { outline: none; background: var(--green-bg, #f0fdf4); box-shadow: 0 0 0 2px rgba(29,158,117,.35); }
+  .tick { opacity: 0; color: var(--green); flex: 0 0 auto; }
+  .lang-menu a[aria-current="page"] { color: var(--green-dark, #166534); }
+  .lang-menu a[aria-current="page"] .tick { opacity: 1; }
+
+  /* hero */
+  .hero { background: linear-gradient(180deg, var(--green-bg) 0%, #fff 100%); padding: 72px 0 56px; text-align: center; }
+  .hero-mark { width: 96px; height: 96px; display: block; margin: 0 auto; }
+  .hero h1 { font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 800; margin: 12px 0 10px; }
+  .hero h1 em { color: var(--green); font-style: normal; }
+  .hero p.sub { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto 30px; }
+  .cta {
+    display: inline-block; background: var(--green); color: #fff; text-decoration: none;
+    padding: 15px 34px; border-radius: 14px; font-size: 1.1rem; font-weight: 800;
+    box-shadow: 0 8px 22px rgba(29,158,117,.28); transition: .2s;
+  }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(29,158,117,.34); }
+  /* Two stores since 2026-08-22. Wrapping row, not a fixed pair: on a narrow
+     phone the second button drops under the first instead of shrinking both
+     into something no thumb can hit. */
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  /* The dark button is Apple's own convention, and it keeps the green one as
+     the single loudest thing on the page — two shouting buttons choose for
+     nobody. */
+  .cta.dark {
+    background: #1c2320;
+    box-shadow: 0 8px 22px rgba(28,35,32,.26);
+  }
+  .cta.dark:hover { box-shadow: 0 12px 26px rgba(28,35,32,.32); }
+  .cta-note { margin-top: 12px; font-size: .9rem; color: var(--muted); }
+
+  /* stats */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 14px; margin: -26px auto 0; }
+  .stat {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 10px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.04);
+  }
+  .stat b { display: block; font-size: 1.6rem; color: var(--green); }
+  .stat span { font-size: .92rem; color: var(--muted); }
+
+  /* sections */
+  section { padding: 64px 0; }
+  h2.sec { font-size: 1.7rem; font-weight: 800; text-align: center; margin-bottom: 8px; }
+  p.sec-sub { text-align: center; color: var(--muted); margin-bottom: 38px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 18px; }
+  .card {
+    border: 1px solid var(--line); border-radius: 18px; padding: 24px;
+    background: #fff; transition: .2s;
+  }
+  .card:hover { border-color: var(--green); box-shadow: 0 8px 20px rgba(29,158,117,.10); }
+  .card .ico { font-size: 1.9rem; }
+  .card h3 { font-size: 1.12rem; margin: 10px 0 6px; }
+  .card p { font-size: .95rem; color: var(--muted); }
+  /* A claim about someone's voice has to be checkable from where it is made,
+     not three scrolls away in the footer. */
+  .card p a { color: var(--green); text-decoration: underline; font-weight: 600; }
+
+  /* Government-information notice. The exam sections present state exam and
+     constitution material, and Play rejected the app TWICE under Misleading
+     Claims for presenting exactly that without a visible disclaimer and
+     working official sources. The store listing links here, so the same
+     obligation reaches this page. The policy's own word is "easy-to-see" —
+     hence a box after the packages, not a line in the footer.
+     The Seimas URL used in the listing (www.lrs.lt) is deliberately NOT here:
+     it now sits behind a bot challenge and answers an automated checker with
+     403 "Just a moment…", which is the precise shape of the second rejection.
+     The Constitutional Court serves the same text and answers 200. */
+  .gov { padding: 34px 0 0; }
+  .gov-box {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 18px;
+    padding: 24px 26px;
+  }
+  .gov-box h3 { font-size: 1.04rem; margin: 0 0 8px; color: #78350f; }
+  /* Not `h3 + h3`: the four translations of one heading are siblings too, so
+     that selector pushed whichever language happened not to be first. The
+     gap belongs to the second heading as a thing, so it is named. */
+  .gov-box .gov-next { margin-top: 20px; }
+  .gov-box p { font-size: .93rem; color: #78350f; margin: 0 0 10px; }
+  .gov-box ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+  /* The label stacks above its URL via the LIST ITEM, not via `display` on
+     the <b> itself. This page no longer hides anything — the languages are
+     split into separate files at build time — but the legal pages still hide
+     three of four with an attribute selector, specificity (0,1,0), and a
+     rule like `.gov-box li b { display: block }` is (0,1,2) and silently
+     beats it. That printed all four translations at once. Inside a
+     translated block, leave `display` to the language machinery. */
+  .gov-box li { font-size: .92rem; color: #78350f; display: flex; flex-direction: column; gap: 3px; }
+  .gov-box li b { font-weight: 700; }
+  .gov-box a { color: var(--green-dark); word-break: break-word; }
+
+  /* screenshots */
+  .shots { background: #fff; }
+  .shots-strip {
+    display: flex; gap: 18px; overflow-x: auto; padding: 8px 4px 18px;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  }
+  .shot {
+    flex: 0 0 auto; width: 230px; scroll-snap-align: center;
+    border-radius: 26px; border: 6px solid #1c2320; overflow: hidden;
+    box-shadow: 0 12px 28px rgba(0,0,0,.14); background: #1c2320;
+  }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot-cap { text-align: center; font-size: .85rem; color: var(--muted); padding: 8px 0 2px; background: #fff; }
+
+  /* stages */
+  .stages { background: var(--green-bg); }
+  .stage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 18px; }
+  .stage {
+    background: #fff; border-radius: 18px; padding: 22px; border-top: 5px solid var(--green);
+  }
+  .stage .tag {
+    display: inline-block; background: var(--green); color: #fff; font-weight: 800;
+    border-radius: 8px; padding: 2px 12px; font-size: .95rem; margin-bottom: 10px;
+  }
+  .stage h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .stage p { font-size: .9rem; color: var(--muted); }
+
+  /* steps */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 18px; counter-reset: step; }
+  .step { text-align: center; padding: 18px; }
+  .step .n {
+    width: 46px; height: 46px; border-radius: 50%; background: var(--green); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800;
+    font-size: 1.2rem; margin: 0 auto 12px;
+  }
+  .step h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .step p { font-size: .93rem; color: var(--muted); }
+
+  /* contact + footer */
+  .contact { text-align: center; background: var(--green-bg); }
+  .contact a.mail {
+    display: inline-block; margin-top: 8px; color: var(--green); font-weight: 700;
+    font-size: 1.1rem; text-decoration: none; border-bottom: 2px dashed var(--green);
+  }
+  /* Social row. Centred under the support address, wrapping on a phone so
+     the two never collide at 320px. */
+  .social { display: flex; flex-wrap: wrap; gap: 10px 22px; justify-content: center; margin-top: 20px; }
+  .social a {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--green); font-weight: 700; text-decoration: none;
+    padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px;
+    background: #fff;
+  }
+  .social a:hover { border-color: var(--green); }
+  .social svg { flex: none; }
+  /* The footer closes the page, so it carries the app icon's own dark green
+     rather than more white. #10271D is the tint chosen for the Android
+     notification on the same day: icon, notification and site now end on one
+     colour instead of three greens that nearly match. */
+  footer { background: #10271D; color: #fff; padding: 46px 0 0; margin-top: 60px; }
+  /* The footer keeps ONE width on every page. The legal pages set .wrap to
+     820px because that is a comfortable measure for reading prose — but the
+     footer is navigation, not prose, and inheriting the article's column made
+     it 820 here and 1060 on the homepage: the same markup, visibly narrower,
+     which reads as a different footer rather than the same one. */
+  footer .wrap { max-width: 1060px; }
+  /* Four columns on a desktop, two on a tablet, one on a phone. auto-fit with
+     a min track does that without a single media query, and without guessing
+     where the breakpoints are: the columns simply stop fitting and wrap. */
+  .fcols {
+    display: grid; gap: 30px 26px;
+    /* 170, not 190. The sub-pages set .wrap to 820px for the reading measure,
+       and four 190px tracks with three 26px gaps need 838 — eighteen pixels
+       short, so Legal wrapped onto a line of its own there while the homepage
+       (1060px) looked right. 170 needs 758 and fits every page. */
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    padding-bottom: 34px;
+  }
+  .fcol h4 { font-size: .95rem; margin: 0 0 12px; color: #fff; font-weight: 800; }
+  .fcol ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  /* Not pure white: a column of full-strength white links competes with the
+     headings and with each other. .78 reads as calm and lifts to white on
+     hover, which is where the eye should be told something changed. */
+  .fcol a { color: rgba(255,255,255,.78); text-decoration: none; font-size: .93rem; }
+  .fcol a:hover { color: #fff; }
+  /* The brand column carries the mark and one sentence, so the footer says
+     what the app is to someone who scrolled straight past the page. */
+  .fbrand .logo { font-size: 1.2rem; margin-bottom: 10px; }
+  .fbrand p { font-size: .9rem; color: rgba(255,255,255,.68); line-height: 1.75; margin: 0 0 14px; max-width: 30ch; }
+  /* On dark, the wordmark takes the icon's own pairing: white and its gold.
+     The site green (#1d9e75) is too close to the ground to read here. */
+  .fbrand .logo { color: #fff; }
+  .fbrand .logo span { color: #FDC500; }
+  .fsoc { display: flex; gap: 10px; }
+  .fsoc a {
+    width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.22);
+    display: inline-flex; align-items: center; justify-content: center; color: #fff;
+    transition: border-color .18s, background .18s;
+  }
+  .fsoc a:hover { border-color: #FDC500; background: rgba(255,255,255,.08); color: #FDC500; }
+  /* The bar under the columns: copyright on one side, the two legal links on
+     the other. They used to sit side by side with no separator and read as a
+     single phrase. */
+  .fbar {
+    border-top: 1px solid rgba(255,255,255,.13); padding: 18px 0 26px;
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
+    /* One child now — the legal links moved into their own column and were
+       repeating themselves here. space-between would pin it to one edge. */
+    align-items: center; justify-content: center;
+    font-size: .88rem; color: rgba(255,255,255,.5);
+  }
+
+  /* The rules that used to hide three languages out of four are gone: each
+     built page now CONTAINS one language and nothing else. Hiding text with
+     CSS still ships it, and a crawler reading four languages at one URL has
+     to pick one — which is why the site could not rank in the other three. */
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="@HOME@"><img class="logo-mark" src="/img/logo.png" alt="" width="34" height="34">Kas<span>Kalba</span></a>
+    <!-- @PICKER -->
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <img class="hero-mark" src="/img/logo.png" alt="KasKalba" width="96" height="96">
+    <h1 lang-ar>تعلّم <em>اللغة الليتوانية</em><br />بالعربية والإنجليزية والروسية والتركية</h1>
+    <h1 lang-en>Learn <em>Lithuanian</em><br />in Arabic, English, Russian or Turkish</h1><h1 lang-ru>Учите <em>литовский</em><br />на арабском, английском, русском или турецком</h1><h1 lang-tr><em>Litvanca</em> öğrenin<br />Arapça, İngilizce, Rusça veya Türkçe</h1>
+    <p class="sub" lang-ar>منهج متكامل من الصفر حتى الاحتراف — قواعد مبسّطة، سيناريوهات محادثة تتكلّمها بصوتك، ومحاكاة كاملة لامتحان الدولة وامتحان الدستور.</p>
+    <p class="sub" lang-en>A complete curriculum from zero to proficiency — simple grammar, conversation scenarios you speak out loud, and full mock versions of the state and constitution exams.</p><p class="sub" lang-ru>Полный курс с нуля до уверенного владения — простая грамматика, разговорные сценарии, которые вы проговариваете вслух, и полные пробные версии госэкзамена и экзамена по Конституции.</p><p class="sub" lang-tr>Sıfırdan ileri seviyeye tam bir müfredat — sade dilbilgisi, sesli konuştuğunuz diyalog senaryoları ve devlet sınavı ile Anayasa sınavının eksiksiz deneme sürümleri.</p>
+    <div class="ctas">
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.rabaa.ltlearn">
+        <span lang-ar>📱 حمّله من Google Play</span>
+        <span lang-en>📱 Get it on Google Play</span><span lang-ru>📱 Скачать в Google Play</span><span lang-tr>📱 Google Play’den indirin</span>
+      </a>
+      <a class="cta dark" href="https://apps.apple.com/app/id6797941375">
+        <span lang-ar> حمّله من App Store</span>
+        <span lang-en> Download on the App Store</span><span lang-ru> Загрузить в App Store</span><span lang-tr> App Store’dan indirin</span>
+      </a>
+    </div>
+    <!-- The number here is FREE_LEVELS in src/tracking/subscription.ts. It is
+         three, not a stage. If that constant changes, this line changes with
+         it — an overstated free tier is the exact claim Play rejects. -->
+    <div class="cta-note" lang-ar>ابدأ مجاناً — أوّل ٣ مستويات بلا اشتراك</div>
+    <div class="cta-note" lang-en>Start free — the first 3 levels, no subscription</div><div class="cta-note" lang-ru>Начните бесплатно — первые 3 уровня без подписки</div><div class="cta-note" lang-tr>Ücretsiz başlayın — ilk 3 seviye, aboneliksiz</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><b>20</b><span lang-ar>مستوى تعليمياً</span><span lang-en>learning levels</span><span lang-ru>учебных уровней</span><span lang-tr>öğrenme seviyesi</span></div>
+    <!-- 142, counted from the twenty level files in src/content/scenarios/.
+         It was 143, which only holds if the letters grid is counted as a
+         lesson — and it is not one: LevelDetailScreen renders it as a
+         separate reference card. A number a reader can count has to match. -->
+    <div class="stat"><b>142</b><span lang-ar>درساً منظّماً</span><span lang-en>structured lessons</span><span lang-ru>структурированных уроков</span><span lang-tr>düzenli ders</span></div>
+    <div class="stat"><b>60</b><span lang-ar>سيناريو محادثة</span><span lang-en>conversation scenarios</span><span lang-ru>разговорных сценариев</span><span lang-tr>diyalog senaryosu</span></div>
+    <div class="stat"><b>45</b><span lang-ar>نموذج امتحان</span><span lang-en>mock exam models</span><span lang-ru>пробных экзаменов</span><span lang-tr>deneme sınavı modeli</span></div>
+    <div class="stat"><b>A1→B2</b><span lang-ar>حسب الإطار الأوروبي</span><span lang-en>CEFR-aligned</span><span lang-ru>по шкале CEFR</span><span lang-tr>CEFR ölçeğinde</span></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>لماذا KasKalba؟</h2>
+    <h2 class="sec" lang-en>Why KasKalba?</h2><h2 class="sec" lang-ru>Почему KasKalba?</h2><h2 class="sec" lang-tr>Neden KasKalba?</h2>
+    <p class="sec-sub" lang-ar>مصمَّم خصّيصاً لمن يعيش في ليتوانيا أو ينوي الانتقال إليها</p>
+    <p class="sec-sub" lang-en>Built specifically for people living in — or moving to — Lithuania</p><p class="sec-sub" lang-ru>Создано специально для тех, кто живёт в Литве или переезжает туда</p><p class="sec-sub" lang-tr>Litvanya’da yaşayanlar veya oraya taşınanlar için özel olarak yapıldı</p>
+    <div class="grid">
+      <div class="card"><div class="ico">🗺️</div>
+        <h3 lang-ar>منهج A1 حتى B2</h3><h3 lang-en>A1 to B2 curriculum</h3><h3 lang-ru>Программа от A1 до B2</h3><h3 lang-tr>A1’den B2’ye müfredat</h3>
+        <p lang-ar>أربع مراحل كاملة: من الحروف والتحيات حتى لغة الأخبار والمقابلات والعامية.</p>
+        <p lang-en>Four full stages: from the alphabet and greetings to news language, interviews, and slang.</p><p lang-ru>Четыре полных этапа: от алфавита и приветствий до языка новостей, собеседований и разговорной речи.</p><p lang-tr>Dört tam aşama: alfabe ve selamlaşmadan haber diline, mülakatlara ve günlük konuşmaya.</p>
+      </div>
+      <div class="card"><div class="ico">🌐</div>
+        <h3 lang-ar>أربع لغات شرح</h3><h3 lang-en>Four explanation languages</h3><h3 lang-ru>Четыре языка объяснений</h3><h3 lang-tr>Dört açıklama dili</h3>
+        <p lang-ar>بدّل لغة الشرح في أي لحظة من الإعدادات — كل الدروس والامتحانات متوفرة باللغات الأربع.</p>
+        <p lang-en>Switch your explanation language anytime — every lesson and exam is available in all four.</p><p lang-ru>Меняйте язык объяснений когда угодно — каждый урок и экзамен доступен на всех четырёх.</p><p lang-tr>Açıklama dilini istediğiniz zaman değiştirin — her ders ve sınav dördünde de mevcut.</p>
+      </div>
+      <div class="card"><div class="ico">⚡</div>
+        <h3 lang-ar>تحدٍّ يومي وسلسلة 🔥</h3><h3 lang-en>Daily challenge &amp; streak 🔥</h3><h3 lang-ru>Ежедневное задание и серия 🔥</h3><h3 lang-tr>Günlük görev ve seri 🔥</h3>
+        <p lang-ar>٥ أسئلة سريعة كل يوم تتكيّف مع مستواك، وسلسلة إنجاز تحافظ على استمراريتك.</p>
+        <p lang-en>5 quick adaptive questions a day, and a streak that keeps you coming back.</p><p lang-ru>5 быстрых адаптивных вопросов в день и серия, которая возвращает вас снова.</p><p lang-tr>Günde 5 hızlı uyarlanabilir soru ve sizi geri getiren bir seri.</p>
+      </div>
+      <div class="card"><div class="ico">🎓</div>
+        <h3 lang-ar>امتحانات تحاكي الرسمية</h3><h3 lang-en>Official-style exams</h3><h3 lang-ru>Экзамены официального формата</h3><h3 lang-tr>Resmî formatta sınavlar</h3>
+        <p lang-ar>امتحان منتصف ونهاية لكل مستوى، وامتحان رسمي موقوت لكل مرحلة يفتح ما بعدها.</p>
+        <p lang-en>Midterm and final exams per level, plus a timed official-style exam gating each stage.</p><p lang-ru>Промежуточные и итоговые экзамены на каждом уровне и экзамен официального формата с таймером на выходе с каждого этапа.</p><p lang-tr>Her seviyede ara ve final sınavları, ayrıca her aşamanın çıkışında süreli resmî formatta bir sınav.</p>
+      </div>
+      <div class="card"><div class="ico">📚</div>
+        <h3 lang-ar>بنك كلمات بالصوت</h3><h3 lang-en>Vocabulary bank with audio</h3><h3 lang-ru>Словарь с озвучкой</h3><h3 lang-tr>Sesli kelime bankası</h3>
+        <p lang-ar>مئات الكلمات مرتّبة حسب الموضوع مع نطق بصوت واضح، وابحث عنها بأي لغة.</p>
+        <p lang-en>Hundreds of themed words with clear audio pronunciation, searchable in any language.</p><p lang-ru>Сотни тематических слов с чётким произношением, поиск на любом языке.</p><p lang-tr>Net telaffuzlu yüzlerce tematik kelime, her dilde aranabilir.</p>
+      </div>
+      <div class="card"><div class="ico">💬</div>
+        <h3 lang-ar>٦٠ سيناريو محادثة تفاعلي</h3><h3 lang-en>60 interactive scenarios</h3><h3 lang-ru>60 интерактивных сценариев</h3><h3 lang-tr>60 etkileşimli senaryo</h3>
+        <p lang-ar>المقهى، المتجر، الطبيب، البنك، دائرة الهجرة، مقابلة العمل — محادثة بصوت متحدّثَين، تختار ردّك وترى نتيجته فوراً.</p>
+        <p lang-en>Café, shop, doctor, bank, migration office, job interview — two-voice dialogues where you pick your reply and see its outcome instantly.</p><p lang-ru>Кафе, магазин, врач, банк, миграционная служба, собеседование — диалоги на два голоса, где вы выбираете ответ и сразу видите его последствие.</p><p lang-tr>Kafe, market, doktor, banka, göç idaresi, iş görüşmesi — cevabınızı seçtiğiniz ve sonucunu anında gördüğünüz iki sesli diyaloglar.</p>
+      </div>
+      <div class="card"><div class="ico">🎙️</div>
+        <h3 lang-ar>تدرّب على النطق بصوتك</h3><h3 lang-en>Practice speaking out loud</h3><h3 lang-ru>Практика речи вслух</h3><h3 lang-tr>Sesli konuşma pratiği</h3>
+        <p lang-ar>اضغط مطوّلاً وتكلّم: التطبيق يسمعك ويعطيك نسبة تطابق ويلوّن الكلمات الصحيحة والخاطئة. لا نحتفظ بأي تسجيل — يُحذف المقطع فور تحويله إلى نص. <a href="/privacy">كيف يُعالَج الصوت</a>.</p>
+        <p lang-en>Hold and speak: the app listens, scores your match, and colours the right and wrong words. We keep no recording — the clip is discarded the moment it becomes text. <a href="/privacy">How the audio is handled</a>.</p><p lang-ru>Удерживайте и говорите: приложение слушает, оценивает совпадение и подсвечивает верные и неверные слова. Мы не храним записей — фрагмент удаляется, как только становится текстом. <a href="/privacy">Как обрабатывается звук</a>.</p><p lang-tr>Basılı tutun ve konuşun: uygulama dinler, eşleşmenizi puanlar, doğru ve yanlış kelimeleri renklendirir. Hiçbir kayıt saklamayız — parça metne dönüşür dönüşmez silinir. <a href="/privacy">Ses nasıl işlenir</a>.</p>
+      </div>
+      <div class="card"><div class="ico">📝</div>
+        <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-en>State exam simulation</h3><h3 lang-ru>Симуляция госэкзамена</h3><h3 lang-tr>Devlet sınavı simülasyonu</h3>
+        <p lang-ar>٣٠ نموذجاً كاملاً لفئتي A1/A2 وB1 بصيغة الامتحان الرسمي وتوقيته: استماع، قراءة، وكتابة مع إجابة نموذجية.</p>
+        <p lang-en>30 complete models for A1/A2 and B1 in the official format and timing: listening, reading, and writing with a model answer.</p><p lang-ru>30 полных моделей для A1/A2 и B1 в официальном формате и с официальным таймингом: аудирование, чтение и письмо с образцом ответа.</p><p lang-tr>A1/A2 ve B1 için resmî format ve sürede 30 eksiksiz model: dinleme, okuma ve örnek cevaplı yazma.</p>
+      </div>
+      <div class="card"><div class="ico">⚖️</div>
+        <h3 lang-ar>امتحان الدستور للجنسية</h3><h3 lang-en>Constitution exam</h3><h3 lang-ru>Экзамен по Конституции</h3><h3 lang-tr>Anayasa sınavı</h3>
+        <p lang-ar>١٥ نموذجاً لأساسيات الدستور الليتواني مع شرح لكل إجابة — تمرين تستعدّ به لامتحان التجنيس.</p>
+        <p lang-en>15 models on the basics of the Lithuanian constitution, each answer explained — practice to prepare for the citizenship exam.</p><p lang-ru>15 моделей по основам Конституции Литвы с пояснением каждого ответа — практика для подготовки к экзамену на гражданство.</p><p lang-tr>Litvanya Anayasası’nın esasları üzerine, her cevabı açıklanmış 15 model — vatandaşlık sınavına hazırlanmak için alıştırma.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section class="stages" id="plans">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>ابدأ مجاناً، وادفع لما تحتاجه فقط</h2>
+    <h2 class="sec" lang-en>Start free, pay only for what you need</h2><h2 class="sec" lang-ru>Начните бесплатно, платите только за нужное</h2><h2 class="sec" lang-tr>Ücretsiz başlayın, yalnızca ihtiyacınız olana ödeyin</h2>
+    <p class="sec-sub" lang-ar>باقة مجانية وثلاث باقات مدفوعة منفصلة — لا شيء مخفي ولا رسوم مفاجئة</p>
+    <p class="sec-sub" lang-en>A free tier and three separate paid packages — nothing hidden, no surprise charges</p><p class="sec-sub" lang-ru>Бесплатный доступ и три отдельных платных пакета — ничего скрытого, никаких неожиданных списаний</p><p class="sec-sub" lang-tr>Ücretsiz bir kademe ve üç ayrı ücretli paket — gizli hiçbir şey yok, sürpriz ücret yok</p>
+    <div class="stage-grid">
+      <div class="stage"><span class="tag">🆓</span>
+        <h3 lang-ar>مجاناً للتجربة</h3><h3 lang-en>Free to try</h3><h3 lang-ru>Бесплатно попробовать</h3><h3 lang-tr>Ücretsiz deneme</h3>
+        <p lang-ar>أول ٣ مستويات من مرحلة A1، وأول ٣ سيناريوهات، وأول نموذج من محاكاة امتحان A1/A2 — دون أي دفع.</p>
+        <p lang-en>The first 3 levels of stage A1, the first 3 scenarios, and the first A1/A2 mock exam — with no payment at all.</p><p lang-ru>Первые 3 уровня этапа A1, первые 3 сценария и первый пробный экзамен A1/A2 — без какой-либо оплаты.</p><p lang-tr>A1 aşamasının ilk 3 seviyesi, ilk 3 senaryo ve ilk A1/A2 deneme sınavı — hiçbir ödeme olmadan.</p>
+      </div>
+      <div class="stage"><span class="tag">💎</span>
+        <h3 lang-ar>التعلّم والسيناريوهات</h3><h3 lang-en>Learning &amp; scenarios</h3><h3 lang-ru>Обучение и сценарии</h3><h3 lang-tr>Öğrenme ve senaryolar</h3>
+        <p lang-ar>كل المستويات من A1 إلى B2 مع بنوك الكلمات، وكل السيناريوهات الستين مع تدريب النطق. اشتراك شهري أو سنوي يتجدّد تلقائياً ويُلغى في أي وقت.</p>
+        <p lang-en>Every level from A1 to B2 with the vocabulary banks, and all 60 scenarios with speaking practice. Monthly or annual, auto-renewing, cancel anytime.</p><p lang-ru>Все уровни от A1 до B2 со словарями и все 60 сценариев с речевой практикой. Месячно или ежегодно, с автопродлением, отмена в любой момент.</p><p lang-tr>A1’den B2’ye tüm seviyeler kelime bankalarıyla ve konuşma pratiğiyle 60 senaryonun tamamı. Aylık veya yıllık, otomatik yenilenen, istediğiniz zaman iptal.</p>
+      </div>
+      <div class="stage"><span class="tag">🎓</span>
+        <h3 lang-ar>محاكاة امتحان الدولة</h3><h3 lang-en>State exam simulation</h3><h3 lang-ru>Симуляция госэкзамена</h3><h3 lang-tr>Devlet sınavı simülasyonu</h3>
+        <p lang-ar>كل نماذج A1/A2 وB1. دفعة واحدة لأسبوع أو لشهر — <b>بلا تجديد تلقائي</b>، تنتهي وحدها وتجدّدها أنت وقت امتحانك.</p>
+        <p lang-en>All A1/A2 and B1 models. A single payment for a week or a month — <b>no auto-renewal</b>; it simply ends, and you renew it when your exam is near.</p><p lang-ru>Все модели A1/A2 и B1. Разовый платёж на неделю или месяц — <b>без автопродления</b>: он просто заканчивается, а вы продлеваете его, когда экзамен близко.</p><p lang-tr>Tüm A1/A2 ve B1 modelleri. Bir hafta veya bir ay için tek seferlik ödeme — <b>otomatik yenileme yok</b>; kendiliğinden biter, sınavınız yaklaşınca siz yenilersiniz.</p>
+      </div>
+      <div class="stage"><span class="tag">📜</span>
+        <h3 lang-ar>امتحان الدستور</h3><h3 lang-en>Constitution exam</h3><h3 lang-ru>Экзамен по Конституции</h3><h3 lang-tr>Anayasa sınavı</h3>
+        <p lang-ar>كل نماذج الدستور مع شرح الإجابات. دفعة واحدة لشهر — <b>بلا تجديد تلقائي</b>.</p>
+        <p lang-en>All constitution models with explained answers. A single payment for one month — <b>no auto-renewal</b>.</p><p lang-ru>Все модели по Конституции с пояснёнными ответами. Разовый платёж на один месяц — <b>без автопродления</b>.</p><p lang-tr>Açıklamalı cevaplarıyla tüm Anayasa modelleri. Bir ay için tek seferlik ödeme — <b>otomatik yenileme yok</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GOVERNMENT-INFORMATION NOTICE -->
+<section class="gov" id="sources">
+  <div class="wrap">
+    <div class="gov-box">
+      <h3 lang-ar>⚠️ إخلاء مسؤولية</h3>
+      <h3 lang-en>⚠️ Disclaimer</h3><h3 lang-ru>⚠️ Отказ от ответственности</h3><h3 lang-tr>⚠️ Sorumluluk reddi</h3>
+      <p lang-ar>KasKalba تطبيق تعليمي مستقل. لا يمثّل أيّ جهة حكومية ليتوانية ولا ينتمي إليها ولا يعمل بتفويض منها، ولا يصدر عنه أيّ شهادة أو نتيجة رسمية. ونماذج المحاكاة داخل التطبيق تدريب من إعدادنا على بنية الامتحان، وليست الامتحان الرسمي ولا بديلاً عنه.</p>
+      <p lang-en>KasKalba is an independent learning app. It does not represent, belong to, or act on behalf of any Lithuanian government entity, and it issues no official certificate or result. The practice models inside the app are our own material modelled on the exam's structure; they are not the official exam and are not a substitute for it.</p><p lang-ru>KasKalba — независимое учебное приложение. Оно не представляет ни одно государственное учреждение Литвы, не связано с ними, не действует по их поручению и не выдаёт официальных сертификатов или результатов. Пробные модели в приложении — наш собственный материал, построенный по структуре экзамена; это не официальный экзамен и не его замена.</p><p lang-tr>KasKalba bağımsız bir öğrenme uygulamasıdır. Hiçbir Litvanya devlet kurumunu temsil etmez, onlara bağlı değildir, onlar adına hareket etmez ve resmî belge ya da sonuç vermez. Uygulamadaki deneme modelleri, sınav yapısına göre kendi hazırladığımız materyaldir; resmî sınav değildir ve onun yerine geçmez.</p>
+
+      <h3 class="gov-next" lang-ar>📌 المصادر الرسمية</h3>
+      <h3 class="gov-next" lang-en>📌 Official sources</h3><h3 class="gov-next" lang-ru>📌 Официальные источники</h3><h3 class="gov-next" lang-tr>📌 Resmî kaynaklar</h3>
+      <p lang-ar>امتحان إتقان اللغة الليتوانية وامتحان أسس الدستور تُجريهما الوكالة الوطنية للتعليم (Nacionalinė švietimo agentūra) وحدها. وللتسجيل والرسوم والمواعيد والنتائج، اعتمد هذين المصدرين وحدهما:</p>
+      <p lang-en>The Lithuanian state language proficiency exam and the Constitution basics exam are administered solely by the National Education Agency (Nacionalinė švietimo agentūra). For registration, fees, dates and results, rely on these sources only:</p><p lang-ru>Государственный экзамен на знание литовского языка и экзамен по основам Конституции проводит исключительно Национальное агентство образования (Nacionalinė švietimo agentūra). По вопросам регистрации, оплаты, дат и результатов полагайтесь только на эти источники:</p><p lang-tr>Litvanca devlet dil yeterlilik sınavı ve Anayasa temelleri sınavı yalnızca Ulusal Eğitim Ajansı (Nacionalinė švietimo agentūra) tarafından yapılır. Kayıt, ücret, tarih ve sonuçlar için yalnızca şu kaynaklara güvenin:</p>
+      <ul>
+        <li>
+          <b lang-ar>معلومات الامتحان ومواعيده — Nacionalinė švietimo agentūra</b>
+          <b lang-en>Exam information and schedule — Nacionalinė švietimo agentūra</b><b lang-ru>Информация об экзамене и расписание — Nacionalinė švietimo agentūra</b><b lang-tr>Sınav bilgileri ve takvimi — Nacionalinė švietimo agentūra</b>
+          <a href="https://www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams" target="_blank" rel="noopener" dir="ltr">www.nsa.smsm.lt/for-foreigners/lietuviu-kalbos-egzaminai-uzsienieciams</a>
+        </li>
+        <li>
+          <b lang-ar>النصّ الرسمي لدستور جمهورية ليتوانيا — المحكمة الدستورية</b>
+          <b lang-en>Official text of the Constitution of the Republic of Lithuania — the Constitutional Court</b><b lang-ru>Официальный текст Конституции Литовской Республики — Конституционный суд</b><b lang-tr>Litvanya Cumhuriyeti Anayasası'nın resmî metni — Anayasa Mahkemesi</b>
+          <a href="https://lrkt.lt/en/about-the-court/legal-information/the-constitution/192" target="_blank" rel="noopener" dir="ltr">lrkt.lt/en/about-the-court/legal-information/the-constitution/192</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENSHOTS -->
+<section class="shots" id="screens">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>لقطات من التطبيق</h2>
+    <h2 class="sec" lang-en>Inside the app</h2><h2 class="sec" lang-ru>Внутри приложения</h2><h2 class="sec" lang-tr>Uygulamanın içinde</h2>
+    <p class="sec-sub" lang-ar>اسحب لتستعرض الشاشات</p>
+    <p class="sec-sub" lang-en>Swipe to browse the screens</p><p class="sec-sub" lang-ru>Листайте, чтобы посмотреть экраны</p><p class="sec-sub" lang-tr>Ekranları görmek için kaydırın</p>
+    <div class="shots-strip">
+      <div class="shot"><img src="/img/home.png" alt="Home" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>الرئيسية والسلسلة 🔥</div><div class="shot-cap" lang-en>Home &amp; streak 🔥</div><div class="shot-cap" lang-ru>Главная и серия 🔥</div><div class="shot-cap" lang-tr>Ana sayfa ve seri 🔥</div></div>
+      <div class="shot"><img src="/img/stages.png" alt="Stages" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>مراحل التعلّم</div><div class="shot-cap" lang-en>Learning stages</div><div class="shot-cap" lang-ru>Этапы обучения</div><div class="shot-cap" lang-tr>Öğrenme aşamaları</div></div>
+      <div class="shot"><img src="/img/challenge.png" alt="Daily challenge" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>تحدّي اليوم</div><div class="shot-cap" lang-en>Daily challenge</div><div class="shot-cap" lang-ru>Ежедневное задание</div><div class="shot-cap" lang-tr>Günlük görev</div></div>
+      <div class="shot"><img src="/img/level.png" alt="Level" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>دروس المستوى</div><div class="shot-cap" lang-en>Level lessons</div><div class="shot-cap" lang-ru>Уроки уровня</div><div class="shot-cap" lang-tr>Seviye dersleri</div></div>
+      <div class="shot"><img src="/img/scenarios.png" alt="Conversation scenarios" loading="lazy" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>سيناريوهات المحادثة</div><div class="shot-cap" lang-en>Conversation scenarios</div><div class="shot-cap" lang-ru>Разговорные сценарии</div><div class="shot-cap" lang-tr>Diyalog senaryoları</div></div>
+      <div class="shot"><img src="/img/speaks.jpeg" alt="Speaking practice" loading="lazy" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>تدريب النطق بصوتك</div><div class="shot-cap" lang-en>Speaking practice</div><div class="shot-cap" lang-ru>Практика речи вслух</div><div class="shot-cap" lang-tr>Sesli konuşma pratiği</div></div>
+      <div class="shot"><img src="/img/vocab.png" alt="Vocabulary bank" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>بنك الكلمات بالصوت</div><div class="shot-cap" lang-en>Vocabulary bank with audio</div><div class="shot-cap" lang-ru>Словарь с озвучкой</div><div class="shot-cap" lang-tr>Sesli kelime bankası</div></div>
+      <div class="shot"><img src="/img/achievements.png" alt="Achievements" onerror="this.parentElement.style.display='none'" />
+        <div class="shot-cap" lang-ar>الإنجازات والنتائج</div><div class="shot-cap" lang-en>Achievements &amp; scores</div><div class="shot-cap" lang-ru>Достижения и баллы</div><div class="shot-cap" lang-tr>Başarımlar ve puanlar</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGES -->
+<section class="stages">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>رحلتك خطوة بخطوة</h2>
+    <h2 class="sec" lang-en>Your journey, step by step</h2><h2 class="sec" lang-ru>Ваш путь, шаг за шагом</h2><h2 class="sec" lang-tr>Yolculuğunuz, adım adım</h2>
+    <p class="sec-sub" lang-ar>كل مرحلة خمسة مستويات، وكل مستوى دروس وامتحانات</p>
+    <p class="sec-sub" lang-en>Each stage holds five levels; each level holds lessons and exams</p><p class="sec-sub" lang-ru>В каждом этапе пять уровней; в каждом уровне уроки и экзамены</p><p class="sec-sub" lang-tr>Her aşamada beş seviye; her seviyede dersler ve sınavlar</p>
+    <div class="stage-grid">
+      <div class="stage"><span class="tag">A1</span>
+        <h3 lang-ar>الأساسيات الأولى</h3><h3 lang-en>First basics</h3><h3 lang-ru>Первые основы</h3><h3 lang-tr>İlk temeller</h3>
+        <p lang-ar>الحروف، التحيات، التعريف عن النفس، الطعام، المدينة، العائلة.</p>
+        <p lang-en>The alphabet, greetings, introducing yourself, food, the city, family.</p><p lang-ru>Алфавит, приветствия, рассказ о себе, еда, город, семья.</p><p lang-tr>Alfabe, selamlaşma, kendini tanıtma, yemek, şehir, aile.</p>
+      </div>
+      <div class="stage"><span class="tag">A2</span>
+        <h3 lang-ar>الحياة اليومية</h3><h3 lang-en>Daily life</h3><h3 lang-ru>Повседневная жизнь</h3><h3 lang-tr>Günlük hayat</h3>
+        <p lang-ar>روتينك اليومي، الماضي والمستقبل، الصحّة والطبيب، البيت، العمل.</p>
+        <p lang-en>Your routine, past and future, health and the doctor, home, work.</p><p lang-ru>Ваш распорядок, прошлое и будущее, здоровье и врач, дом, работа.</p><p lang-tr>Günlük düzeniniz, geçmiş ve gelecek, sağlık ve doktor, ev, iş.</p>
+      </div>
+      <div class="stage"><span class="tag">B1</span>
+        <h3 lang-ar>الاستقلال اللغوي</h3><h3 lang-en>Independence</h3><h3 lang-ru>Самостоятельность</h3><h3 lang-tr>Bağımsızlık</h3>
+        <p lang-ar>السفر، المعاملات الرسمية، إبداء الرأي، المناسبات، أسلوب التهذيب.</p>
+        <p lang-en>Travel, official paperwork, giving opinions, celebrations, polite forms.</p><p lang-ru>Поездки, официальные документы, выражение мнения, праздники, вежливые формы.</p><p lang-tr>Seyahat, resmî evraklar, görüş bildirme, kutlamalar, nezaket kalıpları.</p>
+      </div>
+      <div class="stage"><span class="tag">B2</span>
+        <h3 lang-ar>نحو الاحتراف</h3><h3 lang-en>Toward mastery</h3><h3 lang-ru>К совершенству</h3><h3 lang-tr>Ustalığa doğru</h3>
+        <p lang-ar>لغة الإعلانات والأخبار، السيرة الذاتية والمقابلات، الأمثال والعامية.</p>
+        <p lang-en>Ads and news language, CVs and interviews, proverbs and slang.</p><p lang-ru>Язык рекламы и новостей, резюме и собеседования, пословицы и разговорная речь.</p><p lang-tr>Reklam ve haber dili, özgeçmiş ve mülakatlar, atasözleri ve argo.</p>
+      </div>
+    </div>
+    <p class="sec-sub" style="margin:26px 0 0" lang-ar>ومع كل مرحلة يُفتح ١٥ سيناريو محادثة من مستواها.</p>
+    <p class="sec-sub" style="margin:26px 0 0" lang-en>Each stage also unlocks 15 conversation scenarios at its level.</p><p class="sec-sub" style="margin:26px 0 0" lang-ru>Каждый этап также открывает 15 разговорных сценариев своего уровня.</p><p class="sec-sub" style="margin:26px 0 0" lang-tr>Her aşama ayrıca kendi seviyesinde 15 diyalog senaryosu açar.</p>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="wrap">
+    <h2 class="sec" lang-ar>كيف تبدأ؟</h2>
+    <h2 class="sec" lang-en>How to start?</h2><h2 class="sec" lang-ru>Как начать?</h2><h2 class="sec" lang-tr>Nasıl başlanır?</h2>
+    <p class="sec-sub" lang-ar>ثلاث خطوات تفصلك عن أول جملة ليتوانية</p>
+    <p class="sec-sub" lang-en>Three steps away from your first Lithuanian sentence</p><p class="sec-sub" lang-ru>Три шага до вашей первой фразы на литовском</p><p class="sec-sub" lang-tr>İlk Litvanca cümlenize üç adım</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div>
+        <h3 lang-ar>حمّل التطبيق</h3><h3 lang-en>Download the app</h3><h3 lang-ru>Скачайте приложение</h3><h3 lang-tr>Uygulamayı indirin</h3>
+        <p lang-ar>مجاناً من Google Play أو App Store، وسجّل دخولك بضغطة واحدة.</p>
+        <p lang-en>Free on Google Play or the App Store; sign in in one tap.</p><p lang-ru>Бесплатно в Google Play или App Store; вход в одно касание.</p><p lang-tr>Google Play veya App Store’da ücretsiz; tek dokunuşta giriş.</p>
+      </div>
+      <div class="step"><div class="n">2</div>
+        <h3 lang-ar>اختر لغتك وابدأ A1</h3><h3 lang-en>Pick your language, start A1</h3><h3 lang-ru>Выберите язык, начните с A1</h3><h3 lang-tr>Dilinizi seçin, A1’den başlayın</h3>
+        <p lang-ar>عربي أو إنجليزي — وابدأ من الحروف أو تخطَّ ما تعرفه.</p>
+        <p lang-en>Arabic, English, Russian or Turkish — start from the alphabet or skip what you know.</p><p lang-ru>Арабский, английский, русский или турецкий — начните с алфавита или пропустите знакомое.</p><p lang-tr>Arapça, İngilizce, Rusça veya Türkçe — alfabeden başlayın ya da bildiğinizi atlayın.</p>
+      </div>
+      <div class="step"><div class="n">3</div>
+        <h3 lang-ar>تكلّم وامتحن نفسك</h3><h3 lang-en>Speak, then test yourself</h3><h3 lang-ru>Говорите, затем проверьте себя</h3><h3 lang-tr>Konuşun, sonra kendinizi sınayın</h3>
+        <p lang-ar>تحدٍّ يومي قصير، سيناريوهات تتكلّمها بصوتك، ونماذج امتحان تحاكي الامتحان الرسمي قبل موعده.</p>
+        <p lang-en>A short daily challenge, scenarios you speak out loud, and mock models that mirror the official exam before the real day.</p><p lang-ru>Короткое ежедневное задание, сценарии, которые вы проговариваете, и пробные модели, повторяющие официальный экзамен до самого дня.</p><p lang-tr>Kısa bir günlük görev, sesli konuştuğunuz senaryolar ve gerçek günden önce resmî sınavı birebir yansıtan deneme modelleri.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<footer>
+  <div class="wrap">
+
+    <div class="fcols">
+
+      <div class="fcol fbrand">
+        <a class="logo" href="@HOME@"><img class="logo-mark" src="/img/logo.png" alt="" width="30" height="30">Kas<span>Kalba</span></a>
+        <p lang-ar>تعلّم الليتوانية من الصفر إلى B2 — بالعربية، وبصوت حقيقي.</p>
+        <p lang-en>Learn Lithuanian from zero to B2 — explained in your language.</p>
+        <p lang-ru>Литовский с нуля до B2 — с объяснениями на вашем языке.</p>
+        <p lang-tr>Sıfırdan B2’ye Litvanca — kendi dilinizde anlatımlarla.</p>
+        <div class="fsoc">
+          <a href="https://facebook.com/KasKalbaLt" target="_blank" rel="noopener" aria-label="Facebook"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1z"/></svg></a>
+          <a href="https://instagram.com/kaskalbalt" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+        </div>
+      </div>
+
+      <div class="fcol">
+        <h4  lang-ar>التطبيق</h4>
+            <h4  lang-en>The app</h4>
+            <h4  lang-ru>Приложение</h4>
+            <h4  lang-tr>Uygulama</h4>
+        <ul>
+          <li><a href="#features" lang-ar>لماذا KasKalba؟</a>
+            <a href="#features" lang-en>Why KasKalba?</a>
+            <a href="#features" lang-ru>Почему KasKalba?</a>
+            <a href="#features" lang-tr>Neden KasKalba?</a></li>
+          <li><a href="#plans" lang-ar>الأسعار والاشتراكات</a>
+            <a href="#plans" lang-en>Plans and pricing</a>
+            <a href="#plans" lang-ru>Тарифы и подписки</a>
+            <a href="#plans" lang-tr>Planlar ve fiyatlar</a></li>
+          <li><a href="#screens" lang-ar>لقطات من التطبيق</a>
+            <a href="#screens" lang-en>Inside the app</a>
+            <a href="#screens" lang-ru>Внутри приложения</a>
+            <a href="#screens" lang-tr>Uygulamanın içinde</a></li>
+          <li><a href="#how" lang-ar>كيف تبدأ؟</a>
+            <a href="#how" lang-en>How to start?</a>
+            <a href="#how" lang-ru>Как начать?</a>
+            <a href="#how" lang-tr>Nasıl başlanır?</a></li>
+        </ul>
+      </div>
+
+      <div class="fcol">
+        <h4  lang-ar>الدعم</h4>
+            <h4  lang-en>Support</h4>
+            <h4  lang-ru>Поддержка</h4>
+            <h4  lang-tr>Destek</h4>
+        <ul>
+          <li><a href="mailto:support@kaskalba.com">support@kaskalba.com</a></li>
+          <li><a href="/delete-account" lang-ar>حذف الحساب</a>
+            <a href="/delete-account" lang-en>Delete your account</a>
+            <a href="/delete-account" lang-ru>Удалить аккаунт</a>
+            <a href="/delete-account" lang-tr>Hesabı sil</a></li>
+        </ul>
+      </div>
+
+      <div class="fcol">
+        <h4  lang-ar>قانوني</h4>
+            <h4  lang-en>Legal</h4>
+            <h4  lang-ru>Правовая информация</h4>
+            <h4  lang-tr>Yasal</h4>
+        <ul>
+          <li><a href="/privacy" lang-ar>سياسة الخصوصية</a>
+            <a href="/privacy" lang-en>Privacy Policy</a>
+            <a href="/privacy" lang-ru>Политика конфиденциальности</a>
+            <a href="/privacy" lang-tr>Gizlilik Politikası</a></li>
+          <li><a href="/terms" lang-ar>شروط الاستخدام</a>
+            <a href="/terms" lang-en>Terms of Use</a>
+            <a href="/terms" lang-ru>Условия использования</a>
+            <a href="/terms" lang-tr>Kullanım Koşulları</a></li>
+          <li><a href="#sources" lang-ar>المصادر الرسمية</a>
+            <a href="#sources" lang-en>Official sources</a>
+            <a href="#sources" lang-ru>Официальные источники</a>
+            <a href="#sources" lang-tr>Resmî kaynaklar</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="fbar">
+      <div>© 2026 KasKalba</div>
+    </div>
+
+  </div>
+</footer>
+
+<!-- @SCRIPT -->
+</body>
+</html>

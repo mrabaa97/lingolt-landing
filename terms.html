@@ -392,10 +392,10 @@
             <a href="/terms" lang-en>Terms of Use</a>
             <a href="/terms" lang-ru>Условия использования</a>
             <a href="/terms" lang-tr>Kullanım Koşulları</a></li>
-          <li><a href="/#sources" lang-ar>المصادر الرسمية</a>
+          <li><a href="/ar/#sources" lang-ar>المصادر الرسمية</a>
             <a href="/#sources" lang-en>Official sources</a>
-            <a href="/#sources" lang-ru>Официальные источники</a>
-            <a href="/#sources" lang-tr>Resmî kaynaklar</a></li>
+            <a href="/ru/#sources" lang-ru>Официальные источники</a>
+            <a href="/tr/#sources" lang-tr>Resmî kaynaklar</a></li>
         </ul>
       </div>
 
@@ -431,7 +431,7 @@
     Array.prototype.forEach.call(menu.querySelectorAll('li'), function (li) {
       li.setAttribute('aria-selected', String(li.getAttribute('data-lang') === l));
     });
-    try { localStorage.setItem('lingolt-lang', l); } catch (e) {}
+    try { localStorage.setItem('kaskalba-lang', l); } catch (e) {}
   }
 
   function setOpen(open) {
@@ -457,7 +457,7 @@
   // A stored preference may predate the two newer languages; applyLang falls
   // back rather than leaving the page with every block hidden.
   var saved = null;
-  try { saved = localStorage.getItem('lingolt-lang'); } catch (e) {}
+  try { saved = localStorage.getItem('kaskalba-lang') || localStorage.getItem('lingolt-lang'); } catch (e) {}
   applyLang(saved || 'en');
 </script>
 </body>

@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
 
+# The homepage source the four language pages are built from. GitHub Pages
+# runs Jekyll, which already leaves underscore-prefixed directories out of
+# what it publishes, so this path should not exist on the server at all —
+# the rule is here in case that ever stops being true.
+Disallow: /_src/
+
 Sitemap: https://kaskalba.com/sitemap.xml
