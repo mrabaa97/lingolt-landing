@@ -25,17 +25,71 @@
 //  the output is ordinary static HTML with nothing generated-looking in it.
 // =============================================================================
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
+// EVERYTHING SERVED LIVES IN site/, AND NOTHING ELSE DOES.
+//
+// It used to be the repository root, which worked only because GitHub
+// Pages runs Jekyll and Jekyll drops every path starting with an
+// underscore — that one quirk, and nothing else, is what kept _src/ off
+// the web. Cloudflare has no such rule: it serves whatever is in the
+// publish directory. So the publish directory is now a folder that simply
+// does not contain _src/, and the site stops depending on a quirk to keep
+// its roadmap private. See _src/MIGRATION-CLOUDFLARE.md §1.
+const OUT = join(ROOT, 'site');
 const SITE = 'https://kaskalba.com';
 
 // Bump when the page's content changes; it is what <lastmod> reports, and a
 // date that moves on every build teaches crawlers to ignore the field.
 const LASTMOD = '2026-11-13';
+
+// =============================================================================
+//  THE ONE SWITCH FOR THE WEB APP.
+//
+//  false → the page offers the two stores and says nothing about a browser.
+//  true  → "Start learning" becomes the first thing on the page, opening
+//          app.kaskalba.com, and the stores drop to second place.
+//
+//  It is false because the web app is not reachable yet: app.kaskalba.com
+//  does not resolve (the DNS record is not added), the build in ../lt-app-web
+//  is not even a git repository, and WEB_PREVIEW_UNLOCKED is still true in
+//  the app — so the link would be broken, and once it is not broken it would
+//  hand the whole paid curriculum to anyone who clicked it.
+//
+//  BEFORE FLIPPING IT, all three: the DNS record answers, the build is
+//  published, and the app session has set WEB_PREVIEW_UNLOCKED = false.
+//  Flipping it alone publishes a dead link on the busiest page we own.
+//
+//  How it works: elements marked `app-live` or `app-soon` in home.html are
+//  kept or deleted here, exactly the way `lang-ar` and the rest are. The
+//  losing branch is REMOVED from the output rather than hidden, so no dead
+//  href to a domain that does not exist reaches a crawler.
+// =============================================================================
+const WEB_APP_LIVE = false;
+const APP_URL = 'https://app.kaskalba.com/';
+
+// --- seeing the other branch without arming it ------------------------------
+//
+//   node _src/build.mjs --preview
+//
+// Builds the WEB_APP_LIVE = true version into .preview/ instead of over the
+// real pages, so the switched-on hero can be looked at and argued about
+// while the published pages keep offering the stores and nothing else.
+//
+// WHY .preview/ AT THE ROOT and not inside site/. site/ is the publish
+// directory now, and Cloudflare publishes all of it — there is no longer
+// any folder inside it that a visitor cannot reach. So the preview lives
+// OUTSIDE it, next to _src/, and is in .gitignore. It is served by its own
+// local server (the `site-preview` entry in .claude/launch.json), which is
+// why the build copies site/img into it: the pages ask for /img/… from
+// whatever root is serving them.
+const PREVIEW = process.argv.includes('--preview');
+const PREVIEW_DIR = join(ROOT, '.preview');
+const APP_LIVE = PREVIEW ? true : WEB_APP_LIVE;
 
 // Order matters: it is the order of the rows in the picker.
 const ORDER = ['ar', 'en', 'ru', 'tr'];
@@ -111,6 +165,24 @@ function dropOtherLanguages(html, keep) {
   // The kept language no longer needs its marker.
   html = html.replace(new RegExp(`\\s+lang-${keep}(?=[\\s>])`, 'g'), '');
   // Removing a block off its own line leaves the indentation behind.
+  return html.replace(/^[ \t]+\r?\n/gm, '');
+}
+
+// The same surgery for the web-app switch. Delete the branch that does not
+// apply, then strip the marker off the one that does — so the output has no
+// trace of the choice, and neither a reader nor a crawler can find the arm
+// that was not taken.
+function dropByFlag(html) {
+  const drop = APP_LIVE ? 'app-soon' : 'app-live';
+  const keep = APP_LIVE ? 'app-live' : 'app-soon';
+  const open = new RegExp(`<([a-zA-Z][\\w-]*)((?:[^>]*)\\s${drop})(\\s[^>]*)?>`);
+  for (;;) {
+    const m = open.exec(html);
+    if (!m) break;
+    const end = endOfElement(html, m[1], m.index + m[0].length);
+    html = html.slice(0, m.index) + html.slice(end);
+  }
+  html = html.replace(new RegExp(`\\s+${keep}(?=[\\s>])`, 'g'), '');
   return html.replace(/^[ \t]+\r?\n/gm, '');
 }
 
@@ -323,27 +395,57 @@ for (const marker of ['<!-- @HEAD -->', '<!-- @JSONLD -->', '<!-- @PICKER -->', 
 
 for (const lang of ORDER) {
   const L = LANGS[lang];
-  let out = dropOtherLanguages(source, lang);
+  let out = dropByFlag(dropOtherLanguages(source, lang));
   // The structured data is read from the page AFTER the other three languages
   // are gone, so it describes this page and only this one.
   const ld = structuredData(lang, out);
   out = out
     .replace(/^.*@SRCONLY.*\r?\n/gm, '')
+    .replaceAll('@APPURL@', APP_URL)
     .replace('<html lang="en" dir="ltr" class="en">', `<html lang="${lang}" dir="${L.dir}">`)
     .replace('<!-- @HEAD -->', headFor(lang))
     .replace('<!-- @JSONLD -->', ld)
     .replace('<!-- @PICKER -->', pickerFor(lang))
     .replace('<!-- @SCRIPT -->', PICKER_JS)
-    .replaceAll('@HOME@', L.path);
+    .replaceAll('@HOME@', L.path)
+    // /buy/ has no language switcher of its own any more — language is
+    // chosen once and everything follows it — so every link to it from
+    // here has to say which language sent the reader, or a Turkish
+    // visitor lands on an Arabic page with no way out of it.
+    .replaceAll('@LANG@', lang);
 
-  for (const left of ['@HEAD', '@JSONLD', '@PICKER', '@SCRIPT', '@HOME@', '@SRCONLY', 'lang-ar', 'lang-en', 'lang-ru', 'lang-tr']) {
+  for (const left of ['@HEAD', '@JSONLD', '@PICKER', '@SCRIPT', '@HOME@', '@LANG@', '@APPURL@', '@SRCONLY']) {
     if (out.includes(left)) throw new Error(`${lang}: ${left} survived the build`);
   }
+  // The markers are ATTRIBUTES, and only an attribute is a bug. A comment
+  // that names one — explaining to the next reader what the mechanism is —
+  // is prose, and a plain substring check calls it a failure. So: match the
+  // attribute shape, preceded by whitespace and followed by whitespace, `>`
+  // or `/`, which is the only way it can appear inside a tag.
+  for (const marker of ['lang-ar', 'lang-en', 'lang-ru', 'lang-tr', 'app-live', 'app-soon']) {
+    if (new RegExp(`<[a-zA-Z][^>]*\\s${marker}(?=[\\s/>])`).test(out)) {
+      throw new Error(`${lang}: ${marker} survived the build`);
+    }
+  }
 
-  const dest = L.path === '/' ? join(ROOT, 'index.html') : join(ROOT, L.path.slice(1, -1), 'index.html');
+  const base = PREVIEW ? PREVIEW_DIR : OUT;
+  const dest = L.path === '/' ? join(base, 'index.html') : join(base, L.path.slice(1, -1), 'index.html');
   mkdirSync(dirname(dest), { recursive: true });
   writeFileSync(dest, out);
-  console.log(`${L.path.padEnd(5)} -> ${dest.slice(ROOT.length + 1).padEnd(16)} ${(out.length / 1024).toFixed(1)} KB`);
+  console.log(`${L.path.padEnd(5)} -> ${dest.slice(ROOT.length + 1).padEnd(24)} ${(out.length / 1024).toFixed(1)} KB`);
+}
+
+// The sitemap describes the real site, so a preview run stops here rather
+// than rewriting it with URLs that point at pages it did not build.
+if (PREVIEW) {
+  // The pages ask for /img/… from the root that serves them, and .preview/
+  // is its own root. Copying is 450 KB and instant; linking would differ
+  // between a developer's machine and this one.
+  cpSync(join(OUT, 'img'), join(PREVIEW_DIR, 'img'), { recursive: true });
+  console.log('\npreview only — site/ and sitemap.xml were NOT touched.');
+  console.log('serve it:  python -m http.server 8766 --directory .preview');
+  console.log('look at:   http://localhost:8766/ar/');
+  process.exit(0);
 }
 
 // --- sitemap ----------------------------------------------------------------
@@ -373,5 +475,5 @@ ${SHARED_PAGES.map(
 </urlset>
 `;
 
-writeFileSync(join(ROOT, 'sitemap.xml'), sitemap);
+writeFileSync(join(OUT, 'sitemap.xml'), sitemap);
 console.log(`      -> sitemap.xml      ${ORDER.length + SHARED_PAGES.length} urls`);

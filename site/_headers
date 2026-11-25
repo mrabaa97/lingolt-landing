@@ -1,0 +1,55 @@
+# Response headers for Cloudflare Pages.
+#
+# INERT UNTIL WE MOVE. GitHub Pages runs Jekyll, which drops every path
+# starting with an underscore, so this file is not served today and changes
+# nothing. Cloudflare reads it from the root of the published directory.
+#
+# Every origin below was measured from the pages themselves on 2026-11-26,
+# not assumed: the ONLY external resource the whole site loads is
+# supabase-js from cdn.jsdelivr.net, and the only host it talks to is our
+# own Supabase project. Facebook, Instagram, Google Play, the App Store and
+# the two Lithuanian government sites are LINKS — nothing is fetched from
+# them, so none of them belongs in a fetch directive.
+
+/*
+  # Stops a browser from guessing a type we did not send. Cheap, absolute.
+  X-Content-Type-Options: nosniff
+  # Our own paths travel between our own pages; outside, only the origin.
+  Referrer-Policy: strict-origin-when-cross-origin
+  # Nobody frames us. Said twice because old browsers only know the first.
+  X-Frame-Options: DENY
+  # We ask for none of these, so none may be asked for in our name.
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+  # One year, subdomains included. app.kaskalba.com is ours too and will be
+  # HTTPS from its first day, so including subdomains costs nothing.
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  # The content pages load NOTHING from outside. 'unsafe-inline' is here
+  # because every script and style on this site is inline — there is no
+  # bundler and no server to issue a nonce. It is a real weakening, and
+  # what survives it is still the point: no third-party script can run.
+  # Hashes would close it properly; they are only worth it once the pages
+  # stop changing weekly, because a stale hash kills the script silently.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+
+# The two pages that talk to a server. Same policy, plus exactly the two
+# origins they need and not one more.
+/buy/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbgwwsoepqekehegxigb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  # A checkout page has nothing a crawler should keep, and the page says so
+  # in a meta tag already. This is the same instruction where a crawler
+  # that ignores meta tags will still see it.
+  X-Robots-Tag: noindex, nofollow
+
+/account/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbgwwsoepqekehegxigb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  X-Robots-Tag: noindex, nofollow
+
+# Thirty days, and deliberately NOT `immutable`.
+#
+# `immutable` is correct only for a filename that changes whenever its
+# content does, and ours do not: replace the picture behind logo.webp and
+# the name stays logo.webp. With a year and `immutable` a returning visitor
+# would keep the old logo for a year and no reload would shake it loose.
+# Thirty days with revalidation is the honest setting for names we reuse.
+/img/*
+  Cache-Control: public, max-age=2592000

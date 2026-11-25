@@ -1,0 +1,16 @@
+# Redirects for Cloudflare Pages.
+#
+# INERT UNTIL WE MOVE, like _headers: Jekyll drops underscore paths, so
+# GitHub Pages does not serve this today.
+#
+# ONE RULE ONLY, on purpose.
+#
+# The obvious second rule — /privacy.html to /privacy and its two siblings
+# — is NOT here, because Cloudflare Pages already redirects a .html path to
+# its clean form by itself, and a hand-written rule that duplicates a
+# built-in one is a rule nobody remembers is there. It is on the migration
+# checklist to VERIFY rather than to write: those three addresses are filed
+# with Play Console and in both store listings, and breaking them breaks
+# legally required pages.
+
+https://www.kaskalba.com/*  https://kaskalba.com/:splat  301

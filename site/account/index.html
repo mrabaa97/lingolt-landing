@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>حسابك — KasKalba</title>
+
+<!-- Someone's own account. Never a search result, never followed. -->
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="../img/favicon-32.png" sizes="32x32" type="image/png" />
+
+<!-- =======================================================================
+     WHAT THIS PAGE IS, AND WHAT IT IS NOT.
+
+     It answers three questions and sells nothing: what do I have, what have
+     I paid, and how do I stop. /buy/ is the shop; this is the receipt
+     drawer. Keeping them apart is why neither has to apologise for the
+     other — a page that shows your subscription AND tries to sell you one
+     is a page that cannot say "you already have this" with a straight face.
+
+     IT ADDS NO LOGIC OF ITS OWN. What counts as an active entitlement is
+     decided by my_entitlements() in the database, the same function the app
+     calls, and this page only renders the answer. The one place this
+     project has been bitten — 143 lessons on the site against 142 in the
+     app — was two copies of one derivation. There will not be a third.
+
+     THE CANCEL ROUTES SIT OUTSIDE THE SIGN-IN GATE, deliberately, and they
+     moved here from /buy/. Someone who wants to cancel should not have to
+     prove who they are to us first: the only thing between a person and
+     leaving should be the page they are looking for.
+     ======================================================================= -->
+
+<!-- =======================================================================
+     CONFIGURE ME. Everything fillable is in this block and nowhere else.
+     ======================================================================= -->
+<script>
+  var SUPABASE_URL = 'https://tbgwwsoepqekehegxigb.supabase.co';
+  // The publishable key. Safe in a page: every table it can reach is behind
+  // row-level security, which is verified — RLS is on for all 22 tables,
+  // and `purchases` grants the learner nothing at all, which is why the
+  // payment history below goes through a function instead.
+  var SUPABASE_KEY = 'sb_publishable_yo_EuJnhH22-L1eXuKN_lQ_vHaxGZiu';
+
+  // Stripe's own billing portal. Empty until it is switched on in the
+  // dashboard; the card then says "not activated yet" rather than offering
+  // a dead link. Same value as in /buy/ — when one is filled, fill both.
+  var STRIPE_PORTAL_URL = '';
+
+  var PLAY_SUBS = 'https://play.google.com/store/account/subscriptions';
+  var APPLE_SUBS = 'https://apps.apple.com/account/subscriptions';
+</script>
+
+<style>
+  :root {
+    --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
+    --ink: #1c2320; --muted: #5b6b63; --line: #e3ede8; --amber: #d97706;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif;
+    color: var(--ink); background: #fbfdfc; line-height: 1.7;
+    padding: 28px 16px 60px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 28px; }
+  .brand { font-size: 28px; font-weight: 800; color: var(--green); text-decoration: none; display: inline-block; }
+  .brand span { color: var(--amber); }
+  h1 { font-size: 23px; margin-top: 14px; }
+  .sub { color: var(--muted); font-size: 15px; margin-top: 4px; }
+
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px; margin-bottom: 14px;
+  }
+  .card h2 { font-size: 18px; margin-bottom: 4px; }
+  .card p { color: var(--muted); font-size: 14.5px; }
+
+  .grouphead {
+    font-size: 15px; font-weight: 700; color: var(--muted);
+    margin: 30px 0 12px; text-align: center; letter-spacing: .02em;
+  }
+  .grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+    align-items: start;
+  }
+  .plan {
+    position: relative; background: #fff; border: 1px solid var(--line);
+    border-radius: 18px; padding: 22px 20px 20px; display: flex;
+    flex-direction: column;
+  }
+  .picon { font-size: 26px; line-height: 1; margin-bottom: 10px; }
+  .plan h2 { font-size: 17.5px; margin-bottom: 3px; }
+  .tagline { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+  .plan button, .plan .btn { margin-top: auto; }
+  .plan.manage { background: #fbfdfc; }
+  .plan.manage h2 { font-size: 16px; }
+  .plan.manage .picon { font-size: 22px; }
+  a.btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+
+  /* ── one owned product ─────────────────────────────────────────────── */
+  .ent {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 16px 18px; margin-bottom: 12px;
+  }
+  .ent-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .ent-name { font-size: 16.5px; font-weight: 800; }
+  /* The state is a word, not a colour alone: a green dot means nothing to
+     someone who cannot tell it from the amber one. */
+  .pill {
+    font-size: 12px; font-weight: 800; padding: 2px 10px; border-radius: 999px;
+    background: var(--green-bg); color: var(--green-dark); border: 1px solid #cdeadd;
+  }
+  .pill.grace { background: #fffaf0; color: #92400e; border-color: #f6e3bd; }
+  .ent-line { font-size: 14px; color: var(--muted); margin-top: 6px; }
+  .ent-where { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* ── the invoices table ────────────────────────────────────────────────
+     Four columns — date, total, status, invoice — in a grid rather than a
+     <table>, so the same markup can become one card per row on a phone.
+     A real four-column table at 375px either scrolls sideways or breaks
+     every date onto two lines. */
+  .inv-head, .inv {
+    display: grid; gap: 10px; align-items: baseline;
+    grid-template-columns: 1fr auto 92px 96px;
+    padding: 12px 0; border-bottom: 1px solid var(--line);
+  }
+  .inv-head {
+    padding-top: 0; font-size: 12.5px; font-weight: 700; color: var(--muted);
+  }
+  .inv:last-child { border-bottom: 0; }
+  .inv-date { font-size: 14.5px; font-weight: 700; }
+  .inv-what { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .inv-amt { font-size: 15px; font-weight: 800; white-space: nowrap; }
+  /* A store purchase has no figure we hold. The cell says so in words
+     rather than showing 0,00 €, which would be a lie about a real payment. */
+  .inv-amt.none { font-weight: 600; color: var(--muted); font-size: 12.5px; white-space: normal; }
+  .inv-status { font-size: 13px; font-weight: 700; }
+  .inv-status.refunded { color: #92400e; }
+  .inv-act { font-size: 13px; }
+  .inv-act a { color: var(--green-dark); font-weight: 700; }
+  .inv-act .dash { color: #9bada4; }
+
+  @media (max-width: 560px) {
+    /* One card per payment. The header row has nothing left to head, and
+       the three remaining cells go on ONE line under the date rather than
+       stacking — stacked, the dash in the invoice column ends up alone on
+       a line of its own and reads like a missing value rather than a
+       column that is empty on purpose. */
+    .inv-head { display: none; }
+    .inv {
+      grid-template-columns: auto 1fr auto;
+      row-gap: 6px; padding: 14px 0;
+    }
+    .inv-main { grid-column: 1 / -1; }
+    .inv-amt { grid-column: 1; }
+    .inv-status { grid-column: 2; }
+    .inv-act { grid-column: 3; text-align: end; }
+  }
+
+  .empty { color: var(--muted); font-size: 14.5px; }
+
+  button, .btn {
+    display: block; width: 100%; margin-top: 14px; padding: 14px 18px;
+    border: 0; border-radius: 12px; background: var(--green); color: #fff;
+    font: inherit; font-weight: 700; cursor: pointer; text-align: center;
+    text-decoration: none;
+  }
+  button.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  button:disabled, .btn:disabled { background: #e8efeb; color: #9bada4; cursor: not-allowed; }
+  input {
+    width: 100%; margin-top: 10px; padding: 13px 14px; font: inherit;
+    border: 1px solid var(--line); border-radius: 11px; background: #fff;
+  }
+  input:focus-visible { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.18); }
+
+  .who {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap; background: var(--green-bg); border: 1px solid #cdeadd;
+    border-radius: 14px; padding: 12px 16px; margin-bottom: 20px; font-size: 14.5px;
+  }
+  .who b { font-weight: 700; }
+  .who button { width: auto; margin: 0; padding: 7px 12px; font-size: 13.5px; background: transparent; color: var(--green-dark); border: 1px solid #b9e0cd; }
+
+  .note { font-size: 13.5px; color: var(--muted); margin-top: 16px; text-align: center; }
+  .err { color: #b91c1c; font-size: 14px; margin-top: 10px; }
+
+  [hidden] { display: none !important; }
+
+  /* The house pattern (see privacy.html): one document, four languages,
+     Arabic by default and the others revealed by a class on <html>. */
+  [lang-en], [lang-ru], [lang-tr] { display: none; }
+  html.en [lang-ar], html.ru [lang-ar], html.tr [lang-ar] { display: none; }
+  html.en [lang-en] { display: revert; }
+  html.ru [lang-ru] { display: revert; }
+  html.tr [lang-tr] { display: revert; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="brand" href="/">Kas<span>Kalba</span></a>
+    <h1>
+      <span lang-ar>حسابك</span>
+      <span lang-en>Your account</span>
+      <span lang-ru>Ваш аккаунт</span>
+      <span lang-tr>Hesabınız</span>
+    </h1>
+    <p class="sub">
+      <span lang-ar>ما لديك، وما دفعته، وكيف تُلغي.</span>
+      <span lang-en>What you have, what you paid, and how to cancel.</span>
+      <span lang-ru>Что у вас есть, что вы оплатили и как отменить.</span>
+      <span lang-tr>Neyiniz var, ne ödediniz ve nasıl iptal edersiniz.</span>
+    </p>
+  </header>
+
+  <!-- ── Sign in ───────────────────────────────────────────────────────── -->
+  <section id="signin" hidden>
+    <div class="card">
+      <h2>
+        <span lang-ar>الدخول بالبريد الإلكتروني</span>
+        <span lang-en>Sign in by email</span>
+        <span lang-ru>Вход по электронной почте</span>
+        <span lang-tr>E-posta ile giriş</span>
+      </h2>
+      <p>
+        <span lang-ar>نرسل رمزاً من ستّة أرقام. لا كلمة سرّ، ولا شيءٍ تحفظه. واستعمل البريد نفسه الذي تستعمله في التطبيق.</span>
+        <span lang-en>We send a six-digit code. No password, nothing to remember. Use the same email you use in the app.</span>
+        <span lang-ru>Мы пришлём код из шести цифр. Без пароля и без запоминания. Используйте тот же адрес, что и в приложении.</span>
+        <span lang-tr>Altı haneli bir kod göndeririz. Parola yok, ezberlenecek bir şey yok. Uygulamada kullandığınız e-postayı kullanın.</span>
+      </p>
+
+      <div id="stepEmail">
+        <input id="email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" />
+        <button id="sendCode">
+          <span lang-ar>أرسل الرمز</span><span lang-en>Send the code</span><span lang-ru>Отправить код</span><span lang-tr>Kodu gönder</span>
+        </button>
+      </div>
+
+      <div id="stepCode" hidden>
+        <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" />
+        <button id="verify">
+          <span lang-ar>تأكيد</span><span lang-en>Confirm</span><span lang-ru>Подтвердить</span><span lang-tr>Onayla</span>
+        </button>
+        <button class="ghost" id="backToEmail">
+          <span lang-ar>بريدٌ آخر</span><span lang-en>A different email</span><span lang-ru>Другой адрес</span><span lang-tr>Başka e-posta</span>
+        </button>
+      </div>
+
+      <p class="err" id="authErr" hidden></p>
+    </div>
+  </section>
+
+  <!-- ── Signed in ─────────────────────────────────────────────────────── -->
+  <section id="me" hidden>
+    <div class="who">
+      <span>
+        <span lang-ar>الحساب</span>
+        <span lang-en>Account</span>
+        <span lang-ru>Аккаунт</span>
+        <span lang-tr>Hesap</span>
+        <b id="whoEmail"></b>
+      </span>
+      <button id="signout">
+        <span lang-ar>خروج</span><span lang-en>Sign out</span><span lang-ru>Выйти</span><span lang-tr>Çıkış</span>
+      </button>
+    </div>
+
+    <h3 class="grouphead" style="margin-top:0">
+      <span lang-ar>اشتراكاتك</span>
+      <span lang-en>Your subscriptions</span>
+      <span lang-ru>Ваши подписки</span>
+      <span lang-tr>Abonelikleriniz</span>
+    </h3>
+    <div class="card" id="entCard">
+      <div id="entList"></div>
+    </div>
+
+    <!-- Hidden unless my_purchases() answers. The function does not exist in
+         the database yet (see _src/proposals/my-purchases.sql); until it is
+         applied this whole section stays out of the page rather than
+         apologising for itself. Nothing here needs redeploying when it
+         lands — the page simply starts getting rows. -->
+    <div id="paySection" hidden>
+      <h3 class="grouphead">
+        <span lang-ar>الفواتير</span>
+        <span lang-en>Billing</span>
+        <span lang-ru>Счета</span>
+        <span lang-tr>Faturalar</span>
+      </h3>
+      <div class="card">
+        <div id="payList"></div>
+        <p class="note" id="invNote" style="text-align:start" hidden></p>
+      </div>
+    </div>
+
+    <p class="err" id="meErr" hidden></p>
+  </section>
+
+  <!-- ── Managing or cancelling ───────────────────────────────────────────
+       OUTSIDE the sign-in gate, exactly as it was in /buy/ before it moved
+       here. And it ROUTES BY WHERE THEY PAID: a subscription bought in
+       Google Play or on an iPhone cannot be cancelled by us or by Stripe —
+       only by the store that took the money. One "manage subscription"
+       button would send most people to a Stripe page that has never heard
+       of them, and they would conclude they cannot cancel at all. That is
+       how a cancellation becomes a chargeback and a one-star review.
+  -->
+  <section id="manage">
+    <h3 class="grouphead">
+      <span lang-ar>إدارة اشتراكك أو إلغاؤه</span>
+      <span lang-en>Manage or cancel your subscription</span>
+      <span lang-ru>Управление подпиской или её отмена</span>
+      <span lang-tr>Aboneliğinizi yönetin veya iptal edin</span>
+    </h3>
+    <p class="note" style="margin-top:0">
+      <span lang-ar>الإلغاء يتمّ في المكان الذي دفعتَ فيه — ولا نستطيع نحن إلغاء اشتراكٍ اشتُري من متجر. والإلغاء يوقف التجديد ويبقى اشتراكك فعّالاً إلى نهاية المدّة المدفوعة.</span>
+      <span lang-en>Cancel where you paid — we cannot cancel a subscription bought in a store. Cancelling stops the renewal and leaves your subscription active to the end of the term you paid for.</span>
+      <span lang-ru>Отменяйте там, где платили: подписку из магазина мы отменить не можем. Отмена прекращает продление, подписка остаётся активной до конца оплаченного срока.</span>
+      <span lang-tr>Ödemeyi nerede yaptıysanız orada iptal edin — mağazadan alınan aboneliği biz iptal edemeyiz. İptal yenilemeyi durdurur, aboneliğiniz ödediğiniz sürenin sonuna kadar etkin kalır.</span>
+    </p>
+    <div class="grid" id="manageList"></div>
+  </section>
+
+  <p class="note">
+    <a id="buyLink" href="/buy/"><span lang-ar>الاشتراك والباقات</span><span lang-en>Subscribe and plans</span><span lang-ru>Подписка и тарифы</span><span lang-tr>Abonelik ve planlar</span></a>
+    ·
+    <a href="/terms"><span lang-ar>شروط الاستخدام</span><span lang-en>Terms</span><span lang-ru>Условия</span><span lang-tr>Koşullar</span></a>
+    ·
+    <a href="/privacy"><span lang-ar>سياسة الخصوصيّة</span><span lang-en>Privacy</span><span lang-ru>Конфиденциальность</span><span lang-tr>Gizlilik</span></a>
+  </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ── languages ─────────────────────────────────────────────────────────
+  // No switcher here either (owner, 2026-11-25): language is chosen once,
+  // in settings, and every page follows it. ?lang= from the link that sent
+  // the reader, then a previous choice, then the browser, then Arabic.
+  var LANGS = {
+    ar: { dir: 'rtl', title: 'حسابك — KasKalba', locale: 'ar' },
+    en: { dir: 'ltr', title: 'Your account — KasKalba', locale: 'en-GB' },
+    ru: { dir: 'ltr', title: 'Ваш аккаунт — KasKalba', locale: 'ru' },
+    tr: { dir: 'ltr', title: 'Hesabınız — KasKalba', locale: 'tr' },
+  };
+  var lang = 'ar';
+
+  // ── the words ─────────────────────────────────────────────────────────
+  // EVERY table the renderer reads is declared above the bootstrap, which
+  // runs at the very end of this file. In /buy/ a `var` left further down
+  // was hoisted but still undefined when the first render ran, and the page
+  // died before drawing anything — three times, each with a different
+  // innocent-looking table. The ordering is not a style preference.
+  var PRODUCT = {
+    premium: { ar: 'التعلّم والسيناريوهات', en: 'Learning & scenarios', ru: 'Обучение и сценарии', tr: 'Öğrenme ve senaryolar' },
+    examsim: { ar: 'محاكاة امتحان الدولة', en: 'State exam simulation', ru: 'Симуляция госэкзамена', tr: 'Devlet sınavı simülasyonu' },
+    constitution: { ar: 'امتحان الدستور', en: 'Constitution exam', ru: 'Экзамен по Конституции', tr: 'Anayasa sınavı' },
+  };
+  var PLAN = {
+    premium_monthly: { ar: 'شهريّ', en: 'Monthly', ru: 'Месяц', tr: 'Aylık' },
+    premium_annual: { ar: 'سنويّ', en: 'Annual', ru: 'Год', tr: 'Yıllık' },
+    examsim_biweekly: { ar: 'أسبوعان', en: 'Two weeks', ru: 'Две недели', tr: 'İki hafta' },
+    examsim_monthly: { ar: 'شهر', en: 'One month', ru: 'Месяц', tr: 'Bir ay' },
+    constitution_monthly: { ar: 'شهر', en: 'One month', ru: 'Месяц', tr: 'Bir ay' },
+  };
+  var WHERE = {
+    web: { ar: 'من هذا الموقع', en: 'on this site', ru: 'на этом сайте', tr: 'bu siteden' },
+    android: { ar: 'من Google Play', en: 'on Google Play', ru: 'в Google Play', tr: 'Google Play üzerinden' },
+    ios: { ar: 'من App Store', en: 'on the App Store', ru: 'в App Store', tr: 'App Store üzerinden' },
+  };
+  var ACTIVE = { ar: 'فعّال', en: 'Active', ru: 'Активна', tr: 'Etkin' };
+  var GRACE = { ar: 'مهلة سداد', en: 'Payment overdue', ru: 'Просрочка оплаты', tr: 'Ödeme gecikti' };
+  var ENDS_ON = {
+    ar: 'ينتهي الاشتراك في {d}', en: 'The subscription ends on {d}',
+    ru: 'Подписка заканчивается {d}', tr: 'Abonelik {d} tarihinde sona eriyor',
+  };
+  var BOUGHT = { ar: 'اشتُري {w}', en: 'Bought {w}', ru: 'Куплено {w}', tr: '{w} alındı' };
+  var NO_ENT = {
+    ar: 'لا اشتراك فعّال على هذا الحساب. الباقة المجانيّة تعمل دائماً.',
+    en: 'No active subscription on this account. The free tier always works.',
+    ru: 'На этом аккаунте нет активной подписки. Бесплатный доступ работает всегда.',
+    tr: 'Bu hesapta etkin abonelik yok. Ücretsiz kademe her zaman çalışır.',
+  };
+  var NO_PAY = {
+    ar: 'لا مدفوعات على هذا الحساب بعد.',
+    en: 'No payments on this account yet.',
+    ru: 'На этом аккаунте пока нет платежей.',
+    tr: 'Bu hesapta henüz ödeme yok.',
+  };
+  // A store purchase carries no amount: Google's payload has no price at
+  // all and Apple's keeps it somewhere that differs by receipt version. We
+  // show what we hold and say plainly where the figure lives instead of
+  // inventing one.
+  var AMT_STORE = {
+    ar: 'المبلغ في فاتورة المتجر', en: 'amount is on the store receipt',
+    ru: 'сумма — в чеке магазина', tr: 'tutar mağaza makbuzunda',
+  };
+  // The column headings, in the order of the grid.
+  var COL_DATE = { ar: 'التاريخ', en: 'Date', ru: 'Дата', tr: 'Tarih' };
+  var COL_TOTAL = { ar: 'المبلغ', en: 'Total', ru: 'Сумма', tr: 'Tutar' };
+  var COL_STATUS = { ar: 'الحالة', en: 'Status', ru: 'Статус', tr: 'Durum' };
+  var COL_INV = { ar: 'الفاتورة', en: 'Invoice', ru: 'Счёт', tr: 'Fatura' };
+  // A billing row has two states and not four. `expired` describes the
+  // ACCESS, not the payment: a month that has since run out was still paid
+  // for, and printing "ended" in a receipts column reads like a refund.
+  var PAID = { ar: 'مدفوع', en: 'Paid', ru: 'Оплачен', tr: 'Ödendi' };
+  var REFUNDED = { ar: 'مُستردّ', en: 'Refunded', ru: 'Возврат', tr: 'İade edildi' };
+  var GET_PDF = { ar: 'تنزيل PDF', en: 'Download PDF', ru: 'Скачать PDF', tr: 'PDF indir' };
+  // Why a row can have no invoice to download, said once under the table
+  // instead of in every cell.
+  var INV_WHY = {
+    ar: 'الفواتير تصدر عن Stripe لما اشتُري من هذا الموقع. وما اشتُري من Google Play أو App Store ففاتورته عند المتجر نفسه.',
+    en: 'Invoices are issued by Stripe for what was bought on this site. Anything bought on Google Play or the App Store is invoiced by that store.',
+    ru: 'Счета выставляет Stripe — за то, что куплено на этом сайте. Покупки в Google Play или App Store счёт выставляет сам магазин.',
+    tr: 'Faturalar bu siteden alınanlar için Stripe tarafından kesilir. Google Play veya App Store’dan alınanların faturası o mağazadadır.',
+  };
+  var LOADING = { ar: 'لحظة…', en: 'One moment…', ru: 'Минуту…', tr: 'Bir saniye…' };
+  var NOT_YET = { ar: 'لم تُفعَّل بعد', en: 'Not activated yet', ru: 'Пока не активировано', tr: 'Henüz etkinleştirilmedi' };
+
+  var MANAGE = [
+    {
+      key: 'web', icon: '💳',
+      where: { ar: 'اشتركتُ من هذا الموقع', en: 'I subscribed on this site',
+               ru: 'Я оформил подписку на этом сайте', tr: 'Bu siteden abone oldum' },
+      how: { ar: 'اكتب بريدك على صفحة Stripe، فيصلك رابطُ دخول. ومنه تُلغي، أو تُنزّل الفواتير، أو تغيّر البطاقة.',
+             en: 'Enter your email on Stripe’s page and it mails you a login link. From there you can cancel, download invoices or change your card.',
+             ru: 'Введите e-mail на странице Stripe — вам придёт ссылка для входа. Там можно отменить подписку, скачать счета или сменить карту.',
+             tr: 'Stripe sayfasına e-postanızı girin, size bir giriş bağlantısı gönderilir. Oradan iptal edebilir, faturaları indirebilir veya kartınızı değiştirebilirsiniz.' },
+      cta: { ar: 'افتح بوّابة الاشتراك', en: 'Open the billing portal',
+             ru: 'Открыть портал подписки', tr: 'Abonelik portalını aç' },
+      url: function () { return STRIPE_PORTAL_URL; },
+    },
+    {
+      key: 'play', icon: '🤖',
+      where: { ar: 'اشتركتُ من تطبيق أندرويد', en: 'I subscribed in the Android app',
+               ru: 'Я оформил подписку в приложении Android', tr: 'Android uygulamasından abone oldum' },
+      how: { ar: 'الإلغاء في Google Play وحده. افتح اشتراكاتك هناك واختر KasKalba.',
+             en: 'Only Google Play can cancel it. Open your subscriptions there and choose KasKalba.',
+             ru: 'Отменить может только Google Play. Откройте там свои подписки и выберите KasKalba.',
+             tr: 'Yalnızca Google Play iptal edebilir. Oradan aboneliklerinizi açın ve KasKalba’yı seçin.' },
+      cta: { ar: 'اشتراكات Google Play', en: 'Google Play subscriptions',
+             ru: 'Подписки Google Play', tr: 'Google Play abonelikleri' },
+      url: function () { return PLAY_SUBS; },
+    },
+    {
+      key: 'apple', icon: '',
+      where: { ar: 'اشتركتُ من تطبيق آيفون', en: 'I subscribed in the iPhone app',
+               ru: 'Я оформил подписку в приложении для iPhone', tr: 'iPhone uygulamasından abone oldum' },
+      how: { ar: 'الإلغاء في حساب Apple وحده — من إعدادات هاتفك أو من الرابط التالي.',
+             en: 'Only your Apple account can cancel it — from your phone’s settings or the link below.',
+             ru: 'Отменить можно только в аккаунте Apple — в настройках телефона или по ссылке ниже.',
+             tr: 'Yalnızca Apple hesabınız iptal edebilir — telefon ayarlarından veya aşağıdaki bağlantıdan.' },
+      cta: { ar: 'اشتراكات Apple', en: 'Apple subscriptions',
+             ru: 'Подписки Apple', tr: 'Apple abonelikleri' },
+      url: function () { return APPLE_SUBS; },
+    },
+  ];
+
+  // ── supabase ──────────────────────────────────────────────────────────
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+  });
+
+  var user = null;
+  var ents = [];
+  var pays = null;   // null = not available, [] = available and empty
+
+  var elSignin = document.getElementById('signin');
+  var elMe = document.getElementById('me');
+  var elErr = document.getElementById('authErr');
+  var elMeErr = document.getElementById('meErr');
+  var stepEmail = document.getElementById('stepEmail');
+  var stepCode = document.getElementById('stepCode');
+
+  function fail(el, msgs) {
+    el.textContent = msgs[lang] || msgs.en;
+    el.hidden = false;
+  }
+  function clearError() { elErr.hidden = true; elMeErr.hidden = true; }
+
+  function fmtDate(d) {
+    try {
+      return d.toLocaleDateString(LANGS[lang].locale, {
+        year: 'numeric', month: 'long', day: 'numeric',
+      });
+    } catch (e) { return d.toISOString().slice(0, 10); }
+  }
+  // Stripe gives minor units — 1999, not 19.99 — and the currency beside
+  // them. Dividing by 100 is right for the euro and wrong for a zero-decimal
+  // currency, so Intl is asked to format the MAJOR unit it already knows
+  // the shape of, and anything it refuses falls back to the raw figure
+  // rather than to a confidently wrong one.
+  function fmtMoney(minor, cur) {
+    if (typeof minor !== 'number' || !cur) return null;
+    try {
+      return new Intl.NumberFormat(LANGS[lang].locale, {
+        style: 'currency', currency: String(cur).toUpperCase(),
+      }).format(minor / 100);
+    } catch (e) { return (minor / 100).toFixed(2) + ' ' + String(cur).toUpperCase(); }
+  }
+
+  function t(table) { return table[lang] || table.en; }
+
+  // ── reading ───────────────────────────────────────────────────────────
+  /**
+   * What the learner has right now.
+   *
+   * my_entitlements() is SECURITY DEFINER on auth.uid() and returns only
+   * active and grace rows whose end date has not passed. The platform is
+   * not in its result, so it is read separately from the entitlements row
+   * the learner's own RLS policy lets them select — and used ONLY as a
+   * label. What counts as live stays the function's answer and nobody
+   * else's.
+   */
+  async function loadEnts() {
+    ents = [];
+    if (!user) return;
+    var res = await sb.rpc('my_entitlements');
+    if (res.error || !Array.isArray(res.data)) {
+      fail(elMeErr, {
+        ar: 'تعذّر قراءة اشتراكاتك الآن. أعد تحميل الصفحة.',
+        en: 'Could not read your subscriptions just now. Reload the page.',
+        ru: 'Сейчас не удалось прочитать ваши подписки. Обновите страницу.',
+        tr: 'Abonelikleriniz şu anda okunamadı. Sayfayı yenileyin.',
+      });
+      return;
+    }
+    ents = res.data.map(function (r) {
+      return {
+        product: r.product,
+        inGrace: !!r.in_grace || r.status === 'grace',
+        until: r.expires_at ? new Date(r.expires_at) : null,
+        platform: null,
+      };
+    });
+    var ent = await sb.from('entitlements').select('product, platform');
+    if (!ent.error && Array.isArray(ent.data)) {
+      var by = {};
+      ent.data.forEach(function (r) { by[r.product] = r.platform; });
+      ents.forEach(function (e) { e.platform = by[e.product] || null; });
+    }
+  }
+
+  /**
+   * What the learner has paid.
+   *
+   * `purchases` is unreadable by design: RLS is on and it grants the
+   * learner nothing, which is correct — the row holds raw_payload, the
+   * whole store or Stripe object, and that is not a receipt. So this goes
+   * through my_purchases(), a SECURITY DEFINER function returning the few
+   * columns a receipt needs and no payload at all.
+   *
+   * THE FUNCTION MAY NOT EXIST YET. Until the migration in
+   * _src/proposals/my-purchases.sql is applied, this returns nothing and
+   * the section stays out of the page — rather than showing an empty list,
+   * which would tell a paying learner they have never paid.
+   */
+  async function loadPays() {
+    pays = null;
+    if (!user) return;
+    var res = await sb.rpc('my_purchases');
+    if (res.error || !Array.isArray(res.data)) return;
+    pays = res.data;
+  }
+
+  // ── drawing ───────────────────────────────────────────────────────────
+  function entRow(e) {
+    var box = document.createElement('div');
+    box.className = 'ent';
+
+    var top = document.createElement('div');
+    top.className = 'ent-top';
+    var name = document.createElement('span');
+    name.className = 'ent-name';
+    name.textContent = PRODUCT[e.product] ? t(PRODUCT[e.product]) : e.product;
+    top.appendChild(name);
+    var pill = document.createElement('span');
+    pill.className = 'pill' + (e.inGrace ? ' grace' : '');
+    pill.textContent = e.inGrace ? t(GRACE) : t(ACTIVE);
+    top.appendChild(pill);
+    box.appendChild(top);
+
+    if (e.until) {
+      var when = document.createElement('div');
+      when.className = 'ent-line';
+      when.textContent = t(ENDS_ON).replace('{d}', fmtDate(e.until));
+      box.appendChild(when);
+    }
+    if (e.platform && WHERE[e.platform]) {
+      var w = document.createElement('div');
+      w.className = 'ent-where';
+      w.textContent = t(BOUGHT).replace('{w}', t(WHERE[e.platform]));
+      box.appendChild(w);
+    }
+    return box;
+  }
+
+  function cell(cls, text) {
+    var d = document.createElement('div');
+    d.className = cls;
+    if (text != null) d.textContent = text;
+    return d;
+  }
+
+  function invHead() {
+    var head = document.createElement('div');
+    head.className = 'inv-head';
+    head.appendChild(cell('', t(COL_DATE)));
+    head.appendChild(cell('', t(COL_TOTAL)));
+    head.appendChild(cell('', t(COL_STATUS)));
+    head.appendChild(cell('', t(COL_INV)));
+    return head;
+  }
+
+  function invRow(p) {
+    var box = document.createElement('div');
+    box.className = 'inv';
+
+    // ── date, and under it what was bought and where ──
+    var main = document.createElement('div');
+    main.className = 'inv-main';
+    var d = p.paid_at ? new Date(p.paid_at) : null;
+    main.appendChild(cell('inv-date', d ? fmtDate(d) : '—'));
+    var pname = PRODUCT[p.product] ? t(PRODUCT[p.product]) : p.product;
+    var bits = [pname];
+    if (PLAN[p.product_id]) bits.push(t(PLAN[p.product_id]));
+    if (p.platform && WHERE[p.platform]) bits.push(t(WHERE[p.platform]));
+    main.appendChild(cell('inv-what', bits.join(' · ')));
+    box.appendChild(main);
+
+    // ── total ──
+    var money = fmtMoney(p.amount_minor, p.currency);
+    box.appendChild(money ? cell('inv-amt', money) : cell('inv-amt none', t(AMT_STORE)));
+
+    // ── status ──
+    var refunded = p.status === 'refunded';
+    box.appendChild(cell('inv-status' + (refunded ? ' refunded' : ''),
+                         refunded ? t(REFUNDED) : t(PAID)));
+
+    // ── the invoice itself ──
+    // p.invoice_url is not in my_purchases() yet and is null for every row
+    // today: the Checkout Session is created without invoice_creation, so
+    // Stripe issued no invoice for the one payment we have — verified on
+    // the stored session, where `invoice` is null. Two changes make this
+    // column real, both of them deploys and both written up in
+    // _src/proposals/README.md. Until then the cell is an em dash and the
+    // note under the table says who issues what.
+    var act = document.createElement('div');
+    act.className = 'inv-act';
+    if (p.invoice_url) {
+      var a = document.createElement('a');
+      a.href = p.invoice_url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = t(GET_PDF);
+      act.appendChild(a);
+    } else {
+      var dash = document.createElement('span');
+      dash.className = 'dash';
+      dash.textContent = '—';
+      act.appendChild(dash);
+    }
+    box.appendChild(act);
+    return box;
+  }
+
+  function renderMe() {
+    elSignin.hidden = !!user;
+    elMe.hidden = !user;
+    if (!user) return;
+    document.getElementById('whoEmail').textContent = user.email || '';
+
+    var list = document.getElementById('entList');
+    list.innerHTML = '';
+    if (!ents.length) {
+      var none = document.createElement('p');
+      none.className = 'empty';
+      none.textContent = t(NO_ENT);
+      list.appendChild(none);
+    } else {
+      ents.forEach(function (e) { list.appendChild(entRow(e)); });
+    }
+
+    var sec = document.getElementById('paySection');
+    sec.hidden = pays === null;
+    var note = document.getElementById('invNote');
+    if (pays !== null) {
+      var pl = document.getElementById('payList');
+      pl.innerHTML = '';
+      if (!pays.length) {
+        var np = document.createElement('p');
+        np.className = 'empty';
+        np.textContent = t(NO_PAY);
+        pl.appendChild(np);
+        note.hidden = true;
+      } else {
+        pl.appendChild(invHead());
+        pays.forEach(function (p) { pl.appendChild(invRow(p)); });
+        note.textContent = t(INV_WHY);
+        note.hidden = false;
+      }
+    }
+  }
+
+  function renderManage() {
+    var host = document.getElementById('manageList');
+    host.innerHTML = '';
+    MANAGE.forEach(function (m) {
+      var card = document.createElement('div');
+      card.className = 'plan manage';
+
+      var ic = document.createElement('div');
+      ic.className = 'picon';
+      ic.textContent = m.icon;
+      card.appendChild(ic);
+
+      var h = document.createElement('h2');
+      h.textContent = t(m.where);
+      card.appendChild(h);
+
+      var p = document.createElement('p');
+      p.className = 'tagline';
+      p.textContent = t(m.how);
+      card.appendChild(p);
+
+      var url = m.url();
+      if (url) {
+        var a = document.createElement('a');
+        a.className = 'btn ghost';
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = t(m.cta);
+        card.appendChild(a);
+      } else {
+        // A dead link is worse than an honest absence: someone who clicks
+        // one concludes they cannot cancel at all.
+        var b = document.createElement('button');
+        b.disabled = true;
+        b.textContent = t(NOT_YET);
+        card.appendChild(b);
+      }
+      card.appendChild(document.createTextNode(''));
+      host.appendChild(card);
+    });
+  }
+
+  function applyLang(l) {
+    if (!LANGS[l]) l = 'ar';
+    lang = l;
+    var html = document.documentElement;
+    html.classList.remove('en', 'ru', 'tr');
+    if (l !== 'ar') html.classList.add(l);
+    html.setAttribute('lang', l);
+    html.setAttribute('dir', LANGS[l].dir);
+    document.title = LANGS[l].title;
+    // Carry the language to /buy/, which has no switcher of its own.
+    document.getElementById('buyLink').setAttribute('href', '/buy/?lang=' + l);
+    try { localStorage.setItem('kk_lang', l); } catch (e) {}
+    renderManage();
+    renderMe();
+  }
+
+  // ── sign in ───────────────────────────────────────────────────────────
+  document.getElementById('sendCode').addEventListener('click', async function () {
+    clearError();
+    var email = document.getElementById('email').value.trim();
+    if (!email || email.indexOf('@') < 1) {
+      return fail(elErr, { ar: 'اكتب بريداً صحيحاً.', en: 'Enter a valid email.',
+                           ru: 'Введите корректный адрес.', tr: 'Geçerli bir e-posta girin.' });
+    }
+    this.disabled = true;
+    this.textContent = t(LOADING);
+    // shouldCreateUser: a learner who has never opened the app can still
+    // reach their account page, and signing in creates the account the
+    // purchase will attach to.
+    var res = await sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } });
+    this.disabled = false;
+    this.textContent = { ar: 'أرسل الرمز', en: 'Send the code', ru: 'Отправить код', tr: 'Kodu gönder' }[lang];
+    if (res.error) {
+      return fail(elErr, { ar: 'تعذّر إرسال الرمز. حاول بعد قليل.',
+                           en: 'Could not send the code. Try again shortly.',
+                           ru: 'Не удалось отправить код. Попробуйте позже.',
+                           tr: 'Kod gönderilemedi. Birazdan tekrar deneyin.' });
+    }
+    stepEmail.hidden = true;
+    stepCode.hidden = false;
+    document.getElementById('code').focus();
+  });
+
+  document.getElementById('backToEmail').addEventListener('click', function () {
+    clearError();
+    stepCode.hidden = true;
+    stepEmail.hidden = false;
+  });
+
+  document.getElementById('verify').addEventListener('click', async function () {
+    clearError();
+    var email = document.getElementById('email').value.trim();
+    var token = document.getElementById('code').value.trim();
+    if (!token) {
+      return fail(elErr, { ar: 'اكتب الرمز.', en: 'Enter the code.',
+                           ru: 'Введите код.', tr: 'Kodu girin.' });
+    }
+    this.disabled = true;
+    this.textContent = t(LOADING);
+    var res = await sb.auth.verifyOtp({ email: email, token: token, type: 'email' });
+    this.disabled = false;
+    this.textContent = { ar: 'تأكيد', en: 'Confirm', ru: 'Подтвердить', tr: 'Onayla' }[lang];
+    if (res.error || !res.data || !res.data.user) {
+      return fail(elErr, { ar: 'الرمز غير صحيح أو انتهت صلاحيّته.',
+                           en: 'That code is wrong or has expired.',
+                           ru: 'Код неверен или истёк.',
+                           tr: 'Kod yanlış veya süresi dolmuş.' });
+    }
+    user = res.data.user;
+    renderMe();
+    await loadEnts();
+    await loadPays();
+    renderMe();
+  });
+
+  document.getElementById('signout').addEventListener('click', async function () {
+    await sb.auth.signOut();
+    user = null;
+    ents = [];
+    pays = null;
+    stepCode.hidden = true;
+    stepEmail.hidden = false;
+    renderMe();
+  });
+
+  // ── start ─────────────────────────────────────────────────────────────
+  // EVERYTHING ABOVE IS A DECLARATION; nothing above this line runs. In
+  // /buy/ the bootstrap sat in the middle of the file and three separate
+  // string tables below it were hoisted-but-undefined when the first render
+  // ran, killing the script before it drew anything. Running last costs
+  // nothing and makes the ordering irrelevant.
+  var qs = new URLSearchParams(location.search);
+  var stored = null;
+  try { stored = localStorage.getItem('kk_lang'); } catch (e) {}
+  applyLang(qs.get('lang') || stored || (navigator.language || 'ar').slice(0, 2));
+
+  sb.auth.getSession().then(async function (r) {
+    user = (r.data && r.data.session && r.data.session.user) || null;
+    renderMe();            // draw at once, so the page is never blank
+    await loadEnts();      // then fill it with what the server says
+    await loadPays();
+    renderMe();
+  });
+})();
+</script>
+</body>
+</html>

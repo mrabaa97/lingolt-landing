@@ -1,0 +1,28 @@
+# Build output of `node _src/build.mjs --preview`. Never published, never
+# committed: it is the site with WEB_APP_LIVE forced on, for looking at.
+.preview/
+
+# Session and editor configuration. Holds absolute paths from one machine.
+.claude/
+
+# ───────────────────────────────────────────────────────────────────────
+#  TEMPORARY — DELETE THIS BLOCK WHEN THE REPOSITORY BECOMES PRIVATE.
+#
+#  github.com/mrabaa97/lingolt-landing is PUBLIC (measured 2026-11-26),
+#  because GitHub Pages requires it on the free plan. Everything pushed to
+#  it is world-readable — on every branch, not just main.
+#
+#  These four hold what should not be: the sales figures and pricing
+#  reasoning, the whole architecture, the migration plan, and the source of
+#  both payment functions together with the NAMES of all seven secrets.
+#
+#  They are ignored rather than merely left unstaged, because "remember not
+#  to add these" is not a safeguard — one `git add -A` ends it. The real
+#  fix is step 9 of the migration (make the repository private); this block
+#  goes away with step 10, when they are finally committed where they
+#  belong. See _src/MIGRATION-CLOUDFLARE.md.
+_src/ROADMAP.md
+_src/ARCHITECTURE.md
+_src/MIGRATION-CLOUDFLARE.md
+_src/proposals/
+# ───────────────────────────────────────────────────────────────────────

@@ -122,8 +122,47 @@
   .cta.dark:hover { box-shadow: 0 12px 26px rgba(28,35,32,.32); }
   .cta-note { margin-top: 12px; font-size: .9rem; color: var(--muted); }
 
+  /* The web button, when it is there. Bigger than the store buttons on
+     purpose: it is the one action with nothing between the reader and a
+     lesson, and a row of three equal buttons chooses for nobody. */
+  .cta.web {
+    padding: 18px 48px; font-size: 1.25rem; border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(29,158,117,.34);
+  }
+  .cta.web:hover { box-shadow: 0 14px 32px rgba(29,158,117,.40); }
+  /* "or install it on your phone" — a hairline on each side, so the two
+     rows read as one choice rather than two separate demands. */
+  .or {
+    display: flex; align-items: center; gap: 14px;
+    max-width: 420px; margin: 26px auto 16px;
+    font-size: .88rem; color: var(--muted);
+  }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  /* With the web button present the stores step back. :has() is what makes
+     this one rule instead of a second copy of the markup; where it is not
+     supported the buttons simply stay their normal size, which is the
+     layout this page had for months.
+     The row is named `.stores` rather than reached with :last-of-type —
+     that matched nothing, because the last div in the hero is the note
+     under the buttons, not the row of them. */
+  .hero:has(.cta.web) .ctas.stores .cta {
+    padding: 11px 22px; font-size: .97rem; border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.10);
+  }
+  .hero:has(.cta.web) .ctas.stores .cta:hover { box-shadow: 0 8px 18px rgba(0,0,0,.14); }
+
+  /* The subscribe link at the end of the plans section. Centred and given
+     room, because it is the only action in a section that is otherwise four
+     paragraphs of reading. */
+  .plans-cta { text-align: center; margin-top: 34px; }
+  .plans-cta-note { margin-top: 12px; font-size: .9rem; color: var(--muted); }
+
   /* stats */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 14px; margin: -26px auto 0; }
+  /* Five cards. At minmax(150px) they need 806px to sit in one row, so a
+     laptop at 1280 was fine and a 790px window dropped "A1→B2" onto a line
+     of its own, alone and off-centre. 124px fits the five from 676px up,
+     and below that they fall to a tidy 3+2 rather than 4+1. */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(124px,1fr)); gap: 14px; margin: -26px auto 0; }
   .stat {
     background: #fff; border: 1px solid var(--line); border-radius: 16px;
     padding: 18px 10px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.04);
@@ -311,7 +350,28 @@
     <h1 lang-en>Learn <em>Lithuanian</em><br />in Arabic, English, Russian or Turkish</h1><h1 lang-ru>Учите <em>литовский</em><br />на арабском, английском, русском или турецком</h1><h1 lang-tr><em>Litvanca</em> öğrenin<br />Arapça, İngilizce, Rusça veya Türkçe</h1>
     <p class="sub" lang-ar>منهج متكامل من الصفر حتى الاحتراف — قواعد مبسّطة، سيناريوهات محادثة تتكلّمها بصوتك، ومحاكاة كاملة لامتحان الدولة وامتحان الدستور.</p>
     <p class="sub" lang-en>A complete curriculum from zero to proficiency — simple grammar, conversation scenarios you speak out loud, and full mock versions of the state and constitution exams.</p><p class="sub" lang-ru>Полный курс с нуля до уверенного владения — простая грамматика, разговорные сценарии, которые вы проговариваете вслух, и полные пробные версии госэкзамена и экзамена по Конституции.</p><p class="sub" lang-tr>Sıfırdan ileri seviyeye tam bir müfredat — sade dilbilgisi, sesli konuştuğunuz diyalog senaryoları ve devlet sınavı ile Anayasa sınavının eksiksiz deneme sürümleri.</p>
-    <div class="ctas">
+    <!-- THE FIRST ACTION, when the web app is reachable. It is first because
+         it is the only one with no install between the reader and a lesson —
+         and this site is shared as a LINK in WhatsApp groups, where "go to
+         the store, find it, install it, come back" is where most of them are
+         lost. Everything marked app-live/app-soon is kept or deleted by
+         WEB_APP_LIVE in build.mjs; see the note there before flipping it. -->
+    <div class="ctas" app-live>
+      <a class="cta web" href="@APPURL@">
+        <span lang-ar>ابدأ التعلّم الآن</span>
+        <span lang-en>Start learning now</span><span lang-ru>Начать учиться</span><span lang-tr>Hemen öğrenmeye başlayın</span>
+      </a>
+    </div>
+    <div class="cta-note" app-live lang-ar>في متصفّحك مباشرةً — بلا تنصيب ولا متجر</div>
+    <div class="cta-note" app-live lang-en>Straight in your browser — no install, no store</div><div class="cta-note" app-live lang-ru>Прямо в браузере — без установки и магазина</div><div class="cta-note" app-live lang-tr>Doğrudan tarayıcınızda — kurulum yok, mağaza yok</div>
+
+    <!-- The stores keep their own row underneath, and the word before it is
+         what turns two loud green buttons into a choice: one way, or the
+         other. Without it the reader is asked the same question twice. -->
+    <div class="or" app-live lang-ar>أو حمّل التطبيق على هاتفك</div>
+    <div class="or" app-live lang-en>or install it on your phone</div><div class="or" app-live lang-ru>или установите на телефон</div><div class="or" app-live lang-tr>ya da telefonunuza kurun</div>
+
+    <div class="ctas stores">
       <a class="cta" href="https://play.google.com/store/apps/details?id=com.rabaa.ltlearn">
         <span lang-ar>📱 حمّله من Google Play</span>
         <span lang-en>📱 Get it on Google Play</span><span lang-ru>📱 Скачать в Google Play</span><span lang-tr>📱 Google Play’den indirin</span>
@@ -430,6 +490,21 @@
         <p lang-en>All constitution models with explained answers. A single payment for one month — <b>no auto-renewal</b>.</p><p lang-ru>Все модели по Конституции с пояснёнными ответами. Разовый платёж на один месяц — <b>без автопродления</b>.</p><p lang-tr>Açıklamalı cevaplarıyla tüm Anayasa modelleri. Bir ay için tek seferlik ödeme — <b>otomatik yenileme yok</b>.</p>
       </div>
     </div>
+
+    <!-- The way out of this section. Subscribing must NOT be something you
+         can only reach from inside the app (the owner, 2026-11-26): someone
+         who read the four packages here and decided has to be able to act
+         on it from here, not be told to install something first.
+         ?lang= because /buy/ has no switcher of its own — build.mjs fills
+         it with the language of the page the reader came from. -->
+    <div class="plans-cta">
+      <a class="cta" href="/buy/?lang=@LANG@">
+        <span lang-ar>اشترك من الموقع</span>
+        <span lang-en>Subscribe on the site</span><span lang-ru>Оформить на сайте</span><span lang-tr>Siteden abone olun</span>
+      </a>
+      <div class="plans-cta-note" lang-ar>بحسابك نفسه — والاشتراك يظهر في التطبيق وفي المتصفّح معاً.</div>
+      <div class="plans-cta-note" lang-en>With the same account — the subscription shows up in the app and in the browser alike.</div><div class="plans-cta-note" lang-ru>С тем же аккаунтом — подписка появляется и в приложении, и в браузере.</div><div class="plans-cta-note" lang-tr>Aynı hesapla — abonelik hem uygulamada hem tarayıcıda görünür.</div>
+    </div>
   </div>
 </section>
 
@@ -503,10 +578,20 @@
     <p class="sec-sub" lang-ar>ثلاث خطوات تفصلك عن أول جملة ليتوانية</p>
     <p class="sec-sub" lang-en>Three steps away from your first Lithuanian sentence</p><p class="sec-sub" lang-ru>Три шага до вашей первой фразы на литовском</p><p class="sec-sub" lang-tr>İlk Litvanca cümlenize üç adım</p>
     <div class="steps">
-      <div class="step"><div class="n">1</div>
+      <!-- Step one has to match the buttons at the top of the page. While
+           the web app is not reachable it is still "download it"; once it
+           is, telling a reader to visit a store first contradicts the
+           button they just saw. Both arms are here so the two cannot drift
+           apart — build.mjs keeps one. -->
+      <div class="step" app-soon><div class="n">1</div>
         <h3 lang-ar>حمّل التطبيق</h3><h3 lang-en>Download the app</h3><h3 lang-ru>Скачайте приложение</h3><h3 lang-tr>Uygulamayı indirin</h3>
         <p lang-ar>مجاناً من Google Play أو App Store، وسجّل دخولك بضغطة واحدة.</p>
         <p lang-en>Free on Google Play or the App Store; sign in in one tap.</p><p lang-ru>Бесплатно в Google Play или App Store; вход в одно касание.</p><p lang-tr>Google Play veya App Store’da ücretsiz; tek dokunuşta giriş.</p>
+      </div>
+      <div class="step" app-live><div class="n">1</div>
+        <h3 lang-ar>افتحه الآن</h3><h3 lang-en>Open it now</h3><h3 lang-ru>Откройте прямо сейчас</h3><h3 lang-tr>Hemen açın</h3>
+        <p lang-ar>في متصفّحك بلا تنصيب، أو حمّله من Google Play أو App Store. وتقدّمك واحدٌ في الاثنين، لأنّه محفوظٌ في حسابك لا في الجهاز.</p>
+        <p lang-en>In your browser with no install, or from Google Play or the App Store. Your progress is the same in both: it lives in your account, not on the device.</p><p lang-ru>В браузере без установки или из Google Play либо App Store. Прогресс один и тот же: он привязан к аккаунту, а не к устройству.</p><p lang-tr>Kurulum olmadan tarayıcınızda ya da Google Play veya App Store’dan. İlerlemeniz ikisinde de aynıdır: cihazda değil, hesabınızda durur.</p>
       </div>
       <div class="step"><div class="n">2</div>
         <h3 lang-ar>اختر لغتك وابدأ A1</h3><h3 lang-en>Pick your language, start A1</h3><h3 lang-ru>Выберите язык, начните с A1</h3><h3 lang-tr>Dilinizi seçin, A1’den başlayın</h3>
@@ -588,6 +673,14 @@
             <a href="#plans" lang-en>Plans and pricing</a>
             <a href="#plans" lang-ru>Тарифы и подписки</a>
             <a href="#plans" lang-tr>Planlar ve fiyatlar</a></li>
+          <li><a href="/buy/?lang=@LANG@" lang-ar>الاشتراك</a>
+            <a href="/buy/?lang=@LANG@" lang-en>Subscribe</a>
+            <a href="/buy/?lang=@LANG@" lang-ru>Подписка</a>
+            <a href="/buy/?lang=@LANG@" lang-tr>Abonelik</a></li>
+          <li><a href="/account/?lang=@LANG@" lang-ar>حسابك</a>
+            <a href="/account/?lang=@LANG@" lang-en>Your account</a>
+            <a href="/account/?lang=@LANG@" lang-ru>Ваш аккаунт</a>
+            <a href="/account/?lang=@LANG@" lang-tr>Hesabınız</a></li>
           <li><a href="#screens" lang-ar>لقطات من التطبيق</a>
             <a href="#screens" lang-en>Inside the app</a>
             <a href="#screens" lang-ru>Внутри приложения</a>

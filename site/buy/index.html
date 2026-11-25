@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>الاشتراك — KasKalba</title>
+
+<!-- A transaction page, not content. It must never compete with the landing
+     page in a search result, and a half-finished checkout is not something
+     anyone should arrive at from Google. -->
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="../img/favicon-32.png" sizes="32x32" type="image/png" />
+
+<!-- =======================================================================
+     THE ONE THING THIS PAGE EXISTS TO GET RIGHT.
+
+     A payment has to arrive attached to a KasKalba ACCOUNT, not to an email
+     address and not to a browser. Stripe knows about a card; it knows
+     nothing about who is learning. So the learner signs in HERE first, and
+     their Supabase user id travels to Stripe as client_reference_id — which
+     comes back on the webhook and is what the purchase row is keyed to.
+
+     WHY SIGN-IN AND NOT A URL PARAMETER. The obvious shortcut is to let the
+     app hand this page a user id in the address. That cannot be allowed: an
+     id in a URL is a claim anybody can type, so a payment could be attached
+     to an account its payer does not own — and the subscription would land
+     on a stranger. Signing in is the only way the id is EARNED rather than
+     asserted. It costs one screen and removes a whole class of support case.
+
+     WHY THE SITE AND NOT THE APP. The app lives on app.kaskalba.com, a
+     different origin with its own storage, so its session is not readable
+     from here. This page therefore keeps its own, which also means someone
+     can buy before they have ever opened the app.
+     ======================================================================= -->
+
+<!-- =======================================================================
+     CONFIGURE ME. Everything that has to be filled in is in this one block
+     and nowhere else in the file.
+
+     PAYMENT LINKS. Create one Stripe Payment Link per plan and paste its URL
+     below. A link with an empty url renders as "not available yet" rather
+     than as a broken button, so this page is safe to publish before all of
+     them exist.
+
+     On each Payment Link in the Stripe dashboard, set:
+       · "After payment" → redirect to  https://kaskalba.com/buy/?paid=1
+       · leave "client reference id" alone — this page appends it.
+
+     PRICES are optional. Leave a price empty and the card simply does not
+     show one; Stripe states the amount on its own page either way. They are
+     here, and not in the page text, so that changing a price is one line and
+     never a translation job.
+     ======================================================================= -->
+<script>
+  var SUPABASE_URL = 'https://tbgwwsoepqekehegxigb.supabase.co';
+  // The publishable key. Safe in a page: access is decided by database
+  // rules, not by hiding this.
+  var SUPABASE_KEY = 'sb_publishable_yo_EuJnhH22-L1eXuKN_lQ_vHaxGZiu';
+
+  // The cancel routes — the Stripe portal and the two store addresses —
+  // moved to /account/ on 2026-11-26 and live only there now. This page
+  // sells; that one is where a subscription is looked at and stopped.
+
+  // THREE PRODUCTS. The duration is a choice INSIDE a product, never a
+  // product of its own.
+  //
+  // The owner's reasoning, 2026-11-17, and it is right: "لا يوجد فرق في
+  // المزايا فقط في المدة الزمنية فلا داعي من انشاء بطاقة اخرى". Two cards
+  // carrying identical ticks ask the reader to compare things that are the
+  // same, and the eye does the comparison anyway before the mind concludes
+  // there was nothing to compare. One card, one feature list, and a switch
+  // for the only thing that actually differs.
+  //
+  // It also makes the page honest about its own shape: we sell three things,
+  // not five, and a learner who needs the constitution exam should not have
+  // to read past four cards to find it.
+  var F_LEARN = {
+    ar: ['٢٠ مستوىً من A1 إلى B2', '١٤٢ درساً منظّماً', '٦٠ سيناريو محادثة مع تدريب النطق', 'بنوك الكلمات بالصوت', 'تتبّع التقدّم والسلسلة اليوميّة'],
+    en: ['20 levels from A1 to B2', '142 structured lessons', '60 conversation scenarios with speaking practice', 'Vocabulary banks with audio', 'Progress and daily streak'],
+    ru: ['20 уровней от A1 до B2', '142 структурированных урока', '60 разговорных сценариев с отработкой произношения', 'Словари с озвучкой', 'Прогресс и ежедневная серия'],
+    tr: ['A1’den B2’ye 20 seviye', '142 yapılandırılmış ders', 'Konuşma alıştırmalı 60 senaryo', 'Sesli kelime bankaları', 'İlerleme ve günlük seri'],
+  };
+  var F_EXAM = {
+    ar: ['كلّ نماذج A1/A2 وB1', 'تصحيحٌ فوريّ مع شرح', 'محاكاةٌ بتوقيت الامتحان', 'تتبّع نتائجك'],
+    en: ['All A1/A2 and B1 models', 'Instant marking with explanations', 'Timed like the real exam', 'Your results tracked'],
+    ru: ['Все модели A1/A2 и B1', 'Мгновенная проверка с разбором', 'Хронометраж как на экзамене', 'Отслеживание результатов'],
+    tr: ['Bütün A1/A2 ve B1 modelleri', 'Açıklamalı anında değerlendirme', 'Gerçek sınav süresiyle', 'Sonuçlarınız kaydedilir'],
+  };
+  var F_CON = {
+    ar: ['كلّ نماذج امتحان الدستور', 'شرح الإجابات', 'تتبّع نتائجك'],
+    en: ['All constitution exam models', 'Explained answers', 'Your results tracked'],
+    ru: ['Все модели экзамена по Конституции', 'Разбор ответов', 'Отслеживание результатов'],
+    tr: ['Bütün anayasa sınavı modelleri', 'Açıklamalı cevaplar', 'Sonuçlarınız kaydedilir'],
+  };
+
+  // Our own endpoint, which creates the Stripe Checkout session. There are
+  // no payment links in this file any more and there should never be one
+  // again: a link carries the buyer's identity in its URL, and a URL is a
+  // thing anyone can edit or strip. See go() for what replaced it.
+  //
+  // Whether it answers with a test-mode or a live-mode session is decided
+  // by STRIPE_SECRET_KEY on the server — so switching to real money is a
+  // secret being changed, not this page being edited. That is the right
+  // place for it: nothing here needs to know.
+  var CHECKOUT_FN = 'https://tbgwwsoepqekehegxigb.supabase.co/functions/v1/stripe-checkout';
+
+  var PRODUCTS = [
+    {
+      id: 'premium',
+      icon: '📚',
+      // Both options are recurring Stripe prices, so there is a renewal to
+      // cancel and a plan to switch. The exams are fixed periods that end
+      // on their own. It decides only which sentence the locked card shows.
+      renews: true,
+      name: { ar: 'التعلّم والسيناريوهات',
+              en: 'Learning & scenarios',
+              ru: 'Обучение и сценарии',
+              tr: 'Öğrenme ve senaryolar' },
+      tagline: { ar: 'المنهج كاملاً من A1 إلى B2، ومعه ستّون سيناريو محادثة تتكلّمها بصوتك.',
+                 en: 'The whole curriculum from A1 to B2, with sixty conversation scenarios you speak out loud.',
+                 ru: 'Вся программа от A1 до B2 и шестьдесят разговорных сценариев вслух.',
+                 tr: 'A1’den B2’ye bütün program ve sesli konuştuğunuz altmış senaryo.' },
+      features: F_LEARN,
+      options: [
+        {
+          id: 'premium_monthly',
+          amount: 14.99,   // the store price, deliberately identical
+          days: 30,
+          label: { ar: 'شهريّ', en: 'Monthly', ru: 'Месяц', tr: 'Aylık' },
+          per: { ar: 'شهريّاً', en: 'per month', ru: 'в месяц', tr: 'aylık' },
+          note: { ar: 'يتجدّد شهريّاً، ويُلغى في أيّ وقت',
+                  en: 'Renews monthly, cancel anytime',
+                  ru: 'Продлевается ежемесячно, отмена в любой момент',
+                  tr: 'Aylık yenilenir, istediğiniz zaman iptal' },
+        },
+        {
+          id: 'premium_annual',
+          amount: 99.99,
+          days: 365,
+          label: { ar: 'سنويّ', en: 'Annual', ru: 'Год', tr: 'Yıllık' },
+          per: { ar: 'سنويّاً', en: 'per year', ru: 'в год', tr: 'yıllık' },
+          note: { ar: 'سنةٌ كاملة بدفعةٍ واحدة',
+                  en: 'A full year, paid once',
+                  ru: 'Целый год одним платежом',
+                  tr: 'Tam bir yıl, tek ödeme' },
+          // Measured against OUR OWN monthly plan, which is on the same card
+          // and which the reader can therefore check. That is a comparison,
+          // not a price-reduction announcement — and it is why nothing on
+          // this page is struck through. Article 6a of Directive 98/6/EC
+          // allows a "was" price only if it was charged for 30 days.
+          compareWith: 'premium_monthly',
+          compareLabel: { ar: 'مقارنةً باثني عشر شهراً', en: 'versus twelve months',
+                          ru: 'по сравнению с 12 месяцами', tr: 'on iki aya kıyasla' },
+          badge: { ar: 'أفضل قيمة', en: 'Best value', ru: 'Выгоднее всего', tr: 'En avantajlı' },
+        },
+      ],
+    },
+    {
+      id: 'examsim',
+      icon: '🏛️',
+      renews: false,
+      name: { ar: 'محاكاة امتحان الدولة',
+              en: 'State exam simulation',
+              ru: 'Симуляция госэкзамена',
+              tr: 'Devlet sınavı simülasyonu' },
+      tagline: { ar: 'نماذج A1/A2 وB1 كاملة، بتوقيت الامتحان نفسه.',
+                 en: 'The full A1/A2 and B1 models, timed like the exam itself.',
+                 ru: 'Полные модели A1/A2 и B1 с экзаменационным хронометражем.',
+                 tr: 'Sınavın kendi süresiyle, eksiksiz A1/A2 ve B1 modelleri.' },
+      features: F_EXAM,
+      options: [
+        {
+          // WEB ONLY. apple.ts records that a two-week prepaid was skipped
+          // because "Play offers no 2-week prepaid, so iOS matches" — a store
+          // limitation, not a product decision. Stripe has no such limit, so
+          // the web offers the length the stores could not. The app honours
+          // it without knowing it exists: the entitlement is examsim until a
+          // date, and the date comes from kk_days.
+          //
+          // The stores' seven-day pass is deliberately NOT carried here;
+          // three lengths of one package is a decision too many on a page
+          // whose job is to be decided quickly.
+          id: 'examsim_biweekly',
+          // 13.99, confirmed against the Stripe product list 2026-11-25.
+          amount: 13.99,
+          days: 14,
+          label: { ar: 'أسبوعان', en: 'Two weeks', ru: 'Две недели', tr: 'İki hafta' },
+          per: { ar: 'لأسبوعين', en: 'for two weeks', ru: 'на две недели', tr: 'iki hafta için' },
+          note: { ar: 'للامتحان القريب — بلا تجديد تلقائيّ',
+                  en: 'For an exam that is close — no auto-renewal',
+                  ru: 'Для близкого экзамена — без автопродления',
+                  tr: 'Yaklaşan sınav için — otomatik yenileme yok' },
+        },
+        {
+          id: 'examsim_monthly',
+          // 19.99, read off the Stripe product list on 2026-11-25. It had
+          // been 24.99 here, taken from a number said in conversation and
+          // never checked against the dashboard — the exact mistake this
+          // file warns about two plans above. Stripe is the price; this
+          // line only repeats it.
+          amount: 19.99,
+          days: 30,
+          label: { ar: 'شهر', en: 'One month', ru: 'Месяц', tr: 'Bir ay' },
+          per: { ar: 'لشهر', en: 'for one month', ru: 'на месяц', tr: 'bir ay için' },
+          note: { ar: 'وقتٌ للاستعداد فعلاً — بلا تجديد تلقائيّ',
+                  en: 'Time to actually prepare — no auto-renewal',
+                  ru: 'Время действительно подготовиться — без автопродления',
+                  tr: 'Gerçekten hazırlanmak için zaman — otomatik yenileme yok' },
+          compareWith: 'examsim_biweekly',
+          compareLabel: { ar: 'مقارنةً بأسبوعين مرّتين', en: 'versus two fortnights',
+                          ru: 'по сравнению с двумя двухнедельными', tr: 'iki kez iki haftaya kıyasla' },
+          badge: { ar: 'الأكثر اختياراً', en: 'Most chosen', ru: 'Чаще всего выбирают', tr: 'En çok seçilen' },
+        },
+      ],
+    },
+    {
+      id: 'constitution',
+      icon: '⚖️',
+      renews: false,
+      name: { ar: 'امتحان الدستور',
+              en: 'Constitution exam',
+              ru: 'Экзамен по Конституции',
+              tr: 'Anayasa sınavı' },
+      tagline: { ar: 'امتحان الدستور وحده، لمن يحتاجه دون غيره.',
+                 en: 'The constitution exam on its own, for whoever needs only that.',
+                 ru: 'Только экзамен по Конституции — для тех, кому нужен именно он.',
+                 tr: 'Yalnızca anayasa sınavı — sadece onu isteyenler için.' },
+      features: F_CON,
+      // One length, so no switch is drawn at all. A control with a single
+      // choice is a control that asks a question it has already answered.
+      options: [
+        {
+          id: 'constitution_monthly',
+          amount: 4.99,
+          days: 30,
+          label: { ar: 'شهر', en: 'One month', ru: 'Месяц', tr: 'Bir ay' },
+          per: { ar: 'لشهر', en: 'for one month', ru: 'на месяц', tr: 'bir ay için' },
+          note: { ar: 'دفعةٌ واحدة — بلا تجديد تلقائيّ',
+                  en: 'A single payment — no auto-renewal',
+                  ru: 'Разовый платёж — без автопродления',
+                  tr: 'Tek ödeme — otomatik yenileme yok' },
+        },
+      ],
+    },
+  ];
+</script>
+
+<style>
+  :root {
+    --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
+    --ink: #1c2320; --muted: #5b6b63; --line: #e3ede8; --amber: #d97706;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif;
+    color: var(--ink); background: #fbfdfc; line-height: 1.7;
+    padding: 28px 16px 60px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 28px; }
+  .brand { font-size: 28px; font-weight: 800; color: var(--green); text-decoration: none; display: inline-block; }
+  .brand span { color: var(--amber); }
+  h1 { font-size: 23px; margin-top: 14px; }
+  .sub { color: var(--muted); font-size: 15px; margin-top: 4px; }
+
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px; margin-bottom: 14px;
+  }
+  .card h2 { font-size: 18px; margin-bottom: 4px; }
+  .card p { color: var(--muted); font-size: 14.5px; }
+
+  /* ── the pricing table ─────────────────────────────────────────────── */
+  .grouphead {
+    font-size: 15px; font-weight: 700; color: var(--muted);
+    margin: 26px 0 12px; text-align: center; letter-spacing: .02em;
+  }
+  /* auto-fit, not a fixed column count: two plans sit side by side, three
+     do too on a wide screen, and one plan does not stretch to fill a row. */
+  .grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+    align-items: start;
+  }
+  .plan {
+    position: relative; background: #fff; border: 1px solid var(--line);
+    border-radius: 18px; padding: 22px 20px 20px; display: flex;
+    flex-direction: column;
+  }
+  /* The recommended one is lifted by a ring and a shadow, never by being
+     bigger: a taller card in a grid drags its neighbours' baselines around. */
+  .plan.featured { border-color: var(--green); box-shadow: 0 6px 22px rgba(29,158,117,.13); }
+  .ribbon {
+    position: absolute; top: -11px; inset-inline-start: 50%;
+    transform: translateX(50%);
+    background: var(--green); color: #fff; font-size: 12.5px; font-weight: 700;
+    padding: 4px 13px; border-radius: 999px; white-space: nowrap;
+  }
+  html[dir="ltr"] .ribbon { transform: translateX(-50%); }
+  .picon { font-size: 26px; line-height: 1; margin-bottom: 10px; }
+  .plan h2 { font-size: 17.5px; margin-bottom: 3px; }
+  .tagline { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+  /* The duration switch: one control, as many segments as there are
+     lengths. Sized to the text rather than to a fixed width, so Turkish
+     and Russian labels do not have to be abbreviated to fit. */
+  .durs {
+    display: flex; gap: 4px; margin-top: 14px; padding: 4px;
+    background: #f1f6f4; border-radius: 12px;
+  }
+  .durs button {
+    flex: 1; width: auto; margin: 0; padding: 8px 10px;
+    background: transparent; color: var(--muted); border: 0;
+    border-radius: 9px; font-size: 13.5px; font-weight: 700;
+  }
+  .durs button[aria-selected="true"] {
+    background: #fff; color: var(--ink);
+    box-shadow: 0 1px 3px rgba(16,39,29,.12);
+  }
+  .off {
+    display: inline-block; margin-inline-start: 6px; padding: 1px 6px;
+    background: var(--green); color: #fff; border-radius: 999px;
+    font-size: 11.5px; font-weight: 800; vertical-align: 1px;
+  }
+  .note-sm { font-size: 12.5px; color: var(--muted); margin-top: 8px; line-height: 1.55; }
+  /* Amber, not green: this is a state to notice, not an offer to take. */
+  .owned {
+    margin-top: 14px; padding: 10px 12px; border-radius: 12px;
+    background: #fffaf0; border: 1px solid #f6e3bd;
+  }
+  .owned-head { font-size: 14px; font-weight: 800; color: #92400e; }
+  /* The note under the grid. Quieter than the cards on purpose: it is read
+     once, by the few people it applies to, and never competes with a price. */
+  .ownednote {
+    margin: 18px auto 0; max-width: 760px;
+    padding: 12px 14px; border-radius: 12px;
+    background: #fafaf9; border: 1px solid var(--line);
+  }
+  .ownednote strong { display: block; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+  .ownednote p { font-size: 12.5px; line-height: 1.7; color: var(--muted); margin-top: 4px; }
+  .saving {
+    display: inline-block; align-self: flex-start; margin-top: 12px;
+    background: var(--green-bg); color: var(--green-dark); border: 1px solid #cdeadd;
+    font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+  }
+  .price { font-size: 30px; font-weight: 800; color: var(--ink); margin-top: 10px; line-height: 1.2; }
+  .price .per { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .perday { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .feats { list-style: none; margin: 16px 0 18px; display: grid; gap: 9px; }
+  .feats li { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; line-height: 1.55; }
+  .tick {
+    width: 17px; height: 17px; flex: 0 0 17px; margin-top: 3px;
+    fill: none; stroke: var(--green); stroke-width: 2.2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  /* Pushes every button to the same line however short a card's list is. */
+  .plan button, .plan .btn { margin-top: auto; }
+  a.btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+
+  button, .btn {
+    display: block; width: 100%; margin-top: 14px; padding: 14px 18px;
+    border: 0; border-radius: 12px; background: var(--green); color: #fff;
+    font: inherit; font-weight: 700; cursor: pointer; text-align: center;
+    text-decoration: none;
+  }
+  button.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  button:disabled { background: #e8efeb; color: #9bada4; cursor: not-allowed; }
+  input {
+    width: 100%; margin-top: 10px; padding: 13px 14px; font: inherit;
+    border: 1px solid var(--line); border-radius: 11px; background: #fff;
+  }
+  input:focus-visible { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.18); }
+
+  .who {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap; background: var(--green-bg); border: 1px solid #cdeadd;
+    border-radius: 14px; padding: 12px 16px; margin-bottom: 20px; font-size: 14.5px;
+  }
+  .who b { font-weight: 700; }
+  .who button { width: auto; margin: 0; padding: 7px 12px; font-size: 13.5px; background: transparent; color: var(--green-dark); border: 1px solid #b9e0cd; }
+
+  .note { font-size: 13.5px; color: var(--muted); margin-top: 16px; text-align: center; }
+  .err { color: #b91c1c; font-size: 14px; margin-top: 10px; }
+  .ok { background: var(--green-bg); border: 1px solid #cdeadd; border-radius: 14px; padding: 18px; text-align: center; }
+
+  [hidden] { display: none !important; }
+
+  /* The house pattern (see privacy.html): one document, four languages,
+     Arabic by default and the others revealed by a class on <html>. */
+  [lang-en], [lang-ru], [lang-tr] { display: none; }
+  html.en [lang-ar], html.ru [lang-ar], html.tr [lang-ar] { display: none; }
+  html.en [lang-en] { display: revert; }
+  html.ru [lang-ru] { display: revert; }
+  html.tr [lang-tr] { display: revert; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="brand" href="/">Kas<span>Kalba</span></a>
+    <h1>
+      <span lang-ar>الاشتراك</span>
+      <span lang-en>Subscribe</span>
+      <span lang-ru>Подписка</span>
+      <span lang-tr>Abonelik</span>
+    </h1>
+    <p class="sub">
+      <span lang-ar>ادخل بحسابك أوّلاً، كي يصل الاشتراك إلى حسابك أنت — لا إلى هذا المتصفّح.</span>
+      <span lang-en>Sign in first, so the subscription reaches your account — not this browser.</span>
+      <span lang-ru>Сначала войдите, чтобы подписка попала на ваш аккаунт, а не на этот браузер.</span>
+      <span lang-tr>Önce giriş yapın; böylece abonelik bu tarayıcıya değil, hesabınıza gelir.</span>
+    </p>
+  </header>
+
+  <!-- Returned from Stripe. The webhook, not this page, is what actually
+       grants anything — so this says "received", never "activated". -->
+  <div class="ok" id="paid" hidden>
+    <p lang-ar><b>تمّ الدفع.</b> يصل اشتراكك إلى حسابك خلال دقائق — افتح التطبيق وستجده. وإن تأخّر أكثر من ذلك راسلنا.</p>
+    <p lang-en><b>Payment received.</b> Your subscription reaches your account within a few minutes — open the app and it will be there. If it takes longer, write to us.</p>
+    <p lang-ru><b>Платёж получен.</b> Подписка появится в вашем аккаунте в течение нескольких минут — откройте приложение. Если дольше, напишите нам.</p>
+    <p lang-tr><b>Ödeme alındı.</b> Aboneliğiniz birkaç dakika içinde hesabınıza geçer — uygulamayı açın. Daha uzun sürerse bize yazın.</p>
+    <a class="btn" href="https://app.kaskalba.com/">
+      <span lang-ar>افتح التطبيق</span><span lang-en>Open the app</span><span lang-ru>Открыть приложение</span><span lang-tr>Uygulamayı aç</span>
+    </a>
+  </div>
+
+  <!-- ── Step 1: who is buying ─────────────────────────────────────────── -->
+  <section id="signin" hidden>
+    <div class="card">
+      <h2>
+        <span lang-ar>الدخول بالبريد الإلكتروني</span>
+        <span lang-en>Sign in by email</span>
+        <span lang-ru>Вход по электронной почте</span>
+        <span lang-tr>E-posta ile giriş</span>
+      </h2>
+      <p>
+        <span lang-ar>نرسل رمزاً من ستّة أرقام. لا كلمة سرّ، ولا شيءٍ تحفظه. واستعمل البريد نفسه الذي تستعمله في التطبيق.</span>
+        <span lang-en>We send a six-digit code. No password, nothing to remember. Use the same email you use in the app.</span>
+        <span lang-ru>Мы пришлём код из шести цифр. Без пароля и без запоминания. Используйте тот же адрес, что и в приложении.</span>
+        <span lang-tr>Altı haneli bir kod göndeririz. Parola yok, ezberlenecek bir şey yok. Uygulamada kullandığınız e-postayı kullanın.</span>
+      </p>
+
+      <div id="stepEmail">
+        <input id="email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" />
+        <button id="sendCode">
+          <span lang-ar>أرسل الرمز</span><span lang-en>Send the code</span><span lang-ru>Отправить код</span><span lang-tr>Kodu gönder</span>
+        </button>
+      </div>
+
+      <div id="stepCode" hidden>
+        <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" />
+        <button id="verify">
+          <span lang-ar>تأكيد</span><span lang-en>Confirm</span><span lang-ru>Подтвердить</span><span lang-tr>Onayla</span>
+        </button>
+        <button class="ghost" id="backToEmail">
+          <span lang-ar>بريدٌ آخر</span><span lang-en>A different email</span><span lang-ru>Другой адрес</span><span lang-tr>Başka e-posta</span>
+        </button>
+      </div>
+
+      <p class="err" id="authErr" hidden></p>
+    </div>
+  </section>
+
+  <!-- ── Step 2: the plans ─────────────────────────────────────────────── -->
+  <section id="plans" hidden>
+    <div class="who">
+      <span>
+        <span lang-ar>الاشتراك سيُسجَّل على</span>
+        <span lang-en>The subscription will be recorded for</span>
+        <span lang-ru>Подписка будет записана на</span>
+        <span lang-tr>Abonelik şu hesaba kaydedilecek</span>
+        <b id="whoEmail"></b>
+      </span>
+      <button id="signout">
+        <span lang-ar>لستُ أنا</span><span lang-en>Not me</span><span lang-ru>Это не я</span><span lang-tr>Ben değilim</span>
+      </button>
+    </div>
+
+    <div id="planList"></div>
+
+    <!-- The sign-in form has its own error line, but it is inside a section
+         that is hidden once someone is signed in — which is exactly when a
+         checkout can fail. An error with nowhere to appear is an error the
+         learner experiences as a button that does nothing. -->
+    <p class="err" id="buyErr" hidden></p>
+
+    <p class="note">
+      <span lang-ar>الدفع يتمّ على صفحة Stripe، ولا تمرّ بيانات بطاقتك من هنا ولا نراها.</span>
+      <span lang-en>Payment happens on Stripe's own page. Your card details never pass through here and we never see them.</span>
+      <span lang-ru>Оплата проходит на странице Stripe. Данные вашей карты здесь не проходят, и мы их не видим.</span>
+      <span lang-tr>Ödeme Stripe’ın kendi sayfasında yapılır. Kart bilgileriniz buradan geçmez ve biz görmeyiz.</span>
+    </p>
+  </section>
+
+  <!-- ── Managing or cancelling ───────────────────────────────────────────
+       MOVED TO /account/ on 2026-11-26, at the owner's instruction that the
+       account page is where these belong. It kept everything that made it
+       work there: it is outside that page's sign-in gate too, because
+       someone who wants to cancel should not have to prove who they are
+       first; and it still routes by WHERE THEY PAID, because a subscription
+       bought in Google Play or on an iPhone can be cancelled only by the
+       store that took the money.
+
+       What is left here is a door, not a second copy. Two copies of the
+       cancel routes would be two places to update the day a store changes
+       its URL, and one of them would be missed.
+  -->
+  <section id="manage">
+    <h3 class="grouphead" style="margin-top:34px">
+      <span lang-ar>إدارة اشتراكك أو إلغاؤه</span>
+      <span lang-en>Manage or cancel your subscription</span>
+      <span lang-ru>Управление подпиской или её отмена</span>
+      <span lang-tr>Aboneliğinizi yönetin veya iptal edin</span>
+    </h3>
+    <p class="note" style="margin-top:0">
+      <span lang-ar>الإلغاء، وتاريخ مدفوعاتك، واشتراكاتك الفعّالة — كلّها في صفحة حسابك.</span>
+      <span lang-en>Cancelling, your payment history and your active subscriptions are all on your account page.</span>
+      <span lang-ru>Отмена, история платежей и активные подписки — всё на странице вашего аккаунта.</span>
+      <span lang-tr>İptal, ödeme geçmişiniz ve etkin abonelikleriniz — hepsi hesap sayfanızda.</span>
+    </p>
+    <a class="btn ghost" id="accountLink" href="/account/" style="max-width:320px;margin-inline:auto">
+      <span lang-ar>افتح صفحة حسابك</span><span lang-en>Open your account page</span><span lang-ru>Открыть страницу аккаунта</span><span lang-tr>Hesap sayfanızı açın</span>
+    </a>
+  </section>
+
+  <p class="note">
+    <!-- /terms and /privacy, not /terms.html: every other page on the site
+         links to the extensionless form, and those are the addresses filed
+         with both stores. Both resolve today, but two spellings of one page
+         is how a later redirect quietly breaks half of them. -->
+    <a href="/terms"><span lang-ar>شروط الاستخدام</span><span lang-en>Terms</span><span lang-ru>Условия</span><span lang-tr>Koşullar</span></a>
+    ·
+    <a href="/privacy"><span lang-ar>سياسة الخصوصيّة</span><span lang-en>Privacy</span><span lang-ru>Конфиденциальность</span><span lang-tr>Gizlilik</span></a>
+  </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ── language ──────────────────────────────────────────────────────────
+  var LANGS = {
+    ar: { dir: 'rtl', title: 'الاشتراك — KasKalba' },
+    en: { dir: 'ltr', title: 'Subscribe — KasKalba' },
+    ru: { dir: 'ltr', title: 'Подписка — KasKalba' },
+    tr: { dir: 'ltr', title: 'Abonelik — KasKalba' },
+  };
+  var lang = 'ar';
+
+  // Declared HERE, above applyLang, because applyLang renders the plans and
+  // the bootstrap below calls it on the first line it can. Left further down
+  // they were hoisted but still undefined at that moment, and the whole
+  // script died before the sign-in card was ever shown.
+  var UNAVAILABLE = {
+    ar: 'غير متاحة بعد', en: 'Not available yet',
+    ru: 'Пока недоступно', tr: 'Henüz mevcut değil',
+  };
+  var BUY = { ar: 'اشترك', en: 'Subscribe', ru: 'Оформить', tr: 'Abone ol' };
+  var WAIT = { ar: 'لحظة…', en: 'One moment…', ru: 'Минуту…', tr: 'Bir saniye…' };
+
+  // ── what the learner already has ──────────────────────────────────────
+  //
+  // THE RULE, decided by the owner on 2026-11-25: an ACTIVE product cannot
+  // be bought again, by any option, until it runs out. Not the same length,
+  // not a shorter one, not a longer one. The button stays on the card and
+  // stops working, so the price is still readable and the click is not.
+  //
+  // It is not arbitrary. recompute_entitlement orders the learner's rows by
+  // greatest(expires_at, grace_expires_at) desc and keeps the FIRST, so a
+  // second purchase never extends anything: thirty days bought with a year
+  // left is thirty days paid for and nothing received. A page that allows
+  // that is selling a thing it knows has no effect.
+  //
+  // Upgrading and downgrading are real, but they are not purchases and they
+  // do not happen here: the current term is paid for and runs to its end,
+  // and the next one is what changes. Cancelling likewise stops the renewal
+  // and never cuts the time already bought.
+  var ACTIVE_BTN = {
+    ar: 'مشترَكٌ بالفعل', en: 'Already subscribed',
+    ru: 'Уже оформлено', tr: 'Zaten abonesiniz',
+  };
+  // A renewing plan bought from this site. Switching and cancelling both
+  // live in the manage section below, and both take effect at the end of
+  // the paid term — never in the middle of it.
+  var LOCKED_SUB = {
+    ar: '«{p}»: الانتقال بين الشهريّ والسنويّ، أو الإلغاء، من صفحة حسابك — ويبدأ أثرهما بعد انتهاء المدّة المدفوعة، فهي تبقى لك كاملة.',
+    en: '“{p}”: switching between monthly and annual, or cancelling, is on your account page — and either takes effect after the paid term ends, so that term stays yours in full.',
+    ru: '«{p}»: переход между месяцем и годом или отмена — на странице вашего аккаунта; и то и другое вступит в силу после окончания оплаченного срока, который остаётся за вами полностью.',
+    tr: '“{p}”: aylık ile yıllık arasında geçiş veya iptal, hesap sayfanızda — ikisi de ödenmiş süre bittikten sonra geçerli olur, o süre tümüyle sizde kalır.',
+  };
+  // The head of EVERY locked card, in every case (owner, 2026-11-25: one
+  // wording, no variants). One line, no second sentence: the date is the
+  // whole message and the greyed-out button says the rest.
+  //
+  // For a renewing subscription this is not the whole truth — it does not
+  // end on that date unless it was cancelled — and the owner was told so
+  // and chose one wording anyway. The note under the grid is what carries
+  // the correction: it says cancelling stops the renewal and leaves the
+  // subscription active until its date, so a renewing subscriber who reads
+  // on is not left thinking their access stops that day. When will_renew
+  // is finally written (§5.13), this can become "renews on" / "ends on" by
+  // the data rather than by a choice.
+  var ENDS_ON = {
+    ar: 'ينتهي الاشتراك في {d}', en: 'The subscription ends on {d}',
+    ru: 'Подписка заканчивается {d}', tr: 'Abonelik {d} tarihinde sona eriyor',
+  };
+  // Bought in a store, which this site can neither cancel nor change. And it
+  // must not be sold again from here at any price: that would be a second,
+  // separate subscription, charged by Stripe while the store keeps charging
+  // too — the one case on this page where a click costs real money twice.
+  var STORE_NAME = { android: 'Google Play', ios: 'App Store' };
+  var LOCKED_STORE = {
+    ar: '«{p}» مُشترىً من {s}: الإلغاء وتغيير الخطّة من هناك وحدها — والإلغاء يوقف التجديد ويبقى الاشتراك فعّالاً إلى تاريخه.',
+    en: '“{p}” was bought on {s}: cancelling and changing plan happen there and nowhere else — cancelling stops the renewal and leaves it active until its date.',
+    ru: '«{p}» куплено в {s}: отмена и смена плана — только там; отмена прекращает продление, подписка остаётся активной до своей даты.',
+    tr: '“{p}” {s} üzerinden alındı: iptal ve plan değişikliği yalnızca orada yapılır — iptal yenilemeyi durdurur, abonelik kendi tarihine kadar etkin kalır.',
+  };
+  // The note under the grid, when anything on it is locked. It is one line
+  // per locked product and it names the product, because the cards no
+  // longer carry the explanation themselves (owner, 2026-11-25) and a note
+  // that says "it" under three cards would be a note about nothing.
+  var NOTE_HEAD = { ar: 'ملاحظة', en: 'Note', ru: 'Примечание', tr: 'Not' };
+  var PER_DAY = { ar: 'لليوم', en: '/day', ru: 'в день', tr: 'günlük' };
+  var SAVE = { ar: 'وفّر {n}٪', en: 'Save {n}%', ru: 'Экономия {n}%', tr: '%{n} tasarruf' };
+
+  // EVERY string table the renderer reads must be declared above this line.
+  // applyLang renders the plans, and the bootstrap calls applyLang on its
+  // first line — so a `var` left further down is hoisted but still undefined
+  // at that moment, and the whole script dies before anything is drawn. This
+  // has now cost two debugging rounds; the next table goes here too.
+
+  function applyLang(l) {
+    if (!LANGS[l]) l = 'ar';
+    lang = l;
+    var html = document.documentElement;
+    html.classList.remove('en', 'ru', 'tr');
+    if (l !== 'ar') html.classList.add(l);
+    html.setAttribute('lang', l);
+    html.setAttribute('dir', LANGS[l].dir);
+    document.title = LANGS[l].title;
+    // /account/ has no switcher either, so the language travels in the link.
+    document.getElementById('accountLink').setAttribute('href', '/account/?lang=' + l);
+    try { localStorage.setItem('kk_lang', l); } catch (e) {}
+    renderPlans();
+  }
+
+  // ── supabase ──────────────────────────────────────────────────────────
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+  });
+
+  var elSignin = document.getElementById('signin');
+  var elPlans = document.getElementById('plans');
+  var elErr = document.getElementById('authErr');
+  var user = null;
+  // One checkout at a time. Without it a double tap on a slow connection
+  // opens two Stripe sessions, and the learner meets a payment page twice.
+  var busy = false;
+
+  var elBuyErr = document.getElementById('buyErr');
+  // Whichever of the two is on screen right now.
+  function errSlot() { return user ? elBuyErr : elErr; }
+  function showError(msgs) {
+    var el = errSlot();
+    el.textContent = msgs[lang] || msgs.en;
+    el.hidden = false;
+  }
+  function clearError() { elErr.hidden = true; elBuyErr.hidden = true; }
+
+  // product -> { until: Date, willRenew: bool } for what is live right now.
+  var owned = {};
+
+  /**
+   * Ask the server what this learner already has.
+   *
+   * my_entitlements() is the same function the app itself calls: it runs as
+   * SECURITY DEFINER on auth.uid(), returns only active and grace rows whose
+   * end date has not passed, and cannot be asked about anybody else. So the
+   * page can show ownership without a new endpoint and without being told
+   * anything it could have made up.
+   */
+  async function loadOwned() {
+    owned = {};
+    if (!user) return;
+    try {
+      var { data, error } = await sb.rpc('my_entitlements');
+      if (error || !Array.isArray(data)) return;
+      data.forEach(function (row) {
+        owned[row.product] = {
+          until: row.expires_at ? new Date(row.expires_at) : null,
+          willRenew: !!row.will_renew,
+          platform: null,
+        };
+      });
+
+      // WHERE it was bought decides what we are allowed to say, and
+      // my_entitlements does not return it. So it is read separately, from
+      // the row the learner's own RLS policy lets them select, and used ONLY
+      // as a label. What counts as live is still the function's answer and
+      // nobody else's: entitlement logic in two places is how the app came
+      // to disagree with itself over 143 versus 142.
+      var ent = await sb.from('entitlements').select('product, platform');
+      if (!ent.error && Array.isArray(ent.data)) {
+        ent.data.forEach(function (row) {
+          if (owned[row.product]) owned[row.product].platform = row.platform || null;
+        });
+      }
+    } catch (e) {
+      // A page that cannot read entitlements still sells correctly; it just
+      // stops warning. Failing closed here would block a legitimate buyer
+      // because of a network hiccup, which is the worse of the two.
+    }
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    try {
+      return d.toLocaleDateString(lang === 'ar' ? 'ar' : lang, {
+        year: 'numeric', month: 'long', day: 'numeric',
+      });
+    } catch (e) { return d.toISOString().slice(0, 10); }
+  }
+
+  function render() {
+    elSignin.hidden = !!user;
+    elPlans.hidden = !user;
+    if (user) document.getElementById('whoEmail').textContent = user.email || '';
+    renderPlans();
+  }
+
+  // ── the plans ─────────────────────────────────────────────────────────
+  function money(n) {
+    // Two decimals always: 99.9 beside 14.99 reads as a typo.
+    return '€' + n.toFixed(2);
+  }
+
+  // The per-day figure is COMPUTED, never typed. A longer plan that does not
+  // work out cheaper per day is a broken ladder, and a number derived from
+  // the price cannot quietly disagree with it the way a hand-written one can.
+  function perDay(p) {
+    return p.amount / p.days;
+  }
+
+  // "Save 44%" against OUR OWN shorter plan — both prices are real and both
+  // are on this page, so the reader can check the arithmetic. That is a
+  // comparison, not a price-reduction announcement, and it is why there is
+  // no struck-through "was" price anywhere here.
+  //
+  // Counted in WHOLE PURCHASES, not in days. Covering a year monthly costs
+  // twelve payments of 14.99, not 365 × the daily rate; covering a month in
+  // fortnights costs two payments, not 30 days' worth. The buyer's real
+  // alternative is a number of purchases, so that is what this compares —
+  // and a reader can check it on their fingers, which a per-day derivation
+  // quietly cannot.
+  function optionById(id) {
+    var found = null;
+    PRODUCTS.forEach(function (pr) {
+      pr.options.forEach(function (o) { if (o.id === id) found = o; });
+    });
+    return found;
+  }
+
+  function savingVs(p) {
+    if (!p.compareWith) return 0;
+    var base = optionById(p.compareWith);
+    if (!base) return 0;
+    var n = Math.round(p.days / base.days);
+    if (n < 2) return 0;
+    var full = base.amount * n;
+    if (full <= p.amount) return 0;
+    return Math.round((1 - p.amount / full) * 100);
+  }
+
+  function tick() {
+    var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 16 16');
+    s.setAttribute('class', 'tick');
+    s.setAttribute('aria-hidden', 'true');
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M2.5 8.5l3.5 3.5 7.5-8');
+    s.appendChild(path);
+    return s;
+  }
+
+  // Which duration each product is showing. Keyed by product so a choice
+  // survives a language switch — changing the language is not a reason to
+  // forget that someone had picked the annual plan.
+  var chosen = {};
+
+  function productCard(prod) {
+    var sel = chosen[prod.id] || prod.options[0].id;
+    var opt = prod.options.filter(function (o) { return o.id === sel; })[0] || prod.options[0];
+
+    var card = document.createElement('div');
+    card.className = 'plan' + (opt.badge ? ' featured' : '');
+
+    // The ribbon belongs to the OPTION, not the product: "best value" is
+    // true of the annual plan, and saying it while the monthly one is
+    // selected would be praising something the reader is not looking at.
+    if (opt.badge) {
+      var b = document.createElement('div');
+      b.className = 'ribbon';
+      b.textContent = opt.badge[lang] || opt.badge.en;
+      card.appendChild(b);
+    }
+
+    var ic = document.createElement('div');
+    ic.className = 'picon';
+    ic.textContent = prod.icon || '•';
+    card.appendChild(ic);
+
+    var h = document.createElement('h2');
+    h.textContent = prod.name[lang] || prod.name.en;
+    card.appendChild(h);
+
+    var tl = document.createElement('p');
+    tl.className = 'tagline';
+    tl.textContent = prod.tagline[lang] || prod.tagline.en;
+    card.appendChild(tl);
+
+    // No switch for a product with one length — a control offering a single
+    // choice asks a question it has already answered.
+    if (prod.options.length > 1) {
+      var durs = document.createElement('div');
+      durs.className = 'durs';
+      durs.setAttribute('role', 'tablist');
+      prod.options.forEach(function (o) {
+        var t = document.createElement('button');
+        t.type = 'button';
+        t.setAttribute('role', 'tab');
+        t.setAttribute('aria-selected', String(o.id === opt.id));
+        t.textContent = o.label[lang] || o.label.en;
+        // The saving goes ON the switch, not only on the card it unlocks.
+        // Hidden behind a click it persuades nobody: the reader has to
+        // already be curious about the longer plan to discover the reason
+        // to want it.
+        var pct = savingVs(o);
+        if (pct > 0) {
+          var off = document.createElement('span');
+          off.className = 'off';
+          off.textContent = '−' + pct + '%';
+          t.appendChild(off);
+        }
+        t.addEventListener('click', function () {
+          chosen[prod.id] = o.id;
+          renderPlans();
+        });
+        durs.appendChild(t);
+      });
+      card.appendChild(durs);
+    }
+
+    var saving = savingVs(opt);
+    if (saving > 0) {
+      var sv = document.createElement('div');
+      sv.className = 'saving';
+      // The label names the option actually compared against, not a fixed
+      // word: "versus monthly" printed on a figure measured against the
+      // fortnight was a small lie nobody would have caught.
+      sv.textContent = (SAVE[lang] || SAVE.en).replace('{n}', String(saving))
+        + (opt.compareLabel ? ' · ' + (opt.compareLabel[lang] || opt.compareLabel.en) : '');
+      card.appendChild(sv);
+    }
+
+    var pr = document.createElement('div');
+    pr.className = 'price';
+    pr.textContent = money(opt.amount) + ' ';
+    var per = document.createElement('span');
+    per.className = 'per';
+    per.textContent = opt.per[lang] || opt.per.en;
+    pr.appendChild(per);
+    card.appendChild(pr);
+
+    var pd = document.createElement('div');
+    pd.className = 'perday';
+    pd.textContent = '≈ ' + money(perDay(opt)) + ' ' + (PER_DAY[lang] || PER_DAY.en);
+    card.appendChild(pd);
+
+    var nt = document.createElement('div');
+    nt.className = 'note-sm';
+    nt.textContent = opt.note[lang] || opt.note.en;
+    card.appendChild(nt);
+
+    var ul = document.createElement('ul');
+    ul.className = 'feats';
+    (prod.features[lang] || prod.features.en).forEach(function (f) {
+      var li = document.createElement('li');
+      li.appendChild(tick());
+      var sp = document.createElement('span');
+      sp.textContent = f;
+      li.appendChild(sp);
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+
+    // ---- what the learner already has ----------------------------------
+    // The whole product is locked while any of it is live, so this does not
+    // look at opt at all: the option the learner is toggling makes no
+    // difference to whether they may buy.
+    var have = owned[prod.id];
+    if (have) {
+      var ob = document.createElement('div');
+      ob.className = 'owned';
+      // The card carries the date and nothing more. Where to cancel and
+      // when a switch takes effect are true but long, and repeated on
+      // every locked card they drown the prices; they live in one note
+      // under the grid instead.
+      var when = have.until ? fmtDate(have.until) : '—';
+      var line = document.createElement('div');
+      line.className = 'owned-head';
+      line.textContent = (ENDS_ON[lang] || ENDS_ON.en).replace('{d}', when);
+      ob.appendChild(line);
+      card.appendChild(ob);
+    }
+
+    var btn = document.createElement('button');
+    if (!CHECKOUT_FN) {
+      btn.disabled = true;
+      btn.textContent = UNAVAILABLE[lang] || UNAVAILABLE.en;
+    } else if (have) {
+      // Shown, priced, and dead. Hiding it would leave the learner wondering
+      // what this plan costs when their term ends; a working button would
+      // take money for nothing. disabled is the only honest third option.
+      btn.disabled = true;
+      btn.textContent = ACTIVE_BTN[lang] || ACTIVE_BTN.en;
+    } else if (busy) {
+      btn.disabled = true;
+      btn.textContent = WAIT[lang] || WAIT.en;
+    } else {
+      btn.textContent = BUY[lang] || BUY.en;
+      btn.addEventListener('click', function () {
+        busy = true;
+        renderPlans();   // every button goes quiet, not just this one
+        go(opt);
+      });
+    }
+    card.appendChild(btn);
+    return card;
+  }
+
+  function renderPlans() {
+    var host = document.getElementById('planList');
+    if (!host) return;
+    host.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'grid';
+    PRODUCTS.forEach(function (p) { grid.appendChild(productCard(p)); });
+    host.appendChild(grid);
+
+    // ---- the note under the grid ----------------------------------------
+    // Built from what is actually locked, so it says nothing when nothing
+    // is. A standing paragraph about cancelling, shown to a visitor who
+    // owns none of this, is noise on the one page that must stay readable.
+    var lines = [];
+    PRODUCTS.forEach(function (p) {
+      var h = owned[p.id];
+      if (!h) return;
+      var name = p.name[lang] || p.name.en;
+      var s = STORE_NAME[h.platform];
+      if (s) {
+        lines.push((LOCKED_STORE[lang] || LOCKED_STORE.en)
+          .replace('{p}', name).replace('{s}', s));
+      } else if (p.renews) {
+        lines.push((LOCKED_SUB[lang] || LOCKED_SUB.en).replace('{p}', name));
+      }
+      // A fixed period bought here needs no line at all: it ends, and the
+      // card already says when.
+    });
+    if (lines.length) {
+      var note = document.createElement('div');
+      note.className = 'ownednote';
+      var nh = document.createElement('strong');
+      nh.textContent = NOTE_HEAD[lang] || NOTE_HEAD.en;
+      note.appendChild(nh);
+      lines.forEach(function (t) {
+        var li = document.createElement('p');
+        li.textContent = t;
+        note.appendChild(li);
+      });
+      host.appendChild(note);
+    }
+
+  }
+
+  // Ask our own function for a Checkout session, then follow it.
+  //
+  // WHAT CHANGED, AND WHY IT IS NOT A DETAIL. This used to append the
+  // learner's id to a Stripe payment link. That worked, but it put identity
+  // in a URL — editable, droppable, and simply absent whenever the link was
+  // opened from anywhere but this page. We saw it happen in testing: a
+  // payment made from the raw link arrived with no reference and could not
+  // be attributed to anyone.
+  //
+  // Now the browser sends nothing but a plan NAME and its session token.
+  // The price, the mode, the buyer and the metadata are all decided on the
+  // server, where the client cannot reach them. The worst a tampered
+  // request can do is name a plan that does not exist, and be refused.
+  async function go(opt) {
+    if (!user) return;
+    clearError();
+    try {
+      var { data: s } = await sb.auth.getSession();
+      var token = s && s.session && s.session.access_token;
+      if (!token) throw new Error('no session');
+      var res = await fetch(CHECKOUT_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ plan: opt.id }),
+      });
+      var body = await res.json().catch(function () { return {}; });
+      if (!res.ok || !body.url) throw new Error(body.error || 'checkout failed');
+      location.assign(body.url);
+    } catch (e) {
+      busy = false;
+      renderPlans();
+      showError({
+        ar: 'تعذّر بدء الدفع. حاول بعد قليل، وإن تكرّر فراسلنا.',
+        en: 'Could not start the payment. Try again shortly, and write to us if it keeps happening.',
+        ru: 'Не удалось начать оплату. Попробуйте позже, а если повторится — напишите нам.',
+        tr: 'Ödeme başlatılamadı. Birazdan tekrar deneyin, sürerse bize yazın.',
+      });
+    }
+  }
+
+  // ── sign-in: a six-digit code, so no redirect allow-list is involved ──
+  var email = document.getElementById('email');
+  var code = document.getElementById('code');
+  var stepEmail = document.getElementById('stepEmail');
+  var stepCode = document.getElementById('stepCode');
+
+  document.getElementById('sendCode').addEventListener('click', async function () {
+    clearError();
+    var addr = (email.value || '').trim().toLowerCase();
+    if (!addr || addr.indexOf('@') < 1) {
+      return showError({ ar: 'اكتب بريداً صحيحاً.', en: 'Enter a valid email address.',
+                         ru: 'Введите корректный адрес.', tr: 'Geçerli bir e-posta girin.' });
+    }
+    this.disabled = true;
+    var res = await sb.auth.signInWithOtp({ email: addr, options: { shouldCreateUser: true } });
+    this.disabled = false;
+    if (res.error) {
+      return showError({ ar: 'تعذّر إرسال الرمز. حاول بعد قليل.',
+                         en: 'Could not send the code. Try again shortly.',
+                         ru: 'Не удалось отправить код. Попробуйте позже.',
+                         tr: 'Kod gönderilemedi. Birazdan tekrar deneyin.' });
+    }
+    stepEmail.hidden = true;
+    stepCode.hidden = false;
+    code.focus();
+  });
+
+  document.getElementById('backToEmail').addEventListener('click', function () {
+    clearError();
+    stepCode.hidden = true;
+    stepEmail.hidden = false;
+  });
+
+  document.getElementById('verify').addEventListener('click', async function () {
+    clearError();
+    var addr = (email.value || '').trim().toLowerCase();
+    var token = (code.value || '').trim();
+    if (!token) return;
+    this.disabled = true;
+    var res = await sb.auth.verifyOtp({ email: addr, token: token, type: 'email' });
+    this.disabled = false;
+    if (res.error || !res.data || !res.data.user) {
+      return showError({ ar: 'الرمز غير صحيح أو انتهت صلاحيّته.',
+                         en: 'That code is wrong or has expired.',
+                         ru: 'Код неверен или истёк.',
+                         tr: 'Kod yanlış veya süresi dolmuş.' });
+    }
+    user = res.data.user;
+    render();
+    await loadOwned();
+    render();
+  });
+
+  document.getElementById('signout').addEventListener('click', async function () {
+    await sb.auth.signOut();
+    user = null;
+    stepCode.hidden = true;
+    stepEmail.hidden = false;
+    render();
+  });
+
+  // ── start ─────────────────────────────────────────────────────────────
+  // EVERYTHING ABOVE IS A DECLARATION; nothing above this line runs. That is
+  // the point, and it was learned the hard way: the bootstrap used to sit
+  // near the top, applyLang re-renders the plans, and every `var` the
+  // renderer touched that happened to be declared further down was hoisted
+  // but still undefined at that moment. The script died before drawing
+  // anything, three separate times, each with a different innocent-looking
+  // table. Running last costs nothing and makes the ordering irrelevant.
+
+  // THIS PAGE HAS NO LANGUAGE SWITCHER (owner, 2026-11-25): language is
+  // chosen once, in settings, and everything else follows it. So the page
+  // is told, never asked — ?lang= from the link that sent the learner here,
+  // then a previous choice, then the browser. Arabic otherwise: it is the
+  // largest group and the one least served elsewhere.
+  //
+  // Which means every link to /buy/ must carry ?lang=, or a Turkish learner
+  // arrives at an Arabic page with no way out of it.
+  var qs = new URLSearchParams(location.search);
+  var stored = null;
+  try { stored = localStorage.getItem('kk_lang'); } catch (e) {}
+  applyLang(qs.get('lang') || stored || (navigator.language || 'ar').slice(0, 2));
+
+  if (qs.get('paid')) document.getElementById('paid').hidden = false;
+
+  // A session from an earlier visit, so nobody signs in twice to buy twice.
+  sb.auth.getSession().then(async function (r) {
+    user = (r.data && r.data.session && r.data.session.user) || null;
+    render();            // draw at once, so the page is never blank
+    await loadOwned();   // then correct it with what they already own
+    render();
+  });
+})();
+</script>
+</body>
+</html>
