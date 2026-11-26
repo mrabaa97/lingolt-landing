@@ -46,8 +46,18 @@
   h1 { font-size: 25px; margin-top: 6px; }
   p { color: var(--muted); font-size: 15.5px; margin-top: 10px; }
   .links { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  /* NO `display` HERE, deliberately.
+     It used to say `display: inline-block`, and that one declaration broke
+     the page: `.links a` scores higher than `[lang-en]`, so it overrode the
+     `display: none` that hides the other three languages, and all four
+     homepage buttons showed at once — Главная beside Homepage beside the
+     Arabic one. Measured on the live domain, 2026-11-26.
+     It was never needed anyway: .links is a flex container, so its children
+     are blockified whatever this says. The rest of the page did not have
+     the bug because nothing else sets display on an element that carries a
+     language marker. */
   .links a {
-    display: inline-block; padding: 12px 22px; border-radius: 12px;
+    padding: 12px 22px; border-radius: 12px;
     background: var(--green); color: #fff; text-decoration: none; font-weight: 700;
   }
   .links a.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
