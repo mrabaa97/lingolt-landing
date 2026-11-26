@@ -23,13 +23,21 @@
   # One year, subdomains included. app.kaskalba.com is ours too and will be
   # HTTPS from its first day, so including subdomains costs nothing.
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  # The content pages load NOTHING from outside. 'unsafe-inline' is here
-  # because every script and style on this site is inline — there is no
-  # bundler and no server to issue a nonce. It is a real weakening, and
-  # what survives it is still the point: no third-party script can run.
-  # Hashes would close it properly; they are only worth it once the pages
-  # stop changing weekly, because a stale hash kills the script silently.
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  # The content pages load NOTHING from outside except the analytics
+  # beacon. 'unsafe-inline' is here because every script and style on this
+  # site is inline — there is no bundler and no server to issue a nonce. It
+  # is a real weakening, and what survives it is still the point: no
+  # third-party script can run. Hashes would close it properly; they are
+  # only worth it once the pages stop changing weekly, because a stale hash
+  # kills the script silently.
+  #
+  # static.cloudflareinsights.com is Cloudflare Web Analytics, injected by
+  # the edge rather than written into our HTML. `connect-src 'self'` is
+  # enough for it and no second origin is needed: on a PROXIED zone with
+  # automatic injection the beacon posts to our own /cdn-cgi/rum. The
+  # cloudflareinsights.com connect-src that Cloudflare's reference page
+  # lists belongs to the MANUAL embed, which we do not use.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
 
 # The two pages that talk to a server. Same policy, plus exactly the two
 # origins they need and not one more.
@@ -54,7 +62,7 @@
 # again.
 /buy/*
   ! Content-Security-Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbgwwsoepqekehegxigb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbgwwsoepqekehegxigb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
   # A checkout page has nothing a crawler should keep, and the page says so
   # in a meta tag already. This is the same instruction where a crawler
   # that ignores meta tags will still see it.
@@ -62,7 +70,7 @@
 
 /account/*
   ! Content-Security-Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbgwwsoepqekehegxigb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbgwwsoepqekehegxigb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
   X-Robots-Tag: noindex, nofollow
 
 # Thirty days, and deliberately NOT `immutable`.
