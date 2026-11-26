@@ -33,7 +33,27 @@
 
 # The two pages that talk to a server. Same policy, plus exactly the two
 # origins they need and not one more.
+#
+# THE `!` LINE IS NOT DECORATION — WITHOUT IT THESE PAGES DO NOT WORK.
+#
+# Cloudflare applies EVERY rule whose pattern matches, and two headers of
+# the same name are joined with a comma. Two Content-Security-Policy
+# headers are not "the later one wins": the browser enforces BOTH, which
+# means their intersection. So the /* policy above, which allows no
+# external script at all, cancelled the jsdelivr permission here and the
+# page died — supabase-js blocked, no sign-in, no plans, nothing.
+#
+# Measured on kaskalba.pages.dev, 2026-11-26, before this line existed:
+#   "Loading the script 'https://cdn.jsdelivr.net/...' violates the
+#    following Content Security Policy directive: script-src 'self'
+#    'unsafe-inline'. The action has been blocked."
+#
+# `! Header-Name` detaches what an earlier rule added. It only works on
+# rules that come BEFORE it in this file, which is why these two blocks
+# stay at the bottom. Moving them above /* would silently break the pages
+# again.
 /buy/*
+  ! Content-Security-Policy
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbgwwsoepqekehegxigb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
   # A checkout page has nothing a crawler should keep, and the page says so
   # in a meta tag already. This is the same instruction where a crawler
@@ -41,6 +61,7 @@
   X-Robots-Tag: noindex, nofollow
 
 /account/*
+  ! Content-Security-Policy
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbgwwsoepqekehegxigb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
   X-Robots-Tag: noindex, nofollow
 

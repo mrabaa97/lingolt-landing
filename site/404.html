@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>الصفحة غير موجودة — KasKalba</title>
+<meta name="robots" content="noindex, follow" />
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/img/favicon-32.png" sizes="32x32" type="image/png" />
+
+<!-- =======================================================================
+     WHY THIS FILE EXISTS.
+
+     Measured on kaskalba.pages.dev, 2026-11-26, before it did: EVERY
+     unknown path answered 200 with the English homepage — /code/, /_headers,
+     and a path invented on the spot all returned the same 42,711 bytes.
+     Cloudflare Pages falls back to index.html when a project has no
+     404.html, and that is worse than it sounds: a typo'd link looks like it
+     worked, a crawler can index an unbounded number of URLs that are all
+     the homepage, and a page we deliberately deleted — /code/ — comes back
+     from the dead as a 200.
+
+     The old host did not have this problem: GitHub Pages returned its own
+     404. So this file is not an improvement we are adding, it is a hole the
+     move opened and this closes.
+
+     Four languages in one document, the house pattern, and no script: a
+     404 that depends on JavaScript is a 404 that fails twice.
+     ======================================================================= -->
+
+<style>
+  :root {
+    --green: #1d9e75; --green-dark: #166534; --green-bg: #f0fdf4;
+    --ink: #1c2320; --muted: #5b6b63; --line: #e3ede8; --amber: #d97706;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif;
+    color: var(--ink); background: #fbfdfc; line-height: 1.7;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 32px 18px;
+  }
+  .box { max-width: 520px; text-align: center; }
+  .mark { width: 72px; height: 72px; margin: 0 auto 18px; display: block; }
+  .code { font-size: 15px; font-weight: 800; color: var(--green); letter-spacing: .08em; }
+  h1 { font-size: 25px; margin-top: 6px; }
+  p { color: var(--muted); font-size: 15.5px; margin-top: 10px; }
+  .links { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .links a {
+    display: inline-block; padding: 12px 22px; border-radius: 12px;
+    background: var(--green); color: #fff; text-decoration: none; font-weight: 700;
+  }
+  .links a.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+
+  /* The house pattern (see privacy.html): one document, four languages.
+     Here the language comes from the browser, because a 404 has no link
+     that told us which language the reader was in. */
+  [lang-en], [lang-ru], [lang-tr] { display: none; }
+  html.en [lang-ar], html.ru [lang-ar], html.tr [lang-ar] { display: none; }
+  html.en [lang-en] { display: revert; }
+  html.ru [lang-ru] { display: revert; }
+  html.tr [lang-tr] { display: revert; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <img class="mark" src="/img/logo.webp" alt="KasKalba" width="72" height="72">
+    <div class="code">404</div>
+
+    <h1 lang-ar>هذه الصفحة غير موجودة</h1>
+    <h1 lang-en>This page does not exist</h1>
+    <h1 lang-ru>Такой страницы нет</h1>
+    <h1 lang-tr>Böyle bir sayfa yok</h1>
+
+    <p lang-ar>ربّما تغيّر العنوان، أو في الرابط خطأٌ مطبعيّ. الصفحة الرئيسيّة تبدأ من هنا.</p>
+    <p lang-en>The address may have changed, or the link has a typo. The homepage starts here.</p>
+    <p lang-ru>Возможно, адрес изменился или в ссылке опечатка. Главная страница — здесь.</p>
+    <p lang-tr>Adres değişmiş ya da bağlantıda bir yazım hatası olabilir. Ana sayfa burada.</p>
+
+    <div class="links">
+      <a href="/ar/" lang-ar>الصفحة الرئيسيّة</a>
+      <a href="/" lang-en>Homepage</a>
+      <a href="/ru/" lang-ru>Главная</a>
+      <a href="/tr/" lang-tr>Ana sayfa</a>
+
+      <a class="ghost" href="/account/" lang-ar>حسابك</a>
+      <a class="ghost" href="/account/" lang-en>Your account</a>
+      <a class="ghost" href="/account/" lang-ru>Ваш аккаунт</a>
+      <a class="ghost" href="/account/" lang-tr>Hesabınız</a>
+    </div>
+  </div>
+
+<!-- The one script on the page, and it only picks a language. Everything
+     above is already readable without it: with JavaScript off the reader
+     gets Arabic, which is the largest group, and every link still works. -->
+<script>
+  (function () {
+    var KNOWN = { ar: 1, en: 1, ru: 1, tr: 1 };
+    var l = null;
+    try { l = localStorage.getItem('kaskalba-lang') || localStorage.getItem('kk_lang'); } catch (e) {}
+    if (!l || !KNOWN[l]) {
+      var tags = navigator.languages || [navigator.language || ''];
+      for (var i = 0; i < tags.length; i++) {
+        var t = String(tags[i]).slice(0, 2).toLowerCase();
+        if (KNOWN[t]) { l = t; break; }
+      }
+    }
+    if (!l || !KNOWN[l]) l = 'ar';
+    var html = document.documentElement;
+    if (l !== 'ar') html.classList.add(l);
+    html.setAttribute('lang', l);
+    html.setAttribute('dir', l === 'ar' ? 'rtl' : 'ltr');
+  })();
+</script>
+</body>
+</html>
