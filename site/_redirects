@@ -1,16 +1,26 @@
 # Redirects for Cloudflare Pages.
 #
-# INERT UNTIL WE MOVE, like _headers: Jekyll drops underscore paths, so
-# GitHub Pages does not serve this today.
+# THIS FILE IS DELIBERATELY EMPTY OF RULES. Read on before adding one.
 #
-# ONE RULE ONLY, on purpose.
+# What it used to contain, and why it is gone:
 #
-# The obvious second rule — /privacy.html to /privacy and its two siblings
-# — is NOT here, because Cloudflare Pages already redirects a .html path to
-# its clean form by itself, and a hand-written rule that duplicates a
-# built-in one is a rule nobody remembers is there. It is on the migration
-# checklist to VERIFY rather than to write: those three addresses are filed
-# with Play Console and in both store listings, and breaking them breaks
-# legally required pages.
-
-https://www.kaskalba.com/*  https://kaskalba.com/:splat  301
+#   https://www.kaskalba.com/*  https://kaskalba.com/:splat  301
+#
+# That rule never fired. Measured on the live domain 2026-11-26, once
+# www.kaskalba.com had been added as a second custom domain: every path on
+# www answered 200 with the page itself, not a 301 to the apex. Cloudflare
+# Pages matches the source as a PATH; a source carrying a hostname matches
+# nothing, and it fails silently rather than erroring at build time.
+#
+# A hostname-level redirect therefore cannot live here. It lives in the
+# dashboard as a Redirect Rule — see _src/MIGRATION-CLOUDFLARE.md §4ج for
+# the exact settings.
+#
+# The other obvious rule, /privacy.html to /privacy and its two siblings,
+# is not here either and must not be added: Cloudflare Pages already does
+# it, verified returning 308. A hand-written duplicate of a built-in is a
+# rule nobody remembers is there.
+#
+# So the file stays, empty, as the place that explains where the redirects
+# actually are. Deleting it would only invite someone to recreate the rule
+# that does not work.
